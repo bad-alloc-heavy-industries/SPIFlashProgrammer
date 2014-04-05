@@ -27,14 +27,23 @@ int main()
 	/* Enable SSI0 */
 	SYSCTL_RCGCSSI_R |= SYSCTL_RCGCSSI_R0;
 	SYSCTL_RCGC1_R |= SYSCTL_RCGC1_SSI0;
-	/* Wait for the ports to come online, and set them to digital mode */
+	/* Wait for the ports to come online */
 	while ((SYSCTL_PRGPIO_R & (SYSCTL_PRGPIO_R0 | SYSCTL_PRGPIO_R5)) != (SYSCTL_PRGPIO_R0 | SYSCTL_PRGPIO_R5));
-	GPIO_PORTF_DEN_R |= 0x0E;
+	/* Port F is protected, so enable changing it to digital GPIO */
+	GPIO_PORTF_LOCK_R = GPIO_LOCK_KEY;
+	GPIO_PORTF_CR_R |= 0x01;
+	GPIO_PORTF_LOCK_R = 0;
+	/* Set them to digital mode */
+	GPIO_PORTA_DEN_R |= 0x3C;
 	/* Wait for SSI0 to come online */
 	while ((SYSCTL_PRSSI_R & SYSCTL_PRSSI_R0) != SYSCTL_PRSSI_R0);
 
+	GPIO_PORTF_AFSEL_R &= ~0x1F;
 	/* Enable the LED pin outputs */
-	GPIO_PORTF_DIR_R |= 0x0E;
+	GPIO_PORTF_DIR_R = 0x0E;
+	/* Set pullups on the 2 buttons */
+	GPIO_PORTF_DR2R_R |= 0x11;
+	GPIO_PORTF_PUR_R |= 0x11;
 	/* Set the blue LED on */
 	GPIO_PORTF_DATA_BITS_R[0x0E] = 0x04;
 
@@ -50,7 +59,14 @@ int main()
 	SSI0_CC_R;
 	SSI0_CPSR_R;
 
-	while (1);
+	while (1)
+	{
+		if (GPIO_PORTF_DATA_BITS_R[0x01] == 0)
+			GPIO_PORTF_DATA_BITS_R[0x0E] = 0x02;
+		else if (GPIO_PORTF_DATA_BITS_R[0x10] == 0)
+			GPIO_PORTF_DATA_BITS_R[0x0E] = 0x08;
+	}
+
 	return 0;
 }
 
