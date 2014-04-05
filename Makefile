@@ -7,7 +7,7 @@ CFLAGS = -c $(OPTIM_FLAGS) -pedantic -Wall $(ARM_FLAGS) -Iinclude $(DEFINES) -o 
 LFLAGS = -T TM4C.ld --static --gc-sections -o $(ELF) $(O)
 BFLAGS = -O binary $(ELF) $(BIN)
 
-O = Startup.o
+O = SPIFlash.o Startup.o
 ELF = SPIFlashProgrammer.elf
 BIN = SPIFlashProgrammer.bin
 
