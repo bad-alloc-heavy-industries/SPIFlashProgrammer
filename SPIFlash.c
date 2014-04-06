@@ -19,6 +19,20 @@
 #include <stdint.h>
 #include <tm4c123gh6pm.h>
 
+#define WREN	0x06
+#define WRDI	0x04
+#define RDIDL	0x9F
+#define RDIDS	0x9E
+#define RDSR	0x05
+#define WRSR	0x01
+#define WRLR	0xE5
+#define RDLR	0xE8
+#define READ	0x03
+#define PP		0x02
+#define SSE		0x20
+#define SE		0xD8
+#define BE		0xC7
+
 int main()
 {
 	/* Enable ports A and F */
