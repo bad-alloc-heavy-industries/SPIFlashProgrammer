@@ -33,6 +33,11 @@
 #define SE		0xD8
 #define BE		0xC7
 
+void transferBitfile()
+{
+	GPIO_PORTF_DATA_BITS_R[0x0E] = 0x08;
+}
+
 int main()
 {
 	/* Enable ports A and F */
@@ -83,10 +88,11 @@ int main()
 
 	while (1)
 	{
-		if (GPIO_PORTF_DATA_BITS_R[0x01] == 0)
+		if (GPIO_PORTF_DATA_BITS_R[0x11] != 0x11)
+		{
 			GPIO_PORTF_DATA_BITS_R[0x0E] = 0x02;
-		else if (GPIO_PORTF_DATA_BITS_R[0x10] == 0)
-			GPIO_PORTF_DATA_BITS_R[0x0E] = 0x08;
+			transferBitfile();
+		}
 	}
 
 	return 0;
