@@ -17,6 +17,7 @@
  */
 
 #include <stdint.h>
+#include <stdbool.h>
 #include <tm4c123gh6pm.h>
 
 #define WREN	0x06
@@ -33,8 +34,34 @@
 #define SE		0xD8
 #define BE		0xC7
 
+/*
+ * 0x20 => Manufacturer ID (Numonyx)
+ * 0x71 => Memory Type (SPI Flash)
+ * 0x14 => Memory Capacity - 4Mbit
+ */
+static const char expectedDID[3] = { 0x20, 0x71, 0x14 };
+
+bool verifyDID()
+{
+	char temp, data[3], i;
+	GPIO_PORTA_DATA_BITS_R[0x08] = 0;
+	SSI0_DR_R = RDIDS;
+	while ((SSI0_SR_R & 0x01) != 1);
+	temp = SSI0_DR_R & 0xFF;
+	for (i = 0; i < 3; i++)
+	{
+		SSI0_DR_R = 0;
+		while ((SSI0_SR_R & 0x04) != 4);
+		data[i] = SSI0_DR_R & 0xFF;
+	}
+	GPIO_PORTA_DATA_BITS_R[0x08] = 8;
+	return true;
+}
+
 void transferBitfile()
 {
+	if (!verifyDID())
+		return;
 	GPIO_PORTF_DATA_BITS_R[0x0E] = 0x08;
 }
 
@@ -68,9 +95,9 @@ int main()
 	GPIO_PORTF_DATA_BITS_R[0x0E] = 0x04;
 
 	/* Configure the SSI (SPI) pins as alternative function and enable their use by the SPI module */
-	GPIO_PORTA_AFSEL_R = 0x3C;
+	GPIO_PORTA_AFSEL_R = 0x34;
 	GPIO_PORTA_PCTL_R |= GPIO_PCTL_PA5_SSI0TX | GPIO_PCTL_PA4_SSI0RX |
-		GPIO_PCTL_PA3_SSI0FSS | GPIO_PCTL_PA2_SSI0CLK;
+		/*GPIO_PCTL_PA3_SSI0FSS | */GPIO_PCTL_PA2_SSI0CLK;
 	SSI0_CR1_R = 0;
 	GPIO_PORTA_DR2R_R |= 0x3C;
 	/* Pull the !CS pin high with a 2mA drive strength */
