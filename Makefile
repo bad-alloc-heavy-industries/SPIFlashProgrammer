@@ -34,8 +34,11 @@ all: $(BIN)
 $(BIN): $(ELF)
 	$(call run-cmd,objcopy,$(BFLAGS))
 
-$(ELF): $(O)
+$(ELF): bin2src/bin2src $(O)
 	$(call run-cmd,ld,$(LFLAGS))
+
+bin2src/bin2src:
+	@(cd bin2src && $(MAKE))
 
 clean:
 	$(call run-cmd,rm,SPI Flash Programmer,$(BIN) $(ELF) $(O))
