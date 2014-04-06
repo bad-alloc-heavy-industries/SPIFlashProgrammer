@@ -58,8 +58,8 @@ int main()
 	GPIO_PORTA_PUR_R |= 0x08;
 	/* Pull the Rx, Tx and Clk pins low with a 2mA drive strength */
 	GPIO_PORTA_PDR_R |= 0x34;
-	/* Set Freescale SPI, SPO = 0, SPH = 1 */
-	SSI0_CR0_R = SSI_CR0_SPH | SSI_CR0_FRF_MOTO | SSI_CR0_DSS_8;
+	/* Set Freescale SPI, SPO = 1, SPH = 1 */
+	SSI0_CR0_R = SSI_CR0_SPO | SSI_CR0_SPH | SSI_CR0_FRF_MOTO | SSI_CR0_DSS_8;
 	/* We have a 16 MHz clock, and we interface to the SPI Flash chip at 8MHz */
 	SSI0_CC_R = 0;
 	/* Scale the clock by 2 to make it 8MHz */
