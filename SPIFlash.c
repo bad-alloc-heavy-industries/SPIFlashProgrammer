@@ -137,7 +137,10 @@ void transferBitfile()
 {
 	if (!verifyDID())
 		return;
-	writeSPI(WREN);
+	unlockDevice();
+	eraseDevice();
+	waitWriteComplete();
+	lockDevice();
 	GPIO_PORTF_DATA_BITS_R[0x0E] = 0x08;
 }
 
