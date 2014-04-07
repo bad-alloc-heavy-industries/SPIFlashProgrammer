@@ -89,6 +89,28 @@ bool verifyDID()
 	return datacmp(data, expectedDID, 3) == 0;
 }
 
+void unlockDevice()
+{
+	/* Select the device */
+	GPIO_PORTA_DATA_BITS_R[0x08] = 0;
+	writeSPI(WREN);
+	writeSPI(WRSR);
+	writeSPI(0x00);
+	/* Deselect the device */
+	GPIO_PORTA_DATA_BITS_R[0x08] = 8;
+}
+
+void lockDevice()
+{
+	/* Select the device */
+	GPIO_PORTA_DATA_BITS_R[0x08] = 0;
+	writeSPI(WREN);
+	writeSPI(WRSR);
+	writeSPI(0x1C);
+	/* Deselect the device */
+	GPIO_PORTA_DATA_BITS_R[0x08] = 8;
+}
+
 void transferBitfile()
 {
 	if (!verifyDID())
