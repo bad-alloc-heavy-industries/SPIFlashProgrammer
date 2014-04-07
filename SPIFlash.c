@@ -41,9 +41,9 @@
  * 0x71 => Memory Type (SPI Flash)
  * 0x14 => Memory Capacity - 4Mbit
  */
-static const char expectedDID[3] = { 0x20, 0x71, 0x14 };
+static const uint8_t expectedDID[3] = { 0x20, 0x71, 0x14 };
 
-int datacmp(const char *a, const char *b, const size_t n)
+int datacmp(const uint8_t *a, const uint8_t *b, const size_t n)
 {
 	size_t i;
 	for (i = 0; i < n; i++)
@@ -56,25 +56,32 @@ int datacmp(const char *a, const char *b, const size_t n)
 	return 0;
 }
 
+void writeSPI(uint8_t data)
+{
+	uint8_t temp;
+	SSI0_DR_R = data;
+	while ((SSI0_SR_R & 0x01) != 1);
+	temp = SSI0_DR_R & 0xFF;
+}
+
+uint8_t readSPI()
+{
+	SSI0_DR_R = 0;
+	while ((SSI0_SR_R & 0x04) != 4);
+	return SSI0_DR_R & 0xFF;
+}
+
 bool verifyDID()
 {
-	char temp, data[3], i;
+	uint8_t data[3], i;
 	/* Select the device */
 	GPIO_PORTA_DATA_BITS_R[0x08] = 0;
 	/* Send a short DID read request */
-	SSI0_DR_R = RDIDS;
-	while ((SSI0_SR_R & 0x01) != 1);
-	/* Discard the "answer" */
-	temp = SSI0_DR_R & 0xFF;
+	writeSPI(RDIDS);
 	/* For each of the three bytes returned */
 	for (i = 0; i < 3; i++)
-	{
-		/* Send a dummy byte to force clocking to occur */
-		SSI0_DR_R = 0;
-		while ((SSI0_SR_R & 0x04) != 4);
 		/* And having recieved the answer, buffer it */
-		data[i] = SSI0_DR_R & 0xFF;
-	}
+		data[i] = readSPI();
 	/* Deselect the device */
 	GPIO_PORTA_DATA_BITS_R[0x08] = 8;
 	/* Compare the recieved data to the expected data */
