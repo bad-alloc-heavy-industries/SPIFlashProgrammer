@@ -126,6 +126,52 @@ void eraseDevice()
 	GPIO_PORTA_DATA_BITS_R[0x08] = 8;
 }
 
+void writeData(const uint8_t sector, const uint8_t page, const void *data, const uint16_t dataLen)
+{
+	uint16_t i;
+	const uint8_t *byteData = data;
+	/* Select the device */
+	GPIO_PORTA_DATA_BITS_R[0x08] = 0;
+	/* Write enable the device */
+	writeSPI(WREN);
+	/* And issue the Page Program instruction */
+	writeSPI(PP);
+	/* Sector is (sector >> 4), and sub-sector is (sector & 0x0F) */
+	writeSPI(sector);
+	/* The page of the sector */
+	writeSPI(page);
+	/* Must be 0 to select the first byte of the page */
+	writeSPI(0);
+	/* Send the data */
+	for (i = 0; i < dataLen; i++)
+		writeSPI(byteData[i]);
+	/* Deselect the device - executes write instruction */
+	GPIO_PORTA_DATA_BITS_R[0x08] = 8;
+}
+
+bool verifyData()
+{
+	uint16_t i;
+	bool ok = true;
+	/* Select the device */
+	GPIO_PORTA_DATA_BITS_R[0x08] = 0;
+	writeSPI(READ);
+	writeSPI(0);
+	writeSPI(0);
+	writeSPI(0);
+	for (i = 0; i < configLen; i++)
+	{
+		if (readSPI() != config[i]);
+		{
+			ok = false;
+			break;
+		}
+	}
+	/* Deselect the device */
+	GPIO_PORTA_DATA_BITS_R[0x08] = 8;
+	return ok;
+}
+
 void waitWriteComplete()
 {
 	/* Select the device */
