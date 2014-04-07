@@ -69,10 +69,8 @@ int main()
 {
 	/* Enable ports A and F */
 	SYSCTL_RCGCGPIO_R |= SYSCTL_RCGCGPIO_R0 | SYSCTL_RCGCGPIO_R5;
-	SYSCTL_RCGC2_R |= SYSCTL_RCGC2_GPIOA | SYSCTL_RCGC2_GPIOF;
 	/* Enable SSI0 */
 	SYSCTL_RCGCSSI_R |= SYSCTL_RCGCSSI_R0;
-	SYSCTL_RCGC1_R |= SYSCTL_RCGC1_SSI0;
 	/* Wait for the ports to come online */
 	while ((SYSCTL_PRGPIO_R & (SYSCTL_PRGPIO_R0 | SYSCTL_PRGPIO_R5)) != (SYSCTL_PRGPIO_R0 | SYSCTL_PRGPIO_R5));
 	/* Port F is protected, so enable changing it to digital GPIO */
