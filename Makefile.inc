@@ -63,6 +63,8 @@ quiet_cmd_rm = " CLEAN $(2)"
 cmd_rm = $(RM) $(3)
 quiet_cmd_objcopy = " BIN   $@"
 cmd_objcopy = $(OBJCOPY) $(2)
+quiet_cmd_bin2src = " BIN2SRC $< => $@"
+cmd_bin2src = bin2src/bin2src $(patsubst %.c,%,$@)
 
 define run-cmd
 	@echo $($(quiet)cmd_$(1))
