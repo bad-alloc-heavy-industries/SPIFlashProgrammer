@@ -19,6 +19,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <tm4c123gh6pm.h>
+#include "config.h"
 
 #define WREN	0x06
 #define WRDI	0x04
