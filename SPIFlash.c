@@ -42,21 +42,43 @@
  */
 static const char expectedDID[3] = { 0x20, 0x71, 0x14 };
 
+int datacmp(const char *a, const char *b, const size_t n)
+{
+	size_t i;
+	for (i = 0; i < n; i++)
+	{
+		if (*a != *b)
+			return *a - *b;
+		a++;
+		b++;
+	}
+	return 0;
+}
+
 bool verifyDID()
 {
 	char temp, data[3], i;
+	/* Select the device */
 	GPIO_PORTA_DATA_BITS_R[0x08] = 0;
+	/* Send a short DID read request */
 	SSI0_DR_R = RDIDS;
 	while ((SSI0_SR_R & 0x01) != 1);
+	/* Discard the "answer" */
 	temp = SSI0_DR_R & 0xFF;
+	/* For each of the three bytes returned */
 	for (i = 0; i < 3; i++)
 	{
+		/* Send a dummy byte to force clocking to occur */
 		SSI0_DR_R = 0;
 		while ((SSI0_SR_R & 0x04) != 4);
+		/* And having recieved the answer, buffer it */
 		data[i] = SSI0_DR_R & 0xFF;
 	}
+	/* Deselect the device */
 	GPIO_PORTA_DATA_BITS_R[0x08] = 8;
-	return true;
+	/* Compare the recieved data to the expected data */
+	/* I wanted to use memcmp here, but could not make use of the newlib implemenation */
+	return datacmp(data, expectedDID, 3) == 0;
 }
 
 void transferBitfile()
