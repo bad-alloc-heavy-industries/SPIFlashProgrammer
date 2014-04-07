@@ -17,6 +17,7 @@
  */
 
 #include <stdint.h>
+#include <stddef.h>
 #include <stdbool.h>
 #include <tm4c123gh6pm.h>
 #include "config.h"
