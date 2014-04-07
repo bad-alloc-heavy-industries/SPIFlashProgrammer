@@ -93,8 +93,10 @@ void unlockDevice()
 {
 	/* Select the device */
 	GPIO_PORTA_DATA_BITS_R[0x08] = 0;
+	/* Write enable and write the Status Register */
 	writeSPI(WREN);
 	writeSPI(WRSR);
+	/* All zeros disables all enabled protections */
 	writeSPI(0x00);
 	/* Deselect the device */
 	GPIO_PORTA_DATA_BITS_R[0x08] = 8;
@@ -104,8 +106,10 @@ void lockDevice()
 {
 	/* Select the device */
 	GPIO_PORTA_DATA_BITS_R[0x08] = 0;
+	/* Write enable and write the Status Register */
 	writeSPI(WREN);
 	writeSPI(WRSR);
+	/* The three Block Protect bits are bits [4:2] */
 	writeSPI(0x1C);
 	/* Deselect the device */
 	GPIO_PORTA_DATA_BITS_R[0x08] = 8;
@@ -115,9 +119,10 @@ void eraseDevice()
 {
 	/* Select the device */
 	GPIO_PORTA_DATA_BITS_R[0x08] = 0;
+	/* Arm the device (Write Enable) and issue erase instruction */
 	writeSPI(WREN);
 	writeSPI(BE);
-	/* Deselect the device */
+	/* Deselect the device - executes erase */
 	GPIO_PORTA_DATA_BITS_R[0x08] = 8;
 }
 
