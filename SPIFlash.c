@@ -111,6 +111,28 @@ void lockDevice()
 	GPIO_PORTA_DATA_BITS_R[0x08] = 8;
 }
 
+void eraseDevice()
+{
+	/* Select the device */
+	GPIO_PORTA_DATA_BITS_R[0x08] = 0;
+	writeSPI(WREN);
+	writeSPI(BE);
+	/* Deselect the device */
+	GPIO_PORTA_DATA_BITS_R[0x08] = 8;
+}
+
+void waitWriteComplete()
+{
+	/* Select the device */
+	GPIO_PORTA_DATA_BITS_R[0x08] = 0;
+	/* Write the Read Status Register instruction */
+	writeSPI(RDSR);
+	/* And use it's continuous read mode till the write is complete (bit 7 => 0) */
+	while ((readSPI() & 7) != 0);
+	/* Deselect the device */
+	GPIO_PORTA_DATA_BITS_R[0x08] = 8;
+}
+
 void transferBitfile()
 {
 	if (!verifyDID())
