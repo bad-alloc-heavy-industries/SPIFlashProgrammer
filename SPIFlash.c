@@ -93,6 +93,7 @@ void transferBitfile()
 {
 	if (!verifyDID())
 		return;
+	writeSPI(WREN);
 	GPIO_PORTF_DATA_BITS_R[0x0E] = 0x08;
 }
 
