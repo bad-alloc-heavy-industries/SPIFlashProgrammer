@@ -126,10 +126,9 @@ void eraseDevice()
 	GPIO_PORTA_DATA_BITS_R[0x08] = 8;
 }
 
-void writeData(const uint8_t sector, const uint8_t page, const void *data, const uint16_t dataLen)
+void writeData(const uint8_t sector, const uint8_t page, const uint8_t *data, const uint16_t dataLen)
 {
 	uint16_t i;
-	const uint8_t *byteData = data;
 	/* Select the device */
 	GPIO_PORTA_DATA_BITS_R[0x08] = 0;
 	/* Write enable the device */
@@ -144,12 +143,12 @@ void writeData(const uint8_t sector, const uint8_t page, const void *data, const
 	writeSPI(0);
 	/* Send the data */
 	for (i = 0; i < dataLen; i++)
-		writeSPI(byteData[i]);
+		writeSPI(data[i]);
 	/* Deselect the device - executes write instruction */
 	GPIO_PORTA_DATA_BITS_R[0x08] = 8;
 }
 
-bool verifyData()
+bool verifyData(const uint8_t *data, const size_t dataLen)
 {
 	uint16_t i;
 	bool ok = true;
@@ -159,9 +158,9 @@ bool verifyData()
 	writeSPI(0);
 	writeSPI(0);
 	writeSPI(0);
-	for (i = 0; i < configLen; i++)
+	for (i = 0; i < dataLen; i++)
 	{
-		if (readSPI() != config[i]);
+		if (readSPI() != data[i]);
 		{
 			ok = false;
 			break;
@@ -184,27 +183,28 @@ void waitWriteComplete()
 	GPIO_PORTA_DATA_BITS_R[0x08] = 8;
 }
 
-void transferBitfile()
+void transferBitfile(const void *data, const size_t dataLen)
 {
 	uint16_t addr, pages;
+	const uint8_t *dataPtr = data;
 
 	if (!verifyDID())
 		return;
 
-	pages = (configLen >> 8) + ((configLen & 0xFF) != 0 ? 1 : 0);
+	pages = (dataLen >> 8) + ((dataLen & 0xFF) != 0 ? 1 : 0);
 	unlockDevice();
 	eraseDevice();
 	waitWriteComplete();
 	for (addr = 0; addr < pages; addr++)
 	{
-		if ((addr + 1) < (configLen >> 8))
-			writeData(addr >> 8, addr & 0xFF, config, 256);
+		if ((addr + 1) < (dataLen >> 8))
+			writeData(addr >> 8, addr & 0xFF, dataPtr + (addr << 8), 256);
 		else
-			writeData(addr >> 8, addr & 0xFF, config, configLen & 0xFF);
+			writeData(addr >> 8, addr & 0xFF, dataPtr + (addr << 8), dataLen & 0xFF);
 		waitWriteComplete();
 	}
 	lockDevice();
-	if (verifyData())
+	if (verifyData(data, dataLen))
 		GPIO_PORTF_DATA_BITS_R[0x0E] = 0x08;
 }
 
@@ -278,7 +278,7 @@ int main()
 			/* Set the LED to red for busy/processing */
 			GPIO_PORTF_DATA_BITS_R[0x0E] = 0x02;
 			/* Attempt the transfer */
-			transferBitfile();
+			transferBitfile(config, configLen);
 			/* Reset the timer and set it running */
 			TIMER0_TAV_R = 0;
 			TIMER0_CTL_R |= TIMER_CTL_TAEN;
