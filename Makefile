@@ -23,9 +23,23 @@ CFLAGS = -c $(OPTIM_FLAGS) -pedantic -Wall $(ARM_FLAGS) -Iinclude $(DEFINES) -o 
 LFLAGS = -T TM4C.ld --static --gc-sections -o $(ELF) $(O)
 BFLAGS = -O binary $(ELF) $(BIN)
 
-O = SPIFlash.o config.o Startup.o
+ifneq ($(NOCONFIG), 1)O
+O += config.o
+endif
+
+O += SPIFlash.o Startup.o
 ELF = SPIFlashProgrammer.elf
 BIN = SPIFlashProgrammer.bin
+
+ifeq ($(NOCONFIG), 1)
+DEFINES += -DNOCONFIG
+else
+$(ELF): bin2src/bin2src
+endif
+
+ifeq ($(NOUSB), 1)
+DEFINES += -DNOUSB
+endif
 
 default: all
 
@@ -34,14 +48,20 @@ all: $(BIN)
 $(BIN): $(ELF)
 	$(call run-cmd,objcopy,$(BFLAGS))
 
-$(ELF): bin2src/bin2src $(O)
+ifneq ($(and $(findstring $(NOCONIFIG), 1), $(findstring $(NOUSB), 1)),)
+$(ELF):
+	@echo "Error, cannot ask me to build with neither a config file nor USB support"
+	@exit 1
+else
+$(ELF): $(O)
 	$(call run-cmd,ld,$(LFLAGS))
+endif
 
 bin2src/bin2src:
 	@(cd bin2src && $(MAKE))
 
 clean:
-	$(call run-cmd,rm,SPI Flash Programmer,$(BIN) $(ELF) $(O))
+	$(call run-cmd,rm,SPI Flash Programmer,$(BIN) $(ELF) $(O) config.c)
 
 .c.o:
 	$(call run-cmd,cc,$(CFLAGS))
