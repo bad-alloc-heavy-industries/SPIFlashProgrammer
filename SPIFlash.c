@@ -20,7 +20,9 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <tm4c123gh6pm.h>
+#ifndef NOCONFIG
 #include "config.h"
+#endif
 
 #define WREN	0x06
 #define WRDI	0x04
@@ -158,6 +160,7 @@ bool verifyData(const uint8_t *data, const size_t dataLen)
 	writeSPI(0);
 	writeSPI(0);
 	writeSPI(0);
+#ifndef NOCONFIG
 	for (i = 0; i < dataLen; i++)
 	{
 		if (readSPI() != data[i]);
@@ -166,6 +169,7 @@ bool verifyData(const uint8_t *data, const size_t dataLen)
 			break;
 		}
 	}
+#endif
 	/* Deselect the device */
 	GPIO_PORTA_DATA_BITS_R[0x08] = 8;
 	return ok;
@@ -270,6 +274,7 @@ int main()
 
 	while (1)
 	{
+#ifndef NOCONFIG
 		/* If either button has been pressed.. */
 		if (GPIO_PORTF_DATA_BITS_R[0x11] != 0x11)
 		{
@@ -283,6 +288,7 @@ int main()
 			TIMER0_TAV_R = 0;
 			TIMER0_CTL_R |= TIMER_CTL_TAEN;
 		}
+#endif
 		/* If the timer has triggered the Match event */
 		if ((TIMER0_RIS_R & TIMER_RIS_TAMRIS) != 0)
 		{
