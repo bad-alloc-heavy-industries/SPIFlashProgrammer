@@ -71,6 +71,8 @@ int main()
 	SYSCTL_RCGCGPIO_R |= SYSCTL_RCGCGPIO_R0 | SYSCTL_RCGCGPIO_R5;
 	/* Enable SSI0 */
 	SYSCTL_RCGCSSI_R |= SYSCTL_RCGCSSI_R0;
+	/* Enable Timer 0 */
+	SYSCTL_RCGCTIMER_R |= SYSCTL_RCGCTIMER_R0;
 	/* Wait for the ports to come online */
 	while ((SYSCTL_PRGPIO_R & (SYSCTL_PRGPIO_R0 | SYSCTL_PRGPIO_R5)) != (SYSCTL_PRGPIO_R0 | SYSCTL_PRGPIO_R5));
 	/* Port F is protected, so enable changing it to digital GPIO */
@@ -82,7 +84,10 @@ int main()
 	GPIO_PORTF_DEN_R |= 0x1F;
 	/* Wait for SSI0 to come online */
 	while ((SYSCTL_PRSSI_R & SYSCTL_PRSSI_R0) != SYSCTL_PRSSI_R0);
+	/* Wait for Timer 1 to come online */
+	while ((SYSCTL_PRTIMER_R & SYSCTL_PRTIMER_R0) != SYSCTL_PRTIMER_R0);
 
+	/* Ensure the LED and switch pins on Port F are straight GPIO */
 	GPIO_PORTF_AFSEL_R &= ~0x1F;
 	/* Enable the LED pin outputs */
 	GPIO_PORTF_DIR_R = 0x0E;
@@ -110,6 +115,13 @@ int main()
 	SSI0_CPSR_R = 2;
 	/* Enable the interface */
 	SSI0_CR1_R = SSI_CR1_SSE;
+
+	/* Configure the Timer 0 module for submodule A operation */
+	TIMER0_CTL_R &= ~TIMER_CTL_TAEN;
+	TIMER0_TAMR_R = TIMER_TAMR_TAMR_1_SHOT | TIMER_TAMR_TACDIR | TIMER_TAMR_TAMIE;
+	/* Set the timeout for 500us */
+	TIMER0_TAMATCHR_R = 8000000;
+	TIMER0_ICR_R = TIMER_ICR_TAMCINT;
 
 	while (1)
 	{
