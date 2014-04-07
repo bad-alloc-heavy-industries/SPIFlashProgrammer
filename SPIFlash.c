@@ -186,13 +186,26 @@ void waitWriteComplete()
 
 void transferBitfile()
 {
+	uint16_t addr, pages;
+
 	if (!verifyDID())
 		return;
+
+	pages = (configLen >> 8) + ((configLen & 0xFF) != 0 ? 1 : 0);
 	unlockDevice();
 	eraseDevice();
 	waitWriteComplete();
+	for (addr = 0; addr < pages; addr++)
+	{
+		if ((addr + 1) < (configLen >> 8))
+			writeData(addr >> 8, addr & 0xFF, config, 256);
+		else
+			writeData(addr >> 8, addr & 0xFF, config, configLen & 0xFF);
+		waitWriteComplete();
+	}
 	lockDevice();
-	GPIO_PORTF_DATA_BITS_R[0x0E] = 0x08;
+	if (verifyData())
+		GPIO_PORTF_DATA_BITS_R[0x0E] = 0x08;
 }
 
 int main()
