@@ -60,7 +60,7 @@ bin2src/bin2src:
 	@(cd bin2src && $(MAKE))
 
 clean:
-	$(call run-cmd,rm,SPI Flash Programmer,$(BIN) $(ELF) $(O) config.c)
+	$(call run-cmd,rm,firmware,$(BIN) $(ELF) $(O) config.c)
 
 .c.o:
 	$(call run-cmd,cc,$(CFLAGS))
