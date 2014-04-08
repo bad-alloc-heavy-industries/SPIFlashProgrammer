@@ -23,7 +23,8 @@ CFLAGS = -c $(OPTIM_FLAGS) -pedantic -Wall $(ARM_FLAGS) -Iinclude $(DEFINES) -o 
 LFLAGS = -T TM4C.ld --static --gc-sections -o $(ELF) $(O)
 BFLAGS = -O binary $(ELF) $(BIN)
 
-ifneq ($(NOCONFIG), 1)O
+ifneq ($(NOCONFIG), 1)
+PREREQ = bin2src/bin2src
 O += config.o
 endif
 
@@ -33,8 +34,6 @@ BIN = SPIFlashProgrammer.bin
 
 ifeq ($(NOCONFIG), 1)
 DEFINES += -DNOCONFIG
-else
-$(ELF): bin2src/bin2src
 endif
 
 ifeq ($(NOUSB), 1)
@@ -53,7 +52,7 @@ $(ELF):
 	@echo "Error, cannot ask me to build with neither a config file nor USB support"
 	@exit 1
 else
-$(ELF): $(O)
+$(ELF): $(PREREQ) $(O)
 	$(call run-cmd,ld,$(LFLAGS))
 endif
 
