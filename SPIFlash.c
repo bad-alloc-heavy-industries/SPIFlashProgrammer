@@ -202,10 +202,14 @@ void transferBitfile(const void *data, const size_t dataLen)
 	for (addr = 0; addr < pages; addr++)
 	{
 		if ((addr + 1) < (dataLen >> 8))
-			writeData(addr >> 8, addr & 0xFF, dataPtr + (addr << 8), 256);
+			writeData(addr >> 8, addr & 0xFF, dataPtr, 256);
 		else
-			writeData(addr >> 8, addr & 0xFF, dataPtr + (addr << 8), dataLen & 0xFF);
+			writeData(addr >> 8, addr & 0xFF, dataPtr, dataLen & 0xFF);
 		waitWriteComplete();
+#ifndef NOCONFIG
+		if (data == config)
+			dataPtr += 256;
+#endif
 	}
 	lockDevice();
 	if (verifyData(data, dataLen))
