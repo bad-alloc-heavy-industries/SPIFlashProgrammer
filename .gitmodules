@@ -1,9 +1,3 @@
-[submodule "bin2src"]
-	path = bin2src
-	url = https://github.com/DX-MON/bin2src.git
-[submodule "firmware/src"]
-	path = firmware/src
-	url = https://github.com/DX-MON/bin2src.git
 [submodule "firmware/bin2src"]
 	path = firmware/bin2src
 	url = https://github.com/DX-MON/bin2src.git
