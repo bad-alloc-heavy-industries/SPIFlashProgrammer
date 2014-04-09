@@ -11,7 +11,7 @@
 
 C_EXTERN void *memMalloc(size_t size);
 C_EXTERN char *formatString(const char *format, ...);
-C_EXTERN void die(const char *fmt, ...);
+C_EXTERN void die(const char *fmt, ...) __attribute__((noreturn));
 
 #if defined(_MSC_VER) && _MSC_VER <= 1200
 #define vsnprintf	_vsnprintf
