@@ -30,7 +30,16 @@
  * it could execute it correctly - 1 for OK, 0 for error.
  */
 
+int usage(char *prog)
+{
+	printf("Usage:\n"
+		"\t%s binfile.bin\n", prog);
+	return 1;
+}
+
 int main(int argc, char **argv)
 {
+	if (argc != 2)
+		return usage(argv[0]);
 	return 0;
 }
