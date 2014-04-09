@@ -23,7 +23,7 @@ LIBS =
 #$(shell pkg-config --libs $(PKG_CONFIG_PKGS)) -lstdc++
 LFLAGS = $(O) $(LIBS) -o $(BIN)
 
-O = flashprog.o
+O = strUtils.o rs232.o flashprog.o
 BIN = flashprog
 
 default: all
