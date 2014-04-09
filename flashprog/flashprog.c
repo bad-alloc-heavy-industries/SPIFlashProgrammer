@@ -16,6 +16,20 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "USBInterface.h"
+/*
+ * USB transfer protocol:
+ *
+ * CMD_START + 4 bytes => uint32_t length of data total
+ * CMD_PAGE + 1 bytes + up to 256 bytes => uint8_t page length (0 == 256), page data
+ * CMD_ABORT => Sent to indicate user requested to abort
+ * CMD_STOP => Sent at the end of transfering all the data to indicate we think we've finished.
+ *   Device replies with some data indicating the status of the flash device and if there are any remaining expected bytes.
+ *
+ * After sending each command, including CMD_STOP, the device must respond with the command code and a byte indicating whether
+ * it could execute it correctly - 1 for OK, 0 for error.
+ */
+
 int main(int argc, char **argv)
 {
 	return 0;
