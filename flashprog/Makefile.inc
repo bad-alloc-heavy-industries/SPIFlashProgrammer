@@ -61,6 +61,8 @@ quiet_cmd_ln = " LN    $(3) => $(2)"
 cmd_ln = $(LN) $(2) $(3)
 quiet_cmd_rm = " CLEAN $(2)"
 cmd_rm = $(RM) $(3)
+quiet_cmd_chmod = " CHMOD $(2)"
+cmd_chmod = $(CHMOD) $(2)
 quiet_cmd_objcopy = " BIN   $@"
 cmd_objcopy = $(OBJCOPY) $(2)
 
