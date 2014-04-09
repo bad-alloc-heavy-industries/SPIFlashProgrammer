@@ -16,11 +16,11 @@
 
 include Makefile.inc
 
-EXTRA_CFLAGS = 
-#$(shell pkg-config --cflags $(PKG_CONFIG_PKGS))
+PKG_CONFIG_PKGS = libusb-1.0
+EXTRA_CFLAGS = $(shell pkg-config --cflags $(PKG_CONFIG_PKGS))
 CFLAGS = -c $(OPTIM_FLAGS) -I.. $(EXTRA_CFLAGS) -o $@ $<
-LIBS = 
-#$(shell pkg-config --libs $(PKG_CONFIG_PKGS)) -lstdc++
+LIBS = $(shell pkg-config --libs $(PKG_CONFIG_PKGS))
+# -lstdc++
 LFLAGS = $(O) $(LIBS) -o $(BIN)
 
 O = strUtils.o rs232.o flashprog.o
