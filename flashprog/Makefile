@@ -16,9 +16,11 @@
 
 include Makefile.inc
 
-EXTRA_CFLAGS = $(shell pkg-config --cflags $(PKG_CONFIG_PKGS))
-CFLAGS = -c $(OPTIM_FLAGS) $(EXTRA_CFLAGS) -o $@ $<
-LIBS = $(shell pkg-config --libs $(PKG_CONFIG_PKGS)) -lstdc++
+EXTRA_CFLAGS = 
+#$(shell pkg-config --cflags $(PKG_CONFIG_PKGS))
+CFLAGS = -c $(OPTIM_FLAGS) -I.. $(EXTRA_CFLAGS) -o $@ $<
+LIBS = 
+#$(shell pkg-config --libs $(PKG_CONFIG_PKGS)) -lstdc++
 LFLAGS = $(O) $(LIBS) -o $(BIN)
 
 O = flashprog.o
