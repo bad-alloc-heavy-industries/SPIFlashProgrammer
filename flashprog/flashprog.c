@@ -17,9 +17,8 @@
  */
 
 #include <stdio.h>
-#include <stdbool.h>
-#include <libusb.h>
 #include "strUtils.h"
+#include "USB.h"
 #include "USBInterface.h"
 /*
  * USB transfer protocol:
@@ -34,16 +33,6 @@
  * it could execute it correctly - 1 for OK, 0 for error.
  */
 
-/*
- * VID = 0x1CBE
- * PID = 0x00FD
- * REV = 0x0100
- * MI = 0x00
- */
-static const int interface = 0;
-libusb_context *usbContext;
-libusb_device_handle *usbDevice;
-
 int usage(char *prog)
 {
 	printf("Usage:\n"
@@ -55,23 +44,11 @@ int main(int argc, char **argv)
 {
 	if (argc != 2)
 		return usage(argv[0]);
-	else if (libusb_init(&usbContext) != 0)
-		die("Error: Could not initialise libusb-1.0\n");
+	usbInit();
 
-	usbDevice = libusb_open_device_with_vid_pid(usbContext, 0x1CBE, 0x00FD);
-	if (usbDevice == NULL)
-	{
-		libusb_exit(usbContext);
-		die("Error: Could not find a Tiva C Launchpad to connect to\n");
-	}
+	writeUSB();
+	readUSB();
 
-	libusb_set_auto_detach_kernel_driver(usbDevice, true);
-	libusb_claim_interface(usbDevice, interface);
-
-	libusb_bulk_transfer(usbDevice, LIBUSB_ENDPOINT_OUT, );
-
-	libusb_release_interface(usbDevice, interface);
-	libusb_close(usbDevice);
-	libusb_exit(usbContext);
+	usbDeinit();
 	return 0;
 }
