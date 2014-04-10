@@ -58,13 +58,19 @@ void usbDeinit()
 	libusb_exit(usbContext);
 }
 
-void usbWrite()
+/* TODO: check for errors in libusb_bulk_transfer() */
+int32_t usbWrite(uint8_t *data, int32_t dataLen)
 {
-//	libusb_bulk_transfer(usbDevice, LIBUSB_ENDPOINT_OUT, );
+	int32_t actualLen;
+	libusb_bulk_transfer(usbDevice, LIBUSB_ENDPOINT_OUT, data, dataLen, &actualLen, 1);
+	return actualLen;
 }
 
-void usbRead()
+/* TODO: check for errors in libusb_bulk_transfer() */
+int32_t usbRead(uint8_t *data, int32_t dataLen)
 {
-//	libusb_bulk_transfer(usbDevice, LIBUSB_ENTPOINT_IN, );
+	int32_t actualLen;
+	libusb_bulk_transfer(usbDevice, LIBUSB_ENDPOINT_IN, data, dataLen, &actualLen, 1);
+	return actualLen;
 }
 
