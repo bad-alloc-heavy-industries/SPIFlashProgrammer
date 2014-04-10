@@ -150,15 +150,15 @@ void writeData(const uint8_t sector, const uint8_t page, const uint8_t *data, co
 	GPIO_PORTA_DATA_BITS_R[0x08] = 8;
 }
 
-bool verifyData(const uint8_t *data, const size_t dataLen)
+bool verifyData(const uint16_t startPage, const uint8_t *data, const size_t dataLen)
 {
 	uint16_t i;
 	bool ok = true;
 	/* Select the device */
 	GPIO_PORTA_DATA_BITS_R[0x08] = 0;
 	writeSPI(READ);
-	writeSPI(0);
-	writeSPI(0);
+	writeSPI(startPage >> 8);
+	writeSPI(startPage & 0xFF);
 	writeSPI(0);
 #ifndef NOCONFIG
 	for (i = 0; i < dataLen; i++)
@@ -212,8 +212,13 @@ void transferBitfile(const void *data, const size_t dataLen)
 #endif
 	}
 	lockDevice();
-	if (verifyData(data, dataLen))
-		GPIO_PORTF_DATA_BITS_R[0x0E] = 0x08;
+#ifndef NOCONFIG
+	if (data == config)
+	{
+		if (verifyData(0, data, dataLen))
+			GPIO_PORTF_DATA_BITS_R[0x0E] = 0x08;
+	}
+#endif
 }
 
 int main()
