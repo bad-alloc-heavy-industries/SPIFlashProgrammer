@@ -38,6 +38,12 @@
 #define SE		0xD8
 #define BE		0xC7
 
+#ifndef NOUSB
+uint8_t usbData[256];
+uint32_t usbDataTotal;
+uint32_t usbDataReceived;
+#endif
+
 /*
  * 0x20 => Manufacturer ID (Numonyx)
  * 0x71 => Memory Type (SPI Flash)
