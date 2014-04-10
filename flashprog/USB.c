@@ -55,11 +55,11 @@ void usbDeinit()
 
 void usbWrite()
 {
-	libusb_bulk_transfer(usbDevice, LIBUSB_ENDPOINT_OUT, );
+//	libusb_bulk_transfer(usbDevice, LIBUSB_ENDPOINT_OUT, );
 }
 
 void usbRead()
 {
-	libusb_bulk_transfer(usbDevice, LIBUSB_ENTPOINT_IN, );
+//	libusb_bulk_transfer(usbDevice, LIBUSB_ENTPOINT_IN, );
 }
 

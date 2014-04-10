@@ -46,9 +46,6 @@ int main(int argc, char **argv)
 		return usage(argv[0]);
 	usbInit();
 
-	writeUSB();
-	readUSB();
-
 	usbDeinit();
 	return 0;
 }
