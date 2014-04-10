@@ -26,7 +26,7 @@
  * REV = 0x0100
  * MI = 0x00
  */
-static const int interface = 0;
+static const int interface = 1;
 libusb_context *usbContext;
 libusb_device_handle *usbDevice;
 
@@ -62,7 +62,7 @@ void usbDeinit()
 int32_t usbWrite(uint8_t *data, int32_t dataLen)
 {
 	int32_t actualLen;
-	libusb_bulk_transfer(usbDevice, LIBUSB_ENDPOINT_OUT, data, dataLen, &actualLen, 1);
+	libusb_bulk_transfer(usbDevice, 1 | LIBUSB_ENDPOINT_OUT, data, dataLen, &actualLen, 1);
 	return actualLen;
 }
 
@@ -70,7 +70,7 @@ int32_t usbWrite(uint8_t *data, int32_t dataLen)
 int32_t usbRead(uint8_t *data, int32_t dataLen)
 {
 	int32_t actualLen;
-	libusb_bulk_transfer(usbDevice, LIBUSB_ENDPOINT_IN, data, dataLen, &actualLen, 1);
+	libusb_bulk_transfer(usbDevice, 2 | LIBUSB_ENDPOINT_IN, data, dataLen, &actualLen, 1);
 	return actualLen;
 }
 
