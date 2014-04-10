@@ -43,7 +43,12 @@ void usbInit()
 	}
 
 	libusb_set_auto_detach_kernel_driver(usbDevice, true);
-	libusb_claim_interface(usbDevice, interface);
+	if (libusb_claim_interface(usbDevice, interface) != 0)
+	{
+		libusb_close(usbDevice);
+		libusb_exit(usbContext);
+		die("Error: Could not claim the Tiva C Launchpad UART interface\n");
+	}
 }
 
 void usbDeinit()
