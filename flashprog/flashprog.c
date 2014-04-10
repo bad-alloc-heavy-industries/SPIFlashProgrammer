@@ -17,9 +17,15 @@
  */
 
 #include <stdio.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+
 #include "strUtils.h"
 #include "USB.h"
 #include "USBInterface.h"
+
 /*
  * USB transfer protocol:
  *
@@ -32,6 +38,8 @@
  * After sending each command, including CMD_STOP, the device must respond with the command code and a byte indicating whether
  * it could execute it correctly - 1 for OK, 0 for error.
  */
+int dataFD;
+size_t dataLen;
 
 int usage(char *prog)
 {
@@ -42,10 +50,26 @@ int usage(char *prog)
 
 int main(int argc, char **argv)
 {
+	struct stat dataStat;
+
 	if (argc != 2)
 		return usage(argv[0]);
 	usbInit();
+	dataFD = open(argv[1], O_RDONLY | O_EXCL);
+	if (dataFD == -1)
+	{
+		usbDeinit();
+		die("Error: Could not open the file specified\n");
+	}
+	if (stat(argv[1], &dataStat) != 0)
+	{
+		close(dataFD);
+		usbDeinit();
+		die("Error: Could not determine the size of the file specified\n");
+	}
+	dataLen = dataStat.st_size;
 
+	close(dataFD);
 	usbDeinit();
 	return 0;
 }
