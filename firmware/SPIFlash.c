@@ -242,7 +242,7 @@ int main()
 	GPIO_PORTF_DEN_R |= 0x1F;
 	/* Wait for SSI0 to come online */
 	while ((SYSCTL_PRSSI_R & SYSCTL_PRSSI_R0) != SYSCTL_PRSSI_R0);
-	/* Wait for Timer 1 to come online */
+	/* Wait for Timer 0 to come online */
 	while ((SYSCTL_PRTIMER_R & SYSCTL_PRTIMER_R0) != SYSCTL_PRTIMER_R0);
 #ifndef NOUSB
 	/* Wait for UART 0 to come online */
@@ -259,9 +259,11 @@ int main()
 	GPIO_PORTF_AFSEL_R &= ~0x1F;
 	/* Enable the LED pin outputs */
 	GPIO_PORTF_DIR_R = 0x0E;
+#ifndef NOCONFIG
 	/* Set pullups on the 2 buttons */
 	GPIO_PORTF_DR2R_R |= 0x11;
 	GPIO_PORTF_PUR_R |= 0x11;
+#endif
 	/* Set the blue LED on */
 	GPIO_PORTF_DATA_BITS_R[0x0E] = 0x04;
 
