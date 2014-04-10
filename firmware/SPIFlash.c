@@ -23,6 +23,9 @@
 #ifndef NOCONFIG
 #include "config.h"
 #endif
+#ifndef NOUSB
+#include "USBInterface.h"
+#endif
 
 #define WREN	0x06
 #define WRDI	0x04
@@ -330,6 +333,31 @@ int main()
 			/* Reset the timer and set it running */
 			TIMER0_TAV_R = 0;
 			TIMER0_CTL_R |= TIMER_CTL_TAEN;
+		}
+#endif
+#ifndef NOUSB
+		/* If the UART has recieved a byte.. */
+		if ((UART0_FR_R & UART_FR_RXFE) != 0)
+		{
+			if ((UART0_DR_R & 0xFF) == CMD_START)
+			{
+				uint8_t i;
+				usbDataTotal = 0;
+				usbDataReceived = 0;
+				for (i = 0; i < 4; i++)
+				{
+					usbDataTotal <<= 8;
+					usbDataTotal |= readUART();
+				}
+				writeUART(CMD_START);
+				writeUART(RPL_OK);
+				transferBitfile(usbData, usbDataTotal);
+			}
+			else
+			{
+				writeUART(CMD_INVALID);
+				writeUART(RPL_FAIL);
+			}
 		}
 #endif
 		/* If the timer has triggered the Match event */
