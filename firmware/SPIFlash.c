@@ -160,7 +160,6 @@ bool verifyData(const uint16_t startPage, const uint8_t *data, const size_t data
 	writeSPI(startPage >> 8);
 	writeSPI(startPage & 0xFF);
 	writeSPI(0);
-#ifndef NOCONFIG
 	for (i = 0; i < dataLen; i++)
 	{
 		if (readSPI() != data[i]);
@@ -169,7 +168,6 @@ bool verifyData(const uint16_t startPage, const uint8_t *data, const size_t data
 			break;
 		}
 	}
-#endif
 	/* Deselect the device */
 	GPIO_PORTA_DATA_BITS_R[0x08] = 8;
 	return ok;
