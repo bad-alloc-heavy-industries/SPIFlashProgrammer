@@ -41,11 +41,18 @@
 int dataFD;
 size_t dataLen;
 
+// Reserve enough space for a page of data
+char data[256];
+
 int usage(char *prog)
 {
 	printf("Usage:\n"
 		"\t%s binfile.bin\n", prog);
 	return 1;
+}
+
+void processFile()
+{
 }
 
 int main(int argc, char **argv)
@@ -68,6 +75,24 @@ int main(int argc, char **argv)
 		die("Error: Could not determine the size of the file specified\n");
 	}
 	dataLen = dataStat.st_size;
+
+	// Send the start command + 4 bytes indicating how long the data file is
+	usbWriteByte(CMD_START);
+	usbWrite(&dataLen, 4);
+	// Now wait for the return code
+	usbRead(data, 2);
+	if (data[0] != CMD_START || data[1] != 1)
+		printf("Tiva C Launchpad said it could not start a transfer\n");
+	else
+	{
+		processFile();
+		usbWriteByte(CMD_STOP);
+		usbRead(data, 6);
+		if (data[4] != CMD_STOP || data[4] != 1)
+			printf("Tiva C Launchpad encountered errors during programming, please try again\n");
+		else if (((uint32_t *)data) != 0)
+			printf("Tiva C Launchpad did not receieve whole file\n");
+	}
 
 	close(dataFD);
 	usbDeinit();
