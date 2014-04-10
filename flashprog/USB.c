@@ -59,7 +59,7 @@ void usbDeinit()
 }
 
 /* TODO: check for errors in libusb_bulk_transfer() */
-int32_t usbWrite(uint8_t *data, int32_t dataLen)
+int32_t usbWrite(void *data, int32_t dataLen)
 {
 	int32_t actualLen;
 	libusb_bulk_transfer(usbDevice, 1 | LIBUSB_ENDPOINT_OUT, data, dataLen, &actualLen, 1);
@@ -72,7 +72,7 @@ int32_t usbWriteByte(uint8_t data)
 }
 
 /* TODO: check for errors in libusb_bulk_transfer() */
-int32_t usbRead(uint8_t *data, int32_t dataLen)
+int32_t usbRead(void *data, int32_t dataLen)
 {
 	int32_t actualLen;
 	libusb_bulk_transfer(usbDevice, 2 | LIBUSB_ENDPOINT_IN, data, dataLen, &actualLen, 1);
