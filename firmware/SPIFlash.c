@@ -73,6 +73,20 @@ uint8_t readSPI()
 	return SSI0_DR_R & 0xFF;
 }
 
+#ifndef NOUSB
+void writeUART(uint8_t data)
+{
+	while ((UART0_FR_R & UART_FR_TXFF) != 0);
+	UART0_DR_R = data;
+}
+
+uint8_t readUART()
+{
+	while ((UART0_FR_R & UART_FR_RXFE) == 0);
+	return UART0_DR_R & 0xFF;
+}
+#endif
+
 bool verifyDID()
 {
 	uint8_t data[3], i;
