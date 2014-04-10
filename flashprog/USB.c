@@ -66,11 +66,21 @@ int32_t usbWrite(uint8_t *data, int32_t dataLen)
 	return actualLen;
 }
 
+int32_t usbWriteByte(uint8_t data)
+{
+	return usbWrite(&data, 1);
+}
+
 /* TODO: check for errors in libusb_bulk_transfer() */
 int32_t usbRead(uint8_t *data, int32_t dataLen)
 {
 	int32_t actualLen;
 	libusb_bulk_transfer(usbDevice, 2 | LIBUSB_ENDPOINT_IN, data, dataLen, &actualLen, 1);
 	return actualLen;
+}
+
+int32_t usbReadByte(uint8_t *data)
+{
+	return usbRead(data, 1);
 }
 
