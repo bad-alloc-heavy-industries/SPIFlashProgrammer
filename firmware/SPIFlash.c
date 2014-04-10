@@ -239,6 +239,31 @@ void transferBitfile(const void *data, const size_t dataLen)
 		if (verifyData(0, data, dataLen))
 			GPIO_PORTF_DATA_BITS_R[0x0E] = 0x08;
 	}
+#ifndef NOUSB
+	else if (data != config)
+#endif
+#endif
+#ifndef NOUSB
+	{
+		uint8_t cmd = readUART();
+		if (cmd == CMD_STOP)
+		{
+			uint8_t i;
+			uint32_t diff = usbDataTotal - usbDataReceived;
+			for (i = 0; i < 4; i++)
+			{
+				writeUART(diff & 0xFF);
+				diff >>= 8;
+			}
+			writeUART(CMD_STOP);
+			writeUART(RPL_OK);
+		}
+		else
+		{
+			writeUART(CMD_INVALID);
+			writeUART(RPL_FAIL);
+		}
+	}
 #endif
 }
 
