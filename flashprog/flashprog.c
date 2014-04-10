@@ -90,7 +90,7 @@ int main(int argc, char **argv)
 		usbRead(data, 6);
 		if (data[4] != CMD_STOP || data[4] != RPL_OK)
 			printf("Tiva C Launchpad encountered errors during programming, please try again\n");
-		else if (((uint32_t *)data) != 0)
+		else if (*((uint32_t *)data) != 0)
 			printf("Tiva C Launchpad did not receieve whole file\n");
 	}
 
