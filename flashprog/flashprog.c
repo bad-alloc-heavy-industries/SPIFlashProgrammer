@@ -81,14 +81,14 @@ int main(int argc, char **argv)
 	usbWrite(&dataLen, 4);
 	// Now wait for the return code
 	usbRead(data, 2);
-	if (data[0] != CMD_START || data[1] != 1)
+	if (data[0] != CMD_START || data[1] != RPL_OK)
 		printf("Tiva C Launchpad said it could not start a transfer\n");
 	else
 	{
 		processFile();
 		usbWriteByte(CMD_STOP);
 		usbRead(data, 6);
-		if (data[4] != CMD_STOP || data[4] != 1)
+		if (data[4] != CMD_STOP || data[4] != RPL_OK)
 			printf("Tiva C Launchpad encountered errors during programming, please try again\n");
 		else if (((uint32_t *)data) != 0)
 			printf("Tiva C Launchpad did not receieve whole file\n");
