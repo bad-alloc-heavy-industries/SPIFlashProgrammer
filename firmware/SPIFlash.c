@@ -215,10 +215,8 @@ void transferBitfile(const void *data, const size_t dataLen)
 
 	if (!verifyDID())
 	{
-#if !defined(NOCONFIG) && !defined(NOUSB)
-		if (data != config)
-#endif
 #ifndef NOUSB
+		if (data == usbData)
 		{
 			writeUART(CMD_ABORT);
 			writeUART(RPL_FAIL);
@@ -254,11 +252,9 @@ void transferBitfile(const void *data, const size_t dataLen)
 		if (verifyData(0, data, dataLen))
 			GPIO_PORTF_DATA_BITS_R[0x0E] = 0x08;
 	}
-#ifndef NOUSB
-	else if (data != config)
-#endif
 #endif
 #ifndef NOUSB
+	else if (data == usbData)
 	{
 		uint8_t cmd = readUART();
 		if (cmd == CMD_STOP)
