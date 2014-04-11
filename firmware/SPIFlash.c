@@ -228,8 +228,11 @@ void transferBitfile(const void *data, const size_t dataLen)
 		return;
 	}
 #ifndef NOUSB
-	writeUART(CMD_START);
-	writeUART(RPL_OK);
+	else if (data == usbData)
+	{
+		writeUART(CMD_START);
+		writeUART(RPL_OK);
+	}
 #endif
 
 	pages = (dataLen >> 8) + ((dataLen & 0xFF) != 0 ? 1 : 0);
