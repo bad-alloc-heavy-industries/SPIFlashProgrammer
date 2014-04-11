@@ -399,6 +399,10 @@ int main()
 			if ((UART0_DR_R & 0xFF) == CMD_START)
 			{
 				uint8_t i;
+				/* Stop the timer if it's already running */
+				TIMER0_CTL_R &= ~TIMER_CTL_TAEN;
+				/* Set the LED to red for busy/processing */
+				GPIO_PORTF_DATA_BITS_R[0x0E] = 0x02;
 				usbDataTotal = 0;
 				usbDataReceived = 0;
 				for (i = 0; i < 4; i++)
@@ -407,6 +411,9 @@ int main()
 					usbDataTotal |= readUART();
 				}
 				transferBitfile(usbData, usbDataTotal);
+				/* Reset the timer and set it running */
+				TIMER0_TAV_R = 0;
+				TIMER0_CTL_R |= TIMER_CTL_TAEN;
 			}
 			else
 			{
