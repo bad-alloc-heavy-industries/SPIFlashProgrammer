@@ -16,6 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <stdio.h>
 #include <stdbool.h>
 #include <libusb.h>
 #include "USB.h"
@@ -61,8 +62,13 @@ void usbDeinit()
 /* TODO: check for errors in libusb_bulk_transfer() */
 int32_t usbWrite(void *data, int32_t dataLen)
 {
-	int32_t actualLen;
-	libusb_bulk_transfer(usbDevice, 1 | LIBUSB_ENDPOINT_OUT, data, dataLen, &actualLen, 1);
+	int32_t actualLen, error;
+	error = libusb_bulk_transfer(usbDevice, 1 | LIBUSB_ENDPOINT_OUT, data, dataLen, &actualLen, 10);
+	if (error != 0)
+	{
+		printf("Error: libusb_bulk_transfer(%d) failed\n", error);
+		return 0;
+	}
 	return actualLen;
 }
 
@@ -74,8 +80,13 @@ int32_t usbWriteByte(uint8_t data)
 /* TODO: check for errors in libusb_bulk_transfer() */
 int32_t usbRead(void *data, int32_t dataLen)
 {
-	int32_t actualLen;
-	libusb_bulk_transfer(usbDevice, 2 | LIBUSB_ENDPOINT_IN, data, dataLen, &actualLen, 1);
+	int32_t actualLen, error;
+	error = libusb_bulk_transfer(usbDevice, 2 | LIBUSB_ENDPOINT_IN, data, dataLen, &actualLen, 10);
+	if (error != 0)
+	{
+		printf("Error: libusb_bulk_transfer(%d) failed\n", error);
+		return 0;
+	}
 	return actualLen;
 }
 
