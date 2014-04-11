@@ -260,7 +260,7 @@ void transferBitfile(const void *data, const size_t dataLen)
 	}
 #endif
 #ifndef NOUSB
-	else if (data == usbData)
+	if (data == usbData)
 	{
 		uint8_t cmd = readUART();
 		if (cmd == CMD_STOP)
