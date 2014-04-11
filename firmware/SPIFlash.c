@@ -91,7 +91,7 @@ void writeUART(uint8_t data)
 
 uint8_t readUART()
 {
-	while ((UART0_FR_R & UART_FR_RXFE) == 0);
+	while ((UART0_FR_R & UART_FR_RXFE) != 0);
 	return UART0_DR_R & 0xFF;
 }
 #endif
@@ -382,7 +382,7 @@ int main()
 #endif
 #ifndef NOUSB
 		/* If the UART has recieved a byte.. */
-		if ((UART0_FR_R & UART_FR_RXFE) != 0)
+		if ((UART0_FR_R & UART_FR_RXFE) == 0)
 		{
 			if ((UART0_DR_R & 0xFF) == CMD_START)
 			{
