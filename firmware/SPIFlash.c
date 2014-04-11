@@ -214,7 +214,22 @@ void transferBitfile(const void *data, const size_t dataLen)
 	const uint8_t *dataPtr = data;
 
 	if (!verifyDID())
+	{
+#if !defined(NOCONFIG) && !defined(NOUSB)
+		if (data != config)
+#endif
+#ifndef NOUSB
+		{
+			writeUART(CMD_ABORT);
+			writeUART(RPL_FAIL);
+		}
+#endif
 		return;
+	}
+#ifndef NOUSB
+	writeUART(CMD_START);
+	writeUART(RPL_OK);
+#endif
 
 	pages = (dataLen >> 8) + ((dataLen & 0xFF) != 0 ? 1 : 0);
 	unlockDevice();
@@ -374,8 +389,6 @@ int main()
 					usbDataTotal <<= 8;
 					usbDataTotal |= readUART();
 				}
-				writeUART(CMD_START);
-				writeUART(RPL_OK);
 				transferBitfile(usbData, usbDataTotal);
 			}
 			else
