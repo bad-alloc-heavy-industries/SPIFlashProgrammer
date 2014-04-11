@@ -212,6 +212,9 @@ void transferBitfile(const void *data, const size_t dataLen)
 {
 	uint16_t addr, pages;
 	const uint8_t *dataPtr = data;
+#ifndef NOUSB
+	bool programmed = true;
+#endif
 
 	if (!verifyDID())
 	{
@@ -267,7 +270,10 @@ void transferBitfile(const void *data, const size_t dataLen)
 				diff >>= 8;
 			}
 			writeUART(CMD_STOP);
-			writeUART(RPL_OK);
+			if (programmed)
+				writeUART(RPL_OK);
+			else
+				writeUART(RPL_FAIL);
 		}
 		else
 		{
