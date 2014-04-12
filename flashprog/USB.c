@@ -94,7 +94,8 @@ void usbInit()
 	libusb_config_descriptor *usbConfigDesc;
 	const libusb_interface_descriptor *usbIface;
 	const libusb_endpoint_descriptor *usbEndpointDesc;
-	usbIfaceAssoc *usbInterfaceAssoc;
+	const usbIfaceAssoc *usbInterfaceAssoc;
+	const usbCDCConfig *usbCDCDesc;
 
 	if (libusb_init(&usbContext) != 0)
 		die("Error: Could not initialise libusb-1.0\n");
@@ -126,7 +127,7 @@ void usbInit()
 		die("Error: The descriptor returned by the device claiming to be a Tiva C Launchpad is invalid\n");
 	}
 
-	usbInterfaceAssoc = (usbIfaceAssoc *)usbConfigDesc->extra;
+	usbInterfaceAssoc = (const usbIfaceAssoc *)usbConfigDesc->extra;
 	if (usbInterfaceAssoc->bLength != 8 || usbInterfaceAssoc->bDescriptorType != 11 ||
 		usbInterfaceAssoc->bInterfaceCount != 2 || usbInterfaceAssoc->bFirstInterface >= usbConfigDesc->bNumInterfaces)
 	{
@@ -141,6 +142,15 @@ void usbInit()
 		libusb_free_config_descriptor(usbConfigDesc);
 		usbInitCleanup();
 		die("Error: The interface descriptor that is supposed to be for the control interface is invalid\n");
+	}
+	usbCDCDesc = (const usbCDCConfig *)usbIface->extra;
+	if (usbCDCDesc->bHeaderLen != 5 || usbCDCDesc->bcdCDC != 0x0110 ||
+		usbCDCDesc->bACMLen != 4 || usbCDCDesc->bUnionLen != 5 ||
+		usbCDCDesc->bCallLen != 5)
+	{
+		libusb_free_config_descriptor(usbConfigDesc);
+		usbInitCleanup();
+		die("Error: The CDC descriptor that is provided by the control interface is invalid\n");
 	}
 	usbEndpointDesc = &usbIface->endpoint[0];
 	ctrlEndpoint = usbEndpointDesc->bEndpointAddress;
