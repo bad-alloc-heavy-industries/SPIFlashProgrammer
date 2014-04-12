@@ -21,6 +21,21 @@
 #include <libusb.h>
 #include "USB.h"
 
+typedef struct libusb_device_descriptor libusb_device_descriptor;
+typedef struct libusb_config_descriptor libusb_config_descriptor;
+
+typedef struct usbIfaceAssoc
+{
+	uint8_t bLength;
+	uint8_t bDescriptorType;
+	uint8_t bFirstInterface;
+	uint8_t bInterfaceCount;
+	uint8_t bFunctionClass;
+	uint8_t bFunctionSubClass;
+	uint8_t bFunctionProtocol;
+	uint8_t iInterface;
+} usbIfaceAssoc;
+
 /*
  * VID = 0x1CBE
  * PID = 0x00FD
