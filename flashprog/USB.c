@@ -120,7 +120,7 @@ void usbInit()
 		die("Error: libusb could not get the configuration descriptor for the Tiva C Launchpad\n");
 	}
 	else if (usbConfigDesc->bLength != 9 || usbConfigDesc->bDescriptorType != 2 ||
-		usbConfigDesc->bNumInterfaces != 4 || usbConfigDesc->extra_length != 8)
+		usbConfigDesc->bNumInterfaces != 4 || usbConfigDesc->extra_length != sizeof(usbIfaceAssoc))
 	{
 		libusb_free_config_descriptor(usbConfigDesc);
 		usbInitCleanup();
@@ -137,7 +137,7 @@ void usbInit()
 	}
 
 	usbIface = usbConfigDesc->interface[usbInterfaceAssoc->bFirstInterface].altsetting;
-	if (usbIface->bNumEndpoints != 1)
+	if (usbIface->bNumEndpoints != 1 || usbIface->extra_length != sizeof(usbCDCConfig))
 	{
 		libusb_free_config_descriptor(usbConfigDesc);
 		usbInitCleanup();
