@@ -26,6 +26,7 @@ typedef struct libusb_config_descriptor libusb_config_descriptor;
 typedef struct libusb_interface_descriptor libusb_interface_descriptor;
 typedef struct libusb_endpoint_descriptor libusb_endpoint_descriptor;
 
+#pragma pack(push, 1)
 typedef struct usbIfaceAssoc
 {
 	uint8_t bLength;
@@ -66,6 +67,7 @@ typedef struct usbCDCConfig
 	uint8_t bmCallCapabilities;
 	uint8_t iDataInterface;
 } usbCDCConfig;
+#pragma pack(pop)
 
 /*
  * VID = 0x1CBE
