@@ -38,6 +38,35 @@ typedef struct usbIfaceAssoc
 	uint8_t iInterface;
 } usbIfaceAssoc;
 
+typedef struct usbCDCConfig
+{
+	/* Header */
+	uint8_t bHeaderLen;
+	uint8_t bHeaderDesc;
+	uint8_t bHeaderType;
+	uint16_t bcdCDC;
+
+	/* ACM */
+	uint8_t bACMLen;
+	uint8_t bACMDesc;
+	uint8_t bACMType;
+	uint8_t bmACMCapabilities;
+
+	/* Unions */
+	uint8_t bUnionLen;
+	uint8_t bUnionDesc;
+	uint8_t bUnionType;
+	uint8_t iMasterInterface;
+	uint8_t iSlaveInterface;
+
+	/* Call Management */
+	uint8_t bCallLen;
+	uint8_t bCallDesc;
+	uint8_t bCallType;
+	uint8_t bmCallCapabilities;
+	uint8_t iDataInterface;
+} usbCDCConfig;
+
 /*
  * VID = 0x1CBE
  * PID = 0x00FD
