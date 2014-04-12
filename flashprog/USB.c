@@ -75,10 +75,10 @@ typedef struct usbCDCConfig
  * REV = 0x0100
  * MI = 0x00
  */
-static const int interface = 1;
 libusb_context *usbContext;
 libusb_device_handle *usbDevice;
 
+int ctrlInterface, dataInterface;
 uint8_t ctrlEndpoint, inEndpoint, outEndpoint;
 
 void usbInitCleanup()
@@ -167,19 +167,23 @@ void usbInit()
 	usbEndpointDesc = &usbIface->endpoint[1];
 	outEndpoint = usbEndpointDesc->bEndpointAddress;
 
+	ctrlInterface = usbInterfaceAssoc->bFirstInterface;
+	dataInterface = usbCDCDesc->iDataInterface;
 	libusb_free_config_descriptor(usbConfigDesc);
 
 	libusb_set_auto_detach_kernel_driver(usbDevice, true);
-	if (libusb_claim_interface(usbDevice, interface) != 0)
+	if (libusb_claim_interface(usbDevice, ctrlInterface) != 0 ||
+		libusb_claim_interface(usbDevice, dataInterface) != 0)
 	{
-		usbInitCleanup();
-		die("Error: Could not claim the Tiva C Launchpad UART interface\n");
+		usbDeinit();
+		die("Error: Could not claim the Tiva C Launchpad virtual serial port interface\n");
 	}
 }
 
 void usbDeinit()
 {
-	libusb_release_interface(usbDevice, interface);
+	libusb_release_interface(usbDevice, dataInterface);
+	libusb_release_interface(usbDevice, ctrlInterface);
 	libusb_close(usbDevice);
 	libusb_exit(usbContext);
 }
