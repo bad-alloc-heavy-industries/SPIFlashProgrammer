@@ -155,6 +155,18 @@ void usbInit()
 	usbEndpointDesc = &usbIface->endpoint[0];
 	ctrlEndpoint = usbEndpointDesc->bEndpointAddress;
 
+	usbIface = usbConfigDesc->interface[usbCDCDesc->iDataInterface].altsetting;
+	if (usbIface->bNumEndpoints != 2 || usbIface->extra_length != 0)
+	{
+		libusb_free_config_descriptor(usbConfigDesc);
+		usbInitCleanup();
+		die("Error: The interface descriptor that is supposed to be for the data interface is invalid\n");
+	}
+	usbEndpointDesc = &usbIface->endpoint[0];
+	inEndpoint = usbEndpointDesc->bEndpointAddress;
+	usbEndpointDesc = &usbIface->endpoint[1];
+	outEndpoint = usbEndpointDesc->bEndpointAddress;
+
 	libusb_free_config_descriptor(usbConfigDesc);
 
 	libusb_set_auto_detach_kernel_driver(usbDevice, true);
@@ -176,7 +188,7 @@ void usbDeinit()
 int32_t usbWrite(void *data, int32_t dataLen)
 {
 	int32_t actualLen, error;
-	error = libusb_bulk_transfer(usbDevice, 1 | LIBUSB_ENDPOINT_OUT, data, dataLen, &actualLen, 10);
+	error = libusb_bulk_transfer(usbDevice, outEndpoint, data, dataLen, &actualLen, 10);
 	if (error != 0)
 	{
 		printf("Error: libusb_bulk_transfer(%d) failed\n", error);
@@ -194,7 +206,7 @@ int32_t usbWriteByte(uint8_t data)
 int32_t usbRead(void *data, int32_t dataLen)
 {
 	int32_t actualLen, error;
-	error = libusb_bulk_transfer(usbDevice, 2 | LIBUSB_ENDPOINT_IN, data, dataLen, &actualLen, 10);
+	error = libusb_bulk_transfer(usbDevice, inEndpoint, data, dataLen, &actualLen, 10);
 	if (error != 0)
 	{
 		printf("Error: libusb_bulk_transfer(%d) failed\n", error);
