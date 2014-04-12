@@ -23,6 +23,8 @@
 
 typedef struct libusb_device_descriptor libusb_device_descriptor;
 typedef struct libusb_config_descriptor libusb_config_descriptor;
+typedef struct libusb_interface_descriptor libusb_interface_descriptor;
+typedef struct libusb_endpoint_descriptor libusb_endpoint_descriptor;
 
 typedef struct usbIfaceAssoc
 {
@@ -59,6 +61,8 @@ void usbInit()
 	libusb_device *usbRawDevice;
 	libusb_device_descriptor usbDevDesc;
 	libusb_config_descriptor *usbConfigDesc;
+	const libusb_interface_descriptor *usbIface;
+	const libusb_endpoint_descriptor *usbEndpointDesc;
 	usbIfaceAssoc *usbInterfaceAssoc;
 
 	if (libusb_init(&usbContext) != 0)
@@ -93,12 +97,22 @@ void usbInit()
 
 	usbInterfaceAssoc = (usbIfaceAssoc *)usbConfigDesc->extra;
 	if (usbInterfaceAssoc->bLength != 8 || usbInterfaceAssoc->bDescriptorType != 11 ||
-		usbInterfaceAssoc->bInterfaceCount != 2)
+		usbInterfaceAssoc->bInterfaceCount != 2 || usbInterfaceAssoc->bFirstInterface >= usbConfigDesc->bNumInterfaces)
 	{
 		libusb_free_config_descriptor(usbConfigDesc);
 		usbInitCleanup();
 		die("Error: The interface association returned by the device claiming to be the Tiva C Launchpad is invalid\n");
 	}
+
+	usbIface = usbConfigDesc->interface[usbInterfaceAssoc->bFirstInterface].altsetting;
+	if (usbIface->bNumEndpoints != 1)
+	{
+		libusb_free_config_descriptor(usbConfigDesc);
+		usbInitCleanup();
+		die("Error: The interface descriptor that is supposed to be for the control interface is invalid\n");
+	}
+	usbEndpointDesc = &usbIface->endpoint[0];
+	ctrlEndpoint = usbEndpointDesc->bEndpointAddress;
 
 	libusb_free_config_descriptor(usbConfigDesc);
 
