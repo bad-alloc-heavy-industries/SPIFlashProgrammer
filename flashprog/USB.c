@@ -46,6 +46,8 @@ static const int interface = 1;
 libusb_context *usbContext;
 libusb_device_handle *usbDevice;
 
+uint8_t ctrlEndpoint, inEndpoint, outEndpoint;
+
 void usbInitCleanup()
 {
 	libusb_close(usbDevice);
