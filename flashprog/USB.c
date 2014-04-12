@@ -54,6 +54,11 @@ void usbInitCleanup()
 
 void usbInit()
 {
+	libusb_device *usbRawDevice;
+	libusb_device_descriptor usbDevDesc;
+	libusb_config_descriptor *usbConfigDesc;
+	usbIfaceAssoc *usbInterfaceAssoc;
+
 	if (libusb_init(&usbContext) != 0)
 		die("Error: Could not initialise libusb-1.0\n");
 
@@ -63,6 +68,37 @@ void usbInit()
 		libusb_exit(usbContext);
 		die("Error: Could not find a Tiva C Launchpad to connect to\n");
 	}
+	usbRawDevice = libusb_get_device(usbDevice);
+
+	if (libusb_get_device_descriptor(usbRawDevice, &usbDevDesc) != 0 || usbDevDesc.bNumConfigurations != 1)
+	{
+		usbInitCleanup();
+		die("Error: libusb could not get the device descriptor for the Tiva C Launchpad\n");
+	}
+
+	if (libusb_get_config_descriptor(usbRawDevice, 0, &usbConfigDesc) != 0)
+	{
+		usbInitCleanup();
+		die("Error: libusb could not get the configuration descriptor for the Tiva C Launchpad\n");
+	}
+	else if (usbConfigDesc->bLength != 9 || usbConfigDesc->bDescriptorType != 2 ||
+		usbConfigDesc->bNumInterfaces != 4 || usbConfigDesc->extra_length != 8)
+	{
+		libusb_free_config_descriptor(usbConfigDesc);
+		usbInitCleanup();
+		die("Error: The descriptor returned by the device claiming to be a Tiva C Launchpad is invalid\n");
+	}
+
+	usbInterfaceAssoc = (usbIfaceAssoc *)usbConfigDesc->extra;
+	if (usbInterfaceAssoc->bLength != 8 || usbInterfaceAssoc->bDescriptorType != 11 ||
+		usbInterfaceAssoc->bInterfaceCount != 2)
+	{
+		libusb_free_config_descriptor(usbConfigDesc);
+		usbInitCleanup();
+		die("Error: The interface association returned by the device claiming to be the Tiva C Launchpad is invalid\n");
+	}
+
+	libusb_free_config_descriptor(usbConfigDesc);
 
 	libusb_set_auto_detach_kernel_driver(usbDevice, true);
 	if (libusb_claim_interface(usbDevice, interface) != 0)
