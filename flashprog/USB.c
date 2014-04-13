@@ -176,6 +176,7 @@ void usbInit()
 
 	ctrlInterface = usbInterfaceAssoc->bFirstInterface;
 	dataInterface = usbCDCDesc->iDataInterface;
+	libusb_set_configuration(usbDevice, usbConfigDesc->bConfigurationValue);
 	libusb_free_config_descriptor(usbConfigDesc);
 
 	libusb_set_auto_detach_kernel_driver(usbDevice, true);
