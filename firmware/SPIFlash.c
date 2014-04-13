@@ -322,7 +322,7 @@ int main()
 	GPIO_PORTA_AFSEL_R |= 0x03;
 	GPIO_PORTA_PCTL_R |= GPIO_PCTL_PA1_U0TX | GPIO_PCTL_PA0_U0RX;
 	GPIO_PORTA_DR2R_R |= 0x03;
-
+	GPIO_PORTA_PUR_R |= 0x02;
 	/*
 	 * Set the UART up for 8-bit, 115200 baud operation with one stop bit + FIFOs
 	 * BRD = 16MHz / (16 * 115200) = 8.68055*
@@ -348,7 +348,7 @@ int main()
 	GPIO_PORTF_DATA_BITS_R[0x0E] = 0x04;
 
 	/* Configure the SSI (SPI) pins as alternative function and enable their use by the SPI module */
-	GPIO_PORTA_AFSEL_R = 0x34;
+	GPIO_PORTA_AFSEL_R |= 0x34;
 	GPIO_PORTA_PCTL_R |= GPIO_PCTL_PA5_SSI0TX | GPIO_PCTL_PA4_SSI0RX |
 		/*GPIO_PCTL_PA3_SSI0FSS | */GPIO_PCTL_PA2_SSI0CLK;
 	SSI0_CR1_R = 0;
