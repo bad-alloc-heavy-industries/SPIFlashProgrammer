@@ -81,6 +81,12 @@ libusb_device_handle *usbDevice;
 int ctrlInterface, dataInterface;
 uint8_t ctrlEndpoint, inEndpoint, outEndpoint;
 
+#define CDC_SET_LINE_CODING 0x20
+#define CDC_GET_LINE_CODING 0x21
+#define CDC_SET_CONTROL_LINE_STATE 0x22
+#define CTRL_LEN 32
+uint8_t ctrlData[CTRL_LEN];
+
 void usbInitCleanup()
 {
 	libusb_close(usbDevice);
