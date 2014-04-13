@@ -95,6 +95,7 @@ void usbInitCleanup()
 
 void usbInit()
 {
+	int res, actualLen;
 	libusb_device *usbRawDevice;
 	libusb_device_descriptor usbDevDesc;
 	libusb_config_descriptor *usbConfigDesc;
@@ -184,6 +185,36 @@ void usbInit()
 		usbDeinit();
 		die("Error: Could not claim the Tiva C Launchpad virtual serial port interface\n");
 	}
+
+	/* Set the port baud rate */
+	*((uint32_t *)ctrlData) = 115200;
+	/* 1 stop bit, no parity, 8-bit */
+	ctrlData[4] = 0;
+	ctrlData[5] = 0;
+	ctrlData[6] = 8;
+	res = libusb_control_transfer(usbDevice, 0x21, CDC_SET_LINE_CODING, 0, ctrlInterface, ctrlData, 7, 10);
+	if (res != 7)
+	{
+		usbDeinit();
+		die("libusb returned %d: %s\n", res, libusb_strerror(res));
+	}
+	printf("Baud rate set\n");
+
+	res = libusb_control_transfer(usbDevice, 0xA1, CDC_GET_LINE_CODING, 0, ctrlInterface, ctrlData, 7, 10);
+	if (res != 7)
+	{
+		usbDeinit();
+		die("libusb returned %d: %s\n", res, libusb_strerror(res));
+	}
+	printf("%u baud, %u %u %u\n", *((uint32_t *)ctrlData), ctrlData[4] + 1, ctrlData[5], ctrlData[6]);
+
+	res = libusb_control_transfer(usbDevice, 0x21, CDC_SET_CONTROL_LINE_STATE, 0, ctrlInterface, NULL, 0, 10);
+	if (res != 0)
+	{
+		usbDeinit();
+		die("libusb returned %d: %s\n", res, libusb_strerror(res));
+	}
+	printf("Switched off hardware flow control\n");
 }
 
 void usbDeinit()
