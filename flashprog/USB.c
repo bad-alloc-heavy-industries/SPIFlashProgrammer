@@ -232,7 +232,7 @@ int32_t usbWrite(void *data, int32_t dataLen)
 	error = libusb_bulk_transfer(usbDevice, outEndpoint, data, dataLen, &actualLen, 10);
 	if (error != 0)
 	{
-		printf("Error: libusb_bulk_transfer(%d) failed\n", error);
+		printf("Error: libusb_bulk_transfer(%d => %s) write failed\n", error, libusb_strerror(error));
 		return 0;
 	}
 	return actualLen;
@@ -250,7 +250,7 @@ int32_t usbRead(void *data, int32_t dataLen)
 	error = libusb_bulk_transfer(usbDevice, inEndpoint, data, dataLen, &actualLen, 10);
 	if (error != 0)
 	{
-		printf("Error: libusb_bulk_transfer(%d) failed\n", error);
+		printf("Error: libusb_bulk_transfer(%d => %s) read failed\n", error, libusb_strerror(error));
 		return 0;
 	}
 	return actualLen;
