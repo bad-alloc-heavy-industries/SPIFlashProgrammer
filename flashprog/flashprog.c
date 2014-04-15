@@ -57,6 +57,7 @@ void processFile()
 
 int main(int argc, char **argv)
 {
+	int32_t res;
 	struct stat dataStat;
 
 	if (argc != 2)
@@ -80,15 +81,15 @@ int main(int argc, char **argv)
 	usbWriteByte(CMD_START);
 	usbWrite(&dataLen, 4);
 	// Now wait for the return code
-	usbRead(data, 2);
-	if (data[0] != CMD_START || data[1] != RPL_OK)
+	res = usbRead(data, 2);
+	if (res != 2 || data[0] != CMD_START || data[1] != RPL_OK)
 		printf("Tiva C Launchpad said it could not start a transfer\n");
 	else
 	{
 		processFile();
 		usbWriteByte(CMD_STOP);
-		usbRead(data, 6);
-		if (data[4] != CMD_STOP || data[4] != RPL_OK)
+		res = usbRead(data, 6);
+		if (res != 6 || data[4] != CMD_STOP || data[5] != RPL_OK)
 			printf("Tiva C Launchpad encountered errors during programming, please try again\n");
 		else if (*((uint32_t *)data) != 0)
 			printf("Tiva C Launchpad did not receieve whole file\n");
