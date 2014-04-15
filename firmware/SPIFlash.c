@@ -231,7 +231,9 @@ void waitWriteComplete()
 void transferBitfile(const void *data, const size_t dataLen)
 {
 	uint16_t addr, pages;
+#ifndef NOCONFIG
 	const uint8_t *dataPtr = data;
+#endif
 #ifndef NOUSB
 	bool programmed = true;
 #endif
@@ -261,15 +263,17 @@ void transferBitfile(const void *data, const size_t dataLen)
 	waitWriteComplete();
 	for (addr = 0; addr < pages; addr++)
 	{
-		if ((addr + 1) < (dataLen >> 8))
-			writeData(addr >> 8, addr & 0xFF, dataPtr, 256);
-		else
-			writeData(addr >> 8, addr & 0xFF, dataPtr, dataLen & 0xFF);
-		waitWriteComplete();
 #ifndef NOCONFIG
 		if (data == config)
+		{
+			if ((addr + 1) < (dataLen >> 8))
+				writeData(addr >> 8, addr & 0xFF, dataPtr, 256);
+			else
+				writeData(addr >> 8, addr & 0xFF, dataPtr, dataLen & 0xFF);
 			dataPtr += 256;
+		}
 #endif
+		waitWriteComplete();
 	}
 	lockDevice();
 #ifndef NOCONFIG
