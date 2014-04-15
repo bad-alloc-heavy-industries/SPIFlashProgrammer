@@ -244,14 +244,19 @@ int32_t usbWriteByte(uint8_t data)
 /* TODO: check for errors in libusb_bulk_transfer() */
 int32_t usbRead(void *data, int32_t dataLen)
 {
-	int32_t actualLen, error;
-	error = libusb_bulk_transfer(usbDevice, inEndpoint, data, dataLen, &actualLen, 10);
-	if (error != 0)
+	int32_t actualLen, recvLen, error;
+	recvLen = 0;
+	while (recvLen < dataLen)
 	{
-		printf("Error: libusb_bulk_transfer(%d => %s) read failed\n", error, libusb_strerror(error));
-		return 0;
+		error = libusb_bulk_transfer(usbDevice, inEndpoint, data + recvLen, dataLen - recvLen, &actualLen, 100);
+		if (error != 0)
+		{
+			printf("Error: libusb_bulk_transfer(%d => %s) read failed\n", error, libusb_strerror(error));
+			return 0;
+		}
+		recvLen += actualLen;
 	}
-	return actualLen;
+	return recvLen;
 }
 
 int32_t usbReadByte(uint8_t *data)
