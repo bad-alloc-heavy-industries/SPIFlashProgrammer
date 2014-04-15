@@ -199,7 +199,6 @@ void usbInit()
 		usbDeinit();
 		die("libusb returned %d: %s\n", res, libusb_strerror(res));
 	}
-	printf("Baud rate set\n");
 
 	res = libusb_control_transfer(usbDevice, 0xA1, CDC_GET_LINE_CODING, 0, ctrlInterface, ctrlData, 7, 10);
 	if (res != 7)
@@ -207,7 +206,6 @@ void usbInit()
 		usbDeinit();
 		die("libusb returned %d: %s\n", res, libusb_strerror(res));
 	}
-	printf("%u baud, %u %u %u\n", *((uint32_t *)ctrlData), ctrlData[4] + 1, ctrlData[5], ctrlData[6]);
 
 	res = libusb_control_transfer(usbDevice, 0x21, CDC_SET_CONTROL_LINE_STATE, 0, ctrlInterface, NULL, 0, 10);
 	if (res != 0)
@@ -215,7 +213,6 @@ void usbInit()
 		usbDeinit();
 		die("libusb returned %d: %s\n", res, libusb_strerror(res));
 	}
-	printf("Switched off hardware flow control\n");
 }
 
 void usbDeinit()
