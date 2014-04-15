@@ -293,8 +293,8 @@ void transferBitfile(const void *data, const size_t dataLen)
 			uint32_t diff = usbDataTotal - usbDataReceived;
 			for (i = 0; i < 4; i++)
 			{
-				writeUART(diff & 0xFF);
-				diff >>= 8;
+				writeUART((diff >> 24) & 0xFF);
+				diff <<= 8;
 			}
 			writeUART(CMD_STOP);
 			if (programmed)
