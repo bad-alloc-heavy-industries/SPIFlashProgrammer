@@ -42,7 +42,7 @@ int dataFD;
 size_t dataLen;
 
 // Reserve enough space for a page of data
-char data[256];
+unsigned char data[256];
 
 int usage(char *prog)
 {
@@ -53,6 +53,34 @@ int usage(char *prog)
 
 void processFile()
 {
+	uint32_t pageNum = 0;
+	int32_t res, blockLen = -1;
+	while (blockLen != 0)
+	{
+		blockLen = read(dataFD, data, 256);
+		if (blockLen == -1)
+		{
+			usbWriteByte(CMD_ABORT);
+			die("Error: read() returned an error.. cannot continue..\n");
+		}
+		else if (blockLen == 0)
+			continue;
+		usbWriteByte(CMD_PAGE);
+		usbWriteByte(blockLen & 0xFF);
+		usbWrite(data, blockLen);
+		res = usbRead(data, 2);
+		if (res != 2 || data[0] != CMD_PAGE || data[1] != RPL_OK)
+		{
+			printf("Error: Programming a data page failed\n");
+			printf("usbRead() returned %d\ndata = {%02X, %02X}\n", res, data[0], data[1]);
+			break;
+		}
+		else
+		{
+			printf("Page %u programmed\n", pageNum);
+			pageNum++;
+		}
+	}
 }
 
 int main(int argc, char **argv)

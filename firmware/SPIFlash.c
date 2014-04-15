@@ -263,6 +263,22 @@ void transferBitfile(const void *data, const size_t dataLen)
 	waitWriteComplete();
 	for (addr = 0; addr < pages; addr++)
 	{
+#ifndef NOUSB
+		size_t pageLen;
+		if (data == usbData)
+		{
+			pageLen = readData();
+			/* If we failed to receive the page, immediately indicate failure */
+			if (pageLen == 0)
+			{
+				writeUART(CMD_PAGE);
+				writeUART(RPL_FAIL);
+				programmed = false;
+				break;
+			}
+			writeData(addr >> 8, addr & 0xFF, data, pageLen);
+		}
+#endif
 #ifndef NOCONFIG
 		if (data == config)
 		{
@@ -274,6 +290,24 @@ void transferBitfile(const void *data, const size_t dataLen)
 		}
 #endif
 		waitWriteComplete();
+#ifndef NOUSB
+		if (data == usbData)
+		{
+			if (!verifyData(addr, data, pageLen))
+			{
+				writeUART(CMD_ABORT);
+				writeUART(RPL_FAIL);
+				programmed = false;
+				break;
+			}
+			else
+			{
+				writeUART(CMD_PAGE);
+				writeUART(RPL_OK);
+				usbDataReceived += pageLen;
+			}
+		}
+#endif
 	}
 	lockDevice();
 #ifndef NOCONFIG
