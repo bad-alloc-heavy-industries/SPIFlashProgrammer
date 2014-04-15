@@ -94,6 +94,26 @@ uint8_t readUART()
 	while ((UART0_FR_R & UART_FR_RXFE) != 0);
 	return UART0_DR_R & 0xFF;
 }
+
+uint16_t readData()
+{
+	uint8_t pageLen, i;
+	if (readUART() != CMD_PAGE)
+		return 0;
+	pageLen = readUART();
+	i = 0;
+	do
+	{
+		usbData[i] = readUART();
+		i++;
+	}
+	while (i != pageLen);
+
+	if (pageLen == 0)
+		return 0x100;
+	else
+		return pageLen;
+}
 #endif
 
 bool verifyDID()
