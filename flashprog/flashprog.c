@@ -85,6 +85,15 @@ void processFile()
 	printf("\n");
 }
 
+void writeLength()
+{
+	data[0] = (dataLen >> 24) & 0xFF;
+	data[1] = (dataLen >> 16) & 0xFF;
+	data[2] = (dataLen >> 8) & 0xFF;
+	data[3] = dataLen & 0xFF;
+	usbWrite(data, 4);
+}
+
 int main(int argc, char **argv)
 {
 	int32_t res;
@@ -109,7 +118,7 @@ int main(int argc, char **argv)
 
 	// Send the start command + 4 bytes indicating how long the data file is
 	usbWriteByte(CMD_START);
-	usbWrite(&dataLen, 4);
+	writeLength();
 	// Now wait for the return code
 	res = usbRead(data, 2);
 	if (res != 2 || data[0] != CMD_START || data[1] != RPL_OK)
