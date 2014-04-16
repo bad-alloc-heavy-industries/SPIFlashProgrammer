@@ -53,8 +53,9 @@ int usage(char *prog)
 
 void processFile()
 {
-	uint32_t pageNum = 0;
 	int32_t res, blockLen = -1;
+	uint32_t pageNum = 0;
+	printf("Programming");
 	while (blockLen != 0)
 	{
 		blockLen = read(dataFD, data, 256);
@@ -72,15 +73,16 @@ void processFile()
 		if (res != 2 || data[0] != CMD_PAGE || data[1] != RPL_OK)
 		{
 			printf("Error: Programming a data page failed\n");
-			printf("usbRead() returned %d\ndata = {%02X, %02X}\n", res, data[0], data[1]);
 			break;
 		}
 		else
 		{
-			printf("Page %u programmed\n", pageNum);
 			pageNum++;
+			if ((pageNum % 16) == 0)
+				printf(".");
 		}
 	}
+	printf("\n");
 }
 
 int main(int argc, char **argv)
