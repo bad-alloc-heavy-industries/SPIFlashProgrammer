@@ -205,7 +205,7 @@ bool verifyData(const uint16_t startPage, const uint8_t *data, const size_t data
 	writeSPI(0);
 	for (i = 0; i < dataLen; i++)
 	{
-		if (readSPI() != data[i]);
+		if (readSPI() != data[i])
 		{
 			ok = false;
 			break;
