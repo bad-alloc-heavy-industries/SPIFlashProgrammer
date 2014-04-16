@@ -134,12 +134,24 @@ bool verifyDID()
 	return datacmp(data, expectedDID, 3) == 0;
 }
 
-void unlockDevice()
+void writeEnable()
 {
+	uint8_t i;
 	/* Select the device */
 	GPIO_PORTA_DATA_BITS_R[0x08] = 0;
-	/* Write enable and write the Status Register */
+	/* Write enable the device */
 	writeSPI(WREN);
+	/* Deselect the device - executes write-enable instruction */
+	GPIO_PORTA_DATA_BITS_R[0x08] = 8;
+	for (i = 0; i < 10; i++);
+}
+
+void unlockDevice()
+{
+	writeEnable();
+	/* Select the device */
+	GPIO_PORTA_DATA_BITS_R[0x08] = 0;
+	/* Write the Status Register */
 	writeSPI(WRSR);
 	/* All zeros disables all enabled protections */
 	writeSPI(0x00);
@@ -149,10 +161,10 @@ void unlockDevice()
 
 void lockDevice()
 {
+	writeEnable();
 	/* Select the device */
 	GPIO_PORTA_DATA_BITS_R[0x08] = 0;
-	/* Write enable and write the Status Register */
-	writeSPI(WREN);
+	/* Write the Status Register */
 	writeSPI(WRSR);
 	/* The three Block Protect bits are bits [4:2] */
 	writeSPI(0x1C);
@@ -162,10 +174,10 @@ void lockDevice()
 
 void eraseDevice()
 {
+	writeEnable();
 	/* Select the device */
 	GPIO_PORTA_DATA_BITS_R[0x08] = 0;
-	/* Arm the device (Write Enable) and issue erase instruction */
-	writeSPI(WREN);
+	/* Issue erase instruction */
 	writeSPI(BE);
 	/* Deselect the device - executes erase */
 	GPIO_PORTA_DATA_BITS_R[0x08] = 8;
@@ -174,10 +186,9 @@ void eraseDevice()
 void writeData(const uint8_t sector, const uint8_t page, const uint8_t *data, const uint16_t dataLen)
 {
 	uint16_t i;
+	writeEnable();
 	/* Select the device */
 	GPIO_PORTA_DATA_BITS_R[0x08] = 0;
-	/* Write enable the device */
-	writeSPI(WREN);
 	/* And issue the Page Program instruction */
 	writeSPI(PP);
 	/* Sector is (sector >> 4), and sub-sector is (sector & 0x0F) */
