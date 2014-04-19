@@ -41,7 +41,7 @@
 int dataFD;
 size_t dataLen;
 
-// Reserve enough space for a page of data
+/* Reserve enough space for a page of data */
 unsigned char data[256];
 
 int usage(char *prog)
@@ -79,7 +79,10 @@ void processFile()
 		{
 			pageNum++;
 			if ((pageNum % 16) == 0)
+			{
 				printf(".");
+				fflush(stdout);
+			}
 		}
 	}
 	printf("\n");
@@ -132,6 +135,8 @@ int main(int argc, char **argv)
 			printf("Tiva C Launchpad encountered errors during programming, please try again\n");
 		else if (*((uint32_t *)data) != 0)
 			printf("Tiva C Launchpad did not receieve whole file\n");
+		else
+			printf("Done\n");
 	}
 
 	close(dataFD);
