@@ -73,6 +73,8 @@ void writeSPI(uint8_t data)
 	SSI0_DR_R = data;
 	while ((SSI0_SR_R & 0x01) != 1);
 	temp = SSI0_DR_R & 0xFF;
+	while ((SSI0_SR_R & 0x04) != 4);
+	temp = SSI0_DR_R & 0xFF;
 }
 
 uint8_t readSPI()
