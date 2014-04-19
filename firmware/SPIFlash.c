@@ -375,7 +375,7 @@ int main()
 	GPIO_PORTF_CR_R |= 0x01;
 	GPIO_PORTF_LOCK_R = 0;
 	/* Set the ports to digital mode */
-	GPIO_PORTA_DEN_R |= 0x3F;
+	GPIO_PORTA_DEN_R |= 0xDF;
 	GPIO_PORTF_DEN_R |= 0x1F;
 	/* Wait for SSI0 to come online */
 	while ((SYSCTL_PRSSI_R & SYSCTL_PRSSI_R0) != SYSCTL_PRSSI_R0);
@@ -387,6 +387,10 @@ int main()
 #endif
 
 #ifndef NOUSB
+	/* Configure PA7 as a digital O/D output */
+	GPIO_PORTA_ODR_R |= 0x80;
+	GPIO_PORTA_DIR_R |= 0x80;
+	GPIO_PORTA_DATA_BITS_R[0x80] = 0x80;
 	/* Configure the UART pins as alternative function and enable their use by the UART module */
 	GPIO_PORTA_AFSEL_R |= 0x03;
 	GPIO_PORTA_PCTL_R |= GPIO_PCTL_PA1_U0TX | GPIO_PCTL_PA0_U0RX;
@@ -440,7 +444,7 @@ int main()
 	/* Configure the Timer 0 module for submodule A operation */
 	TIMER0_CTL_R &= ~TIMER_CTL_TAEN;
 	TIMER0_TAMR_R = TIMER_TAMR_TAMR_1_SHOT | TIMER_TAMR_TACDIR | TIMER_TAMR_TAMIE;
-	/* Set the timeout for 500us */
+	/* Set the timeout for 500ms */
 	TIMER0_TAMATCHR_R = 8000000;
 	TIMER0_ICR_R = TIMER_ICR_TAMCINT;
 
