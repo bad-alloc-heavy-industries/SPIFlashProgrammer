@@ -388,11 +388,12 @@ int main()
 	while ((SYSCTL_PRUART_R & SYSCTL_PRUART_R0) != SYSCTL_PRUART_R0);
 #endif
 
-#ifndef NOUSB
 	/* Configure PA7 as a digital O/D output */
 	GPIO_PORTA_ODR_R |= 0x80;
 	GPIO_PORTA_DIR_R |= 0x80;
 	GPIO_PORTA_DATA_BITS_R[0x80] = 0x80;
+
+#ifndef NOUSB
 	/* Configure the UART pins as alternative function and enable their use by the UART module */
 	GPIO_PORTA_AFSEL_R |= 0x03;
 	GPIO_PORTA_PCTL_R |= GPIO_PCTL_PA1_U0TX | GPIO_PCTL_PA0_U0RX;
