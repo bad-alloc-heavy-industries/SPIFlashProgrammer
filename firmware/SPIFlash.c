@@ -425,8 +425,7 @@ int main()
 
 	/* Configure the SSI (SPI) pins as alternative function and enable their use by the SPI module */
 	GPIO_PORTA_AFSEL_R |= 0x34;
-	GPIO_PORTA_PCTL_R |= GPIO_PCTL_PA5_SSI0TX | GPIO_PCTL_PA4_SSI0RX |
-		/*GPIO_PCTL_PA3_SSI0FSS | */GPIO_PCTL_PA2_SSI0CLK;
+	GPIO_PORTA_PCTL_R |= GPIO_PCTL_PA5_SSI0TX | GPIO_PCTL_PA4_SSI0RX | GPIO_PCTL_PA2_SSI0CLK;
 	SSI0_CR1_R = 0;
 	GPIO_PORTA_DR2R_R |= 0x3C;
 	/* Pull all the pins high with a 2mA drive strength */
@@ -435,14 +434,14 @@ int main()
 	GPIO_PORTA_ODR_R |= 0x28;
 	/* Set the TX/!CS/CLK pins to outputs */
 	GPIO_PORTA_DIR_R |= 0x2C;
-	/* And send it high */
+	/* And send !CS high */
 	GPIO_PORTA_DATA_BITS_R[0x08] = 0x08;
 	/* Set Freescale SPI, SPO = 1, SPH = 1 */
 	SSI0_CR0_R = SSI_CR0_SPO | SSI_CR0_SPH | SSI_CR0_FRF_MOTO | SSI_CR0_DSS_8;
 	/* We have a 16 MHz clock, and we interface to the SPI Flash chip at 8MHz */
 	SSI0_CC_R = 0;
-	/* Scale the clock by 2 to make it 8MHz */
-	SSI0_CPSR_R = 2;
+	/* Scale the clock by 8 to make it 2MHz */
+	SSI0_CPSR_R = 8;
 	/* Enable the interface */
 	SSI0_CR1_R = SSI_CR1_SSE;
 
