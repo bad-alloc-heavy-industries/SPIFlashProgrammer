@@ -426,12 +426,14 @@ int main()
 		/*GPIO_PCTL_PA3_SSI0FSS | */GPIO_PCTL_PA2_SSI0CLK;
 	SSI0_CR1_R = 0;
 	GPIO_PORTA_DR2R_R |= 0x3C;
-	/* Pull the !CS pin high with a 2mA drive strength */
-	GPIO_PORTA_PUR_R |= 0x08;
-	/* Pull the Rx, Tx and Clk pins low with a 2mA drive strength */
-	GPIO_PORTA_PDR_R |= 0x34;
-	/* Set the !CS pin to an output */
-	GPIO_PORTA_DIR_R |= 0x08;
+	/* Pull all the pins high with a 2mA drive strength */
+	GPIO_PORTA_PUR_R |= 0x3C;
+	/* Set the output pins for open-collector function */
+	GPIO_PORTA_ODR_R |= 0x28;
+	/* Set the TX/!CS/CLK pins to outputs */
+	GPIO_PORTA_DIR_R |= 0x2C;
+	/* And send it high */
+	GPIO_PORTA_DATA_BITS_R[0x08] = 0x08;
 	/* Set Freescale SPI, SPO = 1, SPH = 1 */
 	SSI0_CR0_R = SSI_CR0_SPO | SSI_CR0_SPH | SSI_CR0_FRF_MOTO | SSI_CR0_DSS_8;
 	/* We have a 16 MHz clock, and we interface to the SPI Flash chip at 8MHz */
@@ -476,6 +478,9 @@ int main()
 				TIMER0_CTL_R &= ~TIMER_CTL_TAEN;
 				/* Set the LED to red for busy/processing */
 				GPIO_PORTF_DATA_BITS_R[0x0E] = 0x02;
+				/* Enable the interface */
+				GPIO_PORTA_ODR_R &= ~0x08;
+				GPIO_PORTA_DATA_BITS_R[0x88] = 0x08;
 				usbDataTotal = 0;
 				usbDataReceived = 0;
 				for (i = 0; i < 4; i++)
@@ -483,7 +488,10 @@ int main()
 					usbDataTotal <<= 8;
 					usbDataTotal |= readUART();
 				}
+				GPIO_PORTA_ODR_R |= 0x08;
 				transferBitfile(usbData, usbDataTotal);
+				/* Disable the interface */
+				GPIO_PORTA_DATA_BITS_R[0xAC] = 0xAC;
 				/* Reset the timer and set it running */
 				TIMER0_TAV_R = 0;
 				TIMER0_CTL_R |= TIMER_CTL_TAEN;
