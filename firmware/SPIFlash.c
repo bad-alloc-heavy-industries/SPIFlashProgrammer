@@ -268,8 +268,8 @@ void waitWriteComplete()
 	GPIO_PORTA_DATA_BITS_R[0x08] = 0;
 	/* Write the Read Status Register instruction */
 	writeSPI(RDSR);
-	/* And use it's continuous read mode till the write is complete (bit 7 => 0) */
-	while ((readSPI() & 7) != 0);
+	/* And use it's continuous read mode till the write is complete (bit 0 => 0) */
+	while ((readSPI() & 0x01) != 0);
 	/* Deselect the device */
 	GPIO_PORTA_DATA_BITS_R[0x08] = 8;
 }
@@ -356,6 +356,7 @@ void transferBitfile(const void *data, const size_t dataLen)
 #endif
 	}
 	lockDevice();
+	waitWriteComplete();
 #ifndef NOCONFIG
 	if (data == config)
 	{
