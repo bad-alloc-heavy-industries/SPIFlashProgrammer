@@ -56,8 +56,9 @@ size_t dataLen;
 /* Reserve enough space for a page of data */
 unsigned char data[256];
 
-static uint8_t numProgChars = 4;
-static char *progressChars = "|/-\\";
+static const uint8_t numProgChars = 4;
+static const char *progressChars = "|/-\\";
+uint8_t progChar;
 
 int usage(char *prog)
 {
@@ -66,18 +67,26 @@ int usage(char *prog)
 	return 1;
 }
 
+void tick()
+{
+	printf("%c\b", progressChars[progChar]);
+	fflush(stdout);
+	progChar = ++progChar % numProgChars;
+}
+
 void processFile()
 {
 	int32_t res, blockLen = -1;
 	uint32_t pageNum = 0;
-	printf("Programming");
+	progChar = 0;
+	printf("Programming: ");
 	while (blockLen != 0)
 	{
 		blockLen = read(dataFD, data, 256);
 		if (blockLen == -1)
 		{
 			usbWriteByte(CMD_ABORT);
-			die("\nError: read() returned an error.. cannot continue..\n");
+			die("\rError: read() returned an error.. cannot continue..\n");
 		}
 		else if (blockLen == 0)
 			continue;
@@ -87,26 +96,22 @@ void processFile()
 		res = usbRead(data, 2);
 		if (res != 2 || data[0] != CMD_PAGE || data[1] != RPL_OK)
 		{
-			printf("\nError: Programming a data page failed");
+			printf("\rError: Programming a data page failed\n");
 			break;
 		}
 		else
 		{
 			pageNum++;
-			if ((pageNum % 16) == 0)
-			{
-				printf(".");
-				fflush(stdout);
-			}
+			if ((pageNum % 4) == 0)
+				tick();
 		}
 	}
-	printf("\n");
 }
 
 void waitForErase()
 {
 	int32_t res;
-	uint8_t progChar = 0;
+	progChar = 0;
 	printf("Erasing: ");
 	fflush(stdout);
 	do
@@ -117,9 +122,7 @@ void waitForErase()
 			die("\rError: Erase cycle interrupted, cannot continue..\n");
 		else if (data[1] == RPL_OK)
 			break;
-		printf("%c\b", progressChars[progChar]);
-		fflush(stdout);
-		progChar = ++progChar % numProgChars;
+		tick();
 		_usleep(100);
 	}
 	while (data[1] == RPL_BUSY);
@@ -171,11 +174,11 @@ int main(int argc, char **argv)
 		usbWriteByte(CMD_STOP);
 		res = usbRead(data, 6);
 		if (res != 6 || data[4] != CMD_STOP || data[5] != RPL_OK)
-			printf("Tiva C Launchpad encountered errors during programming, please try again\n");
+			printf("\rTiva C Launchpad encountered errors during programming, please try again\n");
 		else if (*((uint32_t *)data) != 0)
-			printf("Tiva C Launchpad did not receieve whole file\n");
+			printf("\rTiva C Launchpad did not receieve whole file\n");
 		else
-			printf("Done\n");
+			printf("Done!\n");
 	}
 
 	close(dataFD);
