@@ -13,7 +13,7 @@ The firmware can be built in one of three modes:
 * Just USB enabled (NOCONFIG=1)
 * Just built-in blob enabled (NOUSB=1)
 
-The build system checks for an errors when NOCONFIG=1 and NOUSB=1 as this would be a pointless configuration.
+The build system checks for, and errors when, NOCONFIG=1 and NOUSB=1 as this would be a pointless configuration.
 The build depends on the presence of a suitable ARM toolchain - arm-none-eabi - a flavour of GCC.
 
 Simple build instructions to get running immediately:
@@ -24,7 +24,7 @@ make NOCONFIG=1
 
 ## flashprog build
 
-The programming software depends souly on libusb-1.0 which can be installed easily from repository on most Linux distros, and from the libusb-win32 sourceforge project on Windows.
+The programming software depends soley on libusb-1.0 which can be installed easily from repository on most Linux distros, and from the libusb-win32 sourceforge project on Windows.
 
 Building the software is as simple as running make in the flashprog directory.
 
