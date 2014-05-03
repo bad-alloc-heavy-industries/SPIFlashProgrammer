@@ -44,6 +44,9 @@ size_t dataLen;
 /* Reserve enough space for a page of data */
 unsigned char data[256];
 
+static uint8_t numProgChars = 4;
+static char *progressChars = "|/-\\";
+
 int usage(char *prog)
 {
 	printf("Usage:\n"
@@ -88,6 +91,29 @@ void processFile()
 	printf("\n");
 }
 
+void waitForErase()
+{
+	int32_t res;
+	uint8_t progChar = 0;
+	printf("Erasing: ");
+	fflush(stdout);
+	do
+	{
+		usbWriteByte(CMD_ERASE);
+		res = usbRead(data, 2);
+		if (res != 2 || data[0] != CMD_ERASE)
+			die("\rError: Erase cycle interrupted, cannot continue..\n");
+		else if (data[1] == RPL_OK)
+			break;
+		printf("%c\b", progressChars[progChar]);
+		fflush(stdout);
+		progChar = ++progChar % numProgChars;
+		sleep(1);
+	}
+	while (data[1] == RPL_BUSY);
+	printf("Done!\n");
+}
+
 void writeLength()
 {
 	data[0] = (dataLen >> 24) & 0xFF;
@@ -128,6 +154,7 @@ int main(int argc, char **argv)
 		printf("Tiva C Launchpad said it could not start a transfer\n");
 	else
 	{
+		waitForErase();
 		processFile();
 		usbWriteByte(CMD_STOP);
 		res = usbRead(data, 6);

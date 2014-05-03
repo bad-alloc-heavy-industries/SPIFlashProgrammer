@@ -174,8 +174,10 @@ void lockDevice()
 	GPIO_PORTA_DATA_BITS_R[0x08] = 8;
 }
 
-void eraseDevice()
+void eraseDevice(const uint8_t *data)
 {
+	uint8_t i;
+	/* Ensure the device is write enabled */
 	writeEnable();
 	/* Select the device */
 	GPIO_PORTA_DATA_BITS_R[0x08] = 0;
@@ -183,6 +185,37 @@ void eraseDevice()
 	writeSPI(BE);
 	/* Deselect the device - executes erase */
 	GPIO_PORTA_DATA_BITS_R[0x08] = 8;
+	for (i = 0; i < 10; i++);
+	/* Select the device */
+	GPIO_PORTA_DATA_BITS_R[0x08] = 0;
+	/* Write the Read Status Register instruction */
+	writeSPI(RDSR);
+	/* While write is not complete (bit 0 => 1) */
+	while ((readSPI() & 0x01) != 0)
+	{
+#ifndef NOUSB
+		if (data == usbData && (UART0_FR_R & UART_FR_RXFE) == 0)
+		{
+			/* It doesn't matter what the request was.. */
+			readUART();
+			/* Inform the connected PC */
+			writeUART(CMD_ERASE);
+			writeUART(RPL_BUSY);
+		}
+#endif
+	}
+	/* Deselect the device */
+	GPIO_PORTA_DATA_BITS_R[0x08] = 8;
+#ifndef NOUSB
+	if (data == usbData)
+	{
+		/* It doesn't matter what the request was.. */
+		readUART();
+		/* Write complete, so say erase completed! */
+		writeUART(CMD_ERASE);
+		writeUART(RPL_OK);
+	}
+#endif
 }
 
 void writeData(const uint8_t sector, const uint8_t page, const uint8_t *data, const uint16_t dataLen)
@@ -272,8 +305,8 @@ void transferBitfile(const void *data, const size_t dataLen)
 
 	pages = (dataLen >> 8) + ((dataLen & 0xFF) != 0 ? 1 : 0);
 	unlockDevice();
-	eraseDevice();
 	waitWriteComplete();
+	eraseDevice(data);
 	for (addr = 0; addr < pages; addr++)
 	{
 #ifndef NOUSB
