@@ -26,6 +26,18 @@
 #include "USB.h"
 #include "USBInterface.h"
 
+#ifdef _MSC_VER
+#define _usleep _sleep
+#else
+#define MSECS_IN_SEC 1000
+#define NSECS_IN_MSEC 1000000
+#define _usleep(milisec) \
+	{\
+		struct timespec req = {milisec / MSECS_IN_SEC, (milisec % MSECS_IN_SEC) * NSECS_IN_MSEC}; \
+		nanosleep(&req, NULL); \
+	}
+#endif
+
 /*
  * USB transfer protocol:
  *
@@ -108,7 +120,7 @@ void waitForErase()
 		printf("%c\b", progressChars[progChar]);
 		fflush(stdout);
 		progChar = ++progChar % numProgChars;
-		sleep(1);
+		_usleep(100);
 	}
 	while (data[1] == RPL_BUSY);
 	printf("Done!\n");
