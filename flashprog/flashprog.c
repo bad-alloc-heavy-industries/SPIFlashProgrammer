@@ -65,7 +65,7 @@ void processFile()
 		if (blockLen == -1)
 		{
 			usbWriteByte(CMD_ABORT);
-			die("Error: read() returned an error.. cannot continue..\n");
+			die("\nError: read() returned an error.. cannot continue..\n");
 		}
 		else if (blockLen == 0)
 			continue;
@@ -75,7 +75,7 @@ void processFile()
 		res = usbRead(data, 2);
 		if (res != 2 || data[0] != CMD_PAGE || data[1] != RPL_OK)
 		{
-			printf("Error: Programming a data page failed\n");
+			printf("\nError: Programming a data page failed");
 			break;
 		}
 		else
