@@ -467,7 +467,7 @@ int main()
 	/* Set the output pins for open-collector function */
 	GPIO_PORTA_ODR_R |= 0x28;
 	/* Set the TX/!CS/CLK pins to outputs */
-	GPIO_PORTA_DIR_R |= 0x2C;
+	GPIO_PORTA_DIR_R |= 0x28;
 	/* And send !CS high */
 	GPIO_PORTA_DATA_BITS_R[0x08] = 0x08;
 	/* Set Freescale SPI, SPO = 1, SPH = 1 */
