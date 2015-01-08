@@ -138,14 +138,21 @@ bool verifyDID()
 
 void writeEnable()
 {
-	uint8_t i;
 	/* Select the device */
 	GPIO_PORTA_DATA_BITS_R[0x08] = 0;
 	/* Write enable the device */
 	writeSPI(WREN);
 	/* Deselect the device - executes write-enable instruction */
 	GPIO_PORTA_DATA_BITS_R[0x08] = 8;
-	for (i = 0; i < 10; i++);
+	asm("nop");
+	/* Select the device again */
+	GPIO_PORTA_DATA_BITS_R[0x08] = 0;
+	/* Issue Read Status Register instruction */
+	writeSPI(RDSR);
+	/* And use it's continuous read mode till the write enable completes (bit 1 => 1) */
+	while ((readSPI() & 0x02) == 0);
+	/* Deselect the device */
+	GPIO_PORTA_DATA_BITS_R[0x08] = 8;
 }
 
 void unlockDevice()
