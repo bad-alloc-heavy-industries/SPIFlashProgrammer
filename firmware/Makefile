@@ -23,7 +23,7 @@ CFLAGS = -c $(OPTIM_FLAGS) -pedantic -Wall $(ARM_FLAGS) -Iinclude -I.. -I. $(DEF
 LFLAGS = -T $(LSCRIPT) --static --gc-sections -o $(ELF) $(O)
 BFLAGS = -O binary $(ELF) $(BIN)
 
-O_EXTRA = SPI.o Startup.o
+O_EXTRA = SPI.o UART.o Startup.o
 O_TIVAC = $(patsubst %, TivaC/%, $(O_EXTRA))
 O_LPC4370 = $(patsubst %, LPC4370/%, $(O_EXTRA))
 

@@ -25,8 +25,8 @@
 #endif
 #ifndef NOUSB
 #include "USBInterface.h"
+#include "UART.h"
 #endif
-
 #include "SPI.h"
 
 #define WREN	0x06
@@ -70,28 +70,16 @@ int datacmp(const uint8_t *a, const uint8_t *b, const size_t n)
 }
 
 #ifndef NOUSB
-void writeUART(uint8_t data)
-{
-	while ((UART0_FR_R & UART_FR_TXFF) != 0);
-	UART0_DR_R = data;
-}
-
-uint8_t readUART()
-{
-	while ((UART0_FR_R & UART_FR_RXFE) != 0);
-	return UART0_DR_R & 0xFF;
-}
-
 uint16_t readData()
 {
 	uint8_t pageLen, i;
-	if (readUART() != CMD_PAGE)
+	if (uartRead() != CMD_PAGE)
 		return 0;
-	pageLen = readUART();
+	pageLen = uartRead();
 	i = 0;
 	do
 	{
-		usbData[i] = readUART();
+		usbData[i] = uartRead();
 		i++;
 	}
 	while (i != pageLen);
@@ -189,10 +177,10 @@ void eraseDevice(const uint8_t *data)
 		if (data == usbData && (UART0_FR_R & UART_FR_RXFE) == 0)
 		{
 			/* It doesn't matter what the request was.. */
-			readUART();
+			uartRead();
 			/* Inform the connected PC */
-			writeUART(CMD_ERASE);
-			writeUART(RPL_BUSY);
+			uartWrite(CMD_ERASE);
+			uartWrite(RPL_BUSY);
 		}
 #endif
 	}
@@ -202,10 +190,10 @@ void eraseDevice(const uint8_t *data)
 	if (data == usbData)
 	{
 		/* It doesn't matter what the request was.. */
-		readUART();
+		uartRead();
 		/* Write complete, so say erase completed! */
-		writeUART(CMD_ERASE);
-		writeUART(RPL_OK);
+		uartWrite(CMD_ERASE);
+		uartWrite(RPL_OK);
 	}
 #endif
 }
@@ -281,8 +269,8 @@ void transferBitfile(const void *data, const size_t dataLen)
 #ifndef NOUSB
 		if (data == usbData)
 		{
-			writeUART(CMD_ABORT);
-			writeUART(RPL_FAIL);
+			uartWrite(CMD_ABORT);
+			uartWrite(RPL_FAIL);
 		}
 #endif
 		return;
@@ -290,8 +278,8 @@ void transferBitfile(const void *data, const size_t dataLen)
 #ifndef NOUSB
 	else if (data == usbData)
 	{
-		writeUART(CMD_START);
-		writeUART(RPL_OK);
+		uartWrite(CMD_START);
+		uartWrite(RPL_OK);
 	}
 #endif
 
@@ -309,8 +297,8 @@ void transferBitfile(const void *data, const size_t dataLen)
 			/* If we failed to receive the page, immediately indicate failure */
 			if (pageLen == 0)
 			{
-				writeUART(CMD_PAGE);
-				writeUART(RPL_FAIL);
+				uartWrite(CMD_PAGE);
+				uartWrite(RPL_FAIL);
 				programmed = false;
 				break;
 			}
@@ -333,15 +321,15 @@ void transferBitfile(const void *data, const size_t dataLen)
 		{
 			if (!verifyData(addr, data, pageLen))
 			{
-				writeUART(CMD_ABORT);
-				writeUART(RPL_FAIL);
+				uartWrite(CMD_ABORT);
+				uartWrite(RPL_FAIL);
 				programmed = false;
 				break;
 			}
 			else
 			{
-				writeUART(CMD_PAGE);
-				writeUART(RPL_OK);
+				uartWrite(CMD_PAGE);
+				uartWrite(RPL_OK);
 				usbDataReceived += pageLen;
 			}
 		}
@@ -359,26 +347,26 @@ void transferBitfile(const void *data, const size_t dataLen)
 #ifndef NOUSB
 	if (data == usbData)
 	{
-		uint8_t cmd = readUART();
+		uint8_t cmd = uartRead();
 		if (cmd == CMD_STOP)
 		{
 			uint8_t i;
 			uint32_t diff = usbDataTotal - usbDataReceived;
 			for (i = 0; i < 4; i++)
 			{
-				writeUART((diff >> 24) & 0xFF);
+				uartWrite((diff >> 24) & 0xFF);
 				diff <<= 8;
 			}
-			writeUART(CMD_STOP);
+			uartWrite(CMD_STOP);
 			if (programmed)
-				writeUART(RPL_OK);
+				uartWrite(RPL_OK);
 			else
-				writeUART(RPL_FAIL);
+				uartWrite(RPL_FAIL);
 		}
 		else
 		{
-			writeUART(CMD_INVALID);
-			writeUART(RPL_FAIL);
+			uartWrite(CMD_INVALID);
+			uartWrite(RPL_FAIL);
 		}
 	}
 #endif
@@ -514,7 +502,7 @@ int main()
 				for (i = 0; i < 4; i++)
 				{
 					usbDataTotal <<= 8;
-					usbDataTotal |= readUART();
+					usbDataTotal |= uartRead();
 				}
 				GPIO_PORTA_ODR_R |= 0x08;
 				transferBitfile(usbData, usbDataTotal);
@@ -526,8 +514,8 @@ int main()
 			}
 			else
 			{
-				writeUART(CMD_INVALID);
-				writeUART(RPL_FAIL);
+				uartWrite(CMD_INVALID);
+				uartWrite(RPL_FAIL);
 			}
 		}
 #endif
