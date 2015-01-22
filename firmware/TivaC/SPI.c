@@ -23,6 +23,31 @@ void spiInit()
 {
 	/* Enable SSI0 */
 	SYSCTL_RCGCSSI_R |= SYSCTL_RCGCSSI_R0;
+	/* Set the port to digital mode */
+	GPIO_PORTA_DEN_R |= 0x5C;
+	/* Wait for SSI0 to come online */
+	while ((SYSCTL_PRSSI_R & SYSCTL_PRSSI_R0) != SYSCTL_PRSSI_R0);
+	/* Configure the SSI (SPI) pins as alternative function and enable their use by the SPI module */
+	GPIO_PORTA_AFSEL_R |= 0x34;
+	GPIO_PORTA_PCTL_R |= GPIO_PCTL_PA5_SSI0TX | GPIO_PCTL_PA4_SSI0RX | GPIO_PCTL_PA2_SSI0CLK;
+	SSI0_CR1_R = 0;
+	GPIO_PORTA_DR2R_R |= 0x3C;
+	/* Pull all the pins high with a 2mA drive strength */
+	GPIO_PORTA_PUR_R |= 0x3C;
+	/* Set the output pins for open-collector function */
+	GPIO_PORTA_ODR_R |= 0x28;
+	/* Set the TX/!CS/CLK pins to outputs */
+	GPIO_PORTA_DIR_R |= 0x28;
+	/* And send !CS high */
+	GPIO_PORTA_DATA_BITS_R[0x08] = 0x08;
+	/* Set Freescale SPI, SPO = 1, SPH = 1 */
+	SSI0_CR0_R = SSI_CR0_SPO | SSI_CR0_SPH | SSI_CR0_FRF_MOTO | SSI_CR0_DSS_8;
+	/* We have a 16 MHz clock, and we interface to the SPI Flash chip at 8MHz */
+	SSI0_CC_R = 0;
+	/* Scale the clock by 8 to make it 2MHz */
+	SSI0_CPSR_R = 8;
+	/* Enable the interface */
+	SSI0_CR1_R = SSI_CR1_SSE;
 }
 
 void spiWrite(uint8_t data)
