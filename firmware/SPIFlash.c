@@ -27,6 +27,8 @@
 #include "USBInterface.h"
 #endif
 
+#include "SPI.h"
+
 #define WREN	0x06
 #define WRDI	0x04
 #define RDIDL	0x9F
@@ -67,23 +69,6 @@ int datacmp(const uint8_t *a, const uint8_t *b, const size_t n)
 	return 0;
 }
 
-void writeSPI(uint8_t data)
-{
-	uint8_t temp;
-	SSI0_DR_R = data;
-	while ((SSI0_SR_R & 0x01) != 1);
-	temp = SSI0_DR_R & 0xFF;
-	while ((SSI0_SR_R & 0x04) != 4);
-	temp = SSI0_DR_R & 0xFF;
-}
-
-uint8_t readSPI()
-{
-	SSI0_DR_R = 0;
-	while ((SSI0_SR_R & 0x04) != 4);
-	return SSI0_DR_R & 0xFF;
-}
-
 #ifndef NOUSB
 void writeUART(uint8_t data)
 {
@@ -122,15 +107,15 @@ bool verifyDID()
 {
 	uint8_t data[3], i;
 	/* Select the device */
-	GPIO_PORTA_DATA_BITS_R[0x08] = 0;
+	spiChipSelect(true);
 	/* Send a short DID read request */
-	writeSPI(RDIDS);
+	spiWrite(RDIDS);
 	/* For each of the three bytes returned */
 	for (i = 0; i < 3; i++)
 		/* And having recieved the answer, buffer it */
-		data[i] = readSPI();
+		data[i] = spiRead();
 	/* Deselect the device */
-	GPIO_PORTA_DATA_BITS_R[0x08] = 8;
+	spiChipSelect(false);
 	/* Compare the recieved data to the expected data */
 	/* I wanted to use memcmp here, but could not make use of the newlib implemenation */
 	return datacmp(data, expectedDID, 3) == 0;
@@ -139,46 +124,46 @@ bool verifyDID()
 void writeEnable()
 {
 	/* Select the device */
-	GPIO_PORTA_DATA_BITS_R[0x08] = 0;
+	spiChipSelect(true);
 	/* Write enable the device */
-	writeSPI(WREN);
+	spiWrite(WREN);
 	/* Deselect the device - executes write-enable instruction */
-	GPIO_PORTA_DATA_BITS_R[0x08] = 8;
+	spiChipSelect(false);
 	asm("nop");
 	/* Select the device again */
-	GPIO_PORTA_DATA_BITS_R[0x08] = 0;
+	spiChipSelect(true);
 	/* Issue Read Status Register instruction */
-	writeSPI(RDSR);
+	spiWrite(RDSR);
 	/* And use it's continuous read mode till the write enable completes (bit 1 => 1) */
-	while ((readSPI() & 0x02) == 0);
+	while ((spiRead() & 0x02) == 0);
 	/* Deselect the device */
-	GPIO_PORTA_DATA_BITS_R[0x08] = 8;
+	spiChipSelect(false);
 }
 
 void unlockDevice()
 {
 	writeEnable();
 	/* Select the device */
-	GPIO_PORTA_DATA_BITS_R[0x08] = 0;
+	spiChipSelect(true);
 	/* Write the Status Register */
-	writeSPI(WRSR);
+	spiWrite(WRSR);
 	/* All zeros disables all enabled protections */
-	writeSPI(0x00);
+	spiWrite(0x00);
 	/* Deselect the device */
-	GPIO_PORTA_DATA_BITS_R[0x08] = 8;
+	spiChipSelect(false);
 }
 
 void lockDevice()
 {
 	writeEnable();
 	/* Select the device */
-	GPIO_PORTA_DATA_BITS_R[0x08] = 0;
+	spiChipSelect(true);
 	/* Write the Status Register */
-	writeSPI(WRSR);
+	spiWrite(WRSR);
 	/* The three Block Protect bits are bits [4:2] */
-	writeSPI(0x1C);
+	spiWrite(0x1C);
 	/* Deselect the device */
-	GPIO_PORTA_DATA_BITS_R[0x08] = 8;
+	spiChipSelect(false);
 }
 
 void eraseDevice(const uint8_t *data)
@@ -187,18 +172,18 @@ void eraseDevice(const uint8_t *data)
 	/* Ensure the device is write enabled */
 	writeEnable();
 	/* Select the device */
-	GPIO_PORTA_DATA_BITS_R[0x08] = 0;
+	spiChipSelect(true);
 	/* Issue erase instruction */
-	writeSPI(BE);
+	spiWrite(BE);
 	/* Deselect the device - executes erase */
-	GPIO_PORTA_DATA_BITS_R[0x08] = 8;
+	spiChipSelect(false);
 	for (i = 0; i < 10; i++);
 	/* Select the device */
-	GPIO_PORTA_DATA_BITS_R[0x08] = 0;
+	spiChipSelect(true);
 	/* Write the Read Status Register instruction */
-	writeSPI(RDSR);
+	spiWrite(RDSR);
 	/* While write is not complete (bit 0 => 1) */
-	while ((readSPI() & 0x01) != 0)
+	while ((spiRead() & 0x01) != 0)
 	{
 #ifndef NOUSB
 		if (data == usbData && (UART0_FR_R & UART_FR_RXFE) == 0)
@@ -212,7 +197,7 @@ void eraseDevice(const uint8_t *data)
 #endif
 	}
 	/* Deselect the device */
-	GPIO_PORTA_DATA_BITS_R[0x08] = 8;
+	spiChipSelect(false);
 #ifndef NOUSB
 	if (data == usbData)
 	{
@@ -230,20 +215,20 @@ void writeData(const uint8_t sector, const uint8_t page, const uint8_t *data, co
 	uint16_t i;
 	writeEnable();
 	/* Select the device */
-	GPIO_PORTA_DATA_BITS_R[0x08] = 0;
+	spiChipSelect(true);
 	/* And issue the Page Program instruction */
-	writeSPI(PP);
+	spiWrite(PP);
 	/* Sector is (sector >> 4), and sub-sector is (sector & 0x0F) */
-	writeSPI(sector);
+	spiWrite(sector);
 	/* The page of the sector */
-	writeSPI(page);
+	spiWrite(page);
 	/* Must be 0 to select the first byte of the page */
-	writeSPI(0);
+	spiWrite(0);
 	/* Send the data */
 	for (i = 0; i < dataLen; i++)
-		writeSPI(data[i]);
+		spiWrite(data[i]);
 	/* Deselect the device - executes write instruction */
-	GPIO_PORTA_DATA_BITS_R[0x08] = 8;
+	spiChipSelect(false);
 }
 
 bool verifyData(const uint16_t startPage, const uint8_t *data, const size_t dataLen)
@@ -251,34 +236,34 @@ bool verifyData(const uint16_t startPage, const uint8_t *data, const size_t data
 	uint16_t i;
 	bool ok = true;
 	/* Select the device */
-	GPIO_PORTA_DATA_BITS_R[0x08] = 0;
-	writeSPI(READ);
-	writeSPI(startPage >> 8);
-	writeSPI(startPage & 0xFF);
-	writeSPI(0);
+	spiChipSelect(true);
+	spiWrite(READ);
+	spiWrite(startPage >> 8);
+	spiWrite(startPage & 0xFF);
+	spiWrite(0);
 	for (i = 0; i < dataLen; i++)
 	{
-		if (readSPI() != data[i])
+		if (spiRead() != data[i])
 		{
 			ok = false;
 			break;
 		}
 	}
 	/* Deselect the device */
-	GPIO_PORTA_DATA_BITS_R[0x08] = 8;
+	spiChipSelect(false);
 	return ok;
 }
 
 void waitWriteComplete()
 {
 	/* Select the device */
-	GPIO_PORTA_DATA_BITS_R[0x08] = 0;
+	spiChipSelect(true);
 	/* Write the Read Status Register instruction */
-	writeSPI(RDSR);
+	spiWrite(RDSR);
 	/* And use it's continuous read mode till the write is complete (bit 0 => 0) */
-	while ((readSPI() & 0x01) != 0);
+	while ((spiRead() & 0x01) != 0);
 	/* Deselect the device */
-	GPIO_PORTA_DATA_BITS_R[0x08] = 8;
+	spiChipSelect(false);
 }
 
 void transferBitfile(const void *data, const size_t dataLen)

@@ -18,10 +18,13 @@ include Makefile.inc
 
 ARM_FLAGS = -mthumb -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -msoft-float -mfloat-abi=softfp -ffunction-sections -fdata-sections
 DEFINES = -DPART_LM4F120H5QR -DARM_MATH_CM4 -DTARGET_IS_BLIZZARD_RA1 -Wno-unused-but-set-variable
-CFLAGS = -c $(OPTIM_FLAGS) -pedantic -Wall $(ARM_FLAGS) -Iinclude -I.. $(DEFINES) -o $@ $<
+CFLAGS = -c $(OPTIM_FLAGS) -pedantic -Wall $(ARM_FLAGS) -Iinclude -I.. -I. $(DEFINES) -o $@ $<
 #LFLAGS = $(ARM_FLAGS) -Wl,--static,--gc-sections,-T,TM4C.ld -o $(ELF) $(O)
 LFLAGS = -T TM4C.ld --static --gc-sections -o $(ELF) $(O)
 BFLAGS = -O binary $(ELF) $(BIN)
+
+O_EXTRA = SPI.o
+O_TIVAC = $(patsubst %, TivaC/%, $(O_EXTRA))
 
 ifneq ($(NOCONFIG), 1)
 PREREQ = bin2src/bin2src
@@ -31,6 +34,14 @@ endif
 O += SPIFlash.o Startup.o
 ELF = SPIFlashProgrammer.elf
 BIN = SPIFlashProgrammer.bin
+
+ifeq ($(TARGET), TivaC)
+O += $(O_TIVAC)
+else ifeq ($(MAKECMDGOALS),clean)
+O += $(O_TIVAC)
+else
+$(error Invalid build configuration detected, must see a valid TARGET)
+endif
 
 ifeq ($(NOCONFIG), 1)
 DEFINES += -DNOCONFIG
