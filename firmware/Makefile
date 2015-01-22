@@ -23,15 +23,16 @@ CFLAGS = -c $(OPTIM_FLAGS) -pedantic -Wall $(ARM_FLAGS) -Iinclude -I.. -I. $(DEF
 LFLAGS = -T TM4C.ld --static --gc-sections -o $(ELF) $(O)
 BFLAGS = -O binary $(ELF) $(BIN)
 
-O_EXTRA = SPI.o
+O_EXTRA = SPI.o Startup.o
 O_TIVAC = $(patsubst %, TivaC/%, $(O_EXTRA))
+O_LPC4370 = $(patsubst %, LPC4370/%, $(O_EXTRA))
 
 ifneq ($(NOCONFIG), 1)
 PREREQ = bin2src/bin2src
 O += config.o
 endif
 
-O += SPIFlash.o Startup.o
+O += SPIFlash.o
 ELF = SPIFlashProgrammer.elf
 BIN = SPIFlashProgrammer.bin
 
