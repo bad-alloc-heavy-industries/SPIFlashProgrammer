@@ -23,6 +23,8 @@ void uartInit()
 {
 	/* Enable UART0 */
 	SYSCTL_RCGCUART_R |= SYSCTL_RCGCUART_R0;
+	/* Set the port to digital mode */
+	GPIO_PORTA_DEN_R |= 0x03;
 	/* Wait for UART 0 to come online */
 	while ((SYSCTL_PRUART_R & SYSCTL_PRUART_R0) != SYSCTL_PRUART_R0);
 	/* Configure the UART pins as alternative function and enable their use by the UART module */
