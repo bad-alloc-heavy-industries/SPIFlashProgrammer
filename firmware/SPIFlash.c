@@ -464,9 +464,9 @@ int main()
 #endif
 #ifndef NOUSB
 		/* If the UART has recieved a byte.. */
-		if ((UART0_FR_R & UART_FR_RXFE) == 0)
+		if (uartHaveData())
 		{
-			if ((UART0_DR_R & 0xFF) == CMD_START)
+			if (uartPeak() == CMD_START)
 			{
 				uint8_t i;
 				/* Stop the timer if it's already running */

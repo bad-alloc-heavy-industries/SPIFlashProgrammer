@@ -26,5 +26,8 @@ extern void uartInit();
 extern void uartWrite(uint8_t data);
 extern uint8_t uartRead();
 
+extern bool uartHaveData();
+extern uint8_t uartPeak();
+
 #endif /*UART_H*/
 

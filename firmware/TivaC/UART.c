@@ -54,3 +54,13 @@ uint8_t uartRead()
 	return UART0_DR_R & 0xFF;
 }
 
+bool uartHaveData()
+{
+	return (UART0_FR_R & UART_FR_RXFE) == 0;
+}
+
+uint8_t uartPeak()
+{
+	return UART0_DR_R & 0xFF;
+}
+
