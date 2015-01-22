@@ -380,10 +380,7 @@ int main()
 	SYSCTL_RCGCSSI_R |= SYSCTL_RCGCSSI_R0;
 	/* Enable Timer 0 */
 	SYSCTL_RCGCTIMER_R |= SYSCTL_RCGCTIMER_R0;
-#ifndef NOUSB
-	/* Enable UART0 */
-	SYSCTL_RCGCUART_R |= SYSCTL_RCGCUART_R0;
-#endif
+
 	/* Wait for the ports to come online */
 	while ((SYSCTL_PRGPIO_R & (SYSCTL_PRGPIO_R0 | SYSCTL_PRGPIO_R5)) != (SYSCTL_PRGPIO_R0 | SYSCTL_PRGPIO_R5));
 	/* Port F is protected, so enable changing it to digital GPIO */
@@ -397,10 +394,6 @@ int main()
 	while ((SYSCTL_PRSSI_R & SYSCTL_PRSSI_R0) != SYSCTL_PRSSI_R0);
 	/* Wait for Timer 0 to come online */
 	while ((SYSCTL_PRTIMER_R & SYSCTL_PRTIMER_R0) != SYSCTL_PRTIMER_R0);
-#ifndef NOUSB
-	/* Wait for UART 0 to come online */
-	while ((SYSCTL_PRUART_R & SYSCTL_PRUART_R0) != SYSCTL_PRUART_R0);
-#endif
 
 	/* Configure PA7 as a digital O/D output */
 	GPIO_PORTA_ODR_R |= 0x80;
@@ -408,21 +401,7 @@ int main()
 	GPIO_PORTA_DATA_BITS_R[0x80] = 0x80;
 
 #ifndef NOUSB
-	/* Configure the UART pins as alternative function and enable their use by the UART module */
-	GPIO_PORTA_AFSEL_R |= 0x03;
-	GPIO_PORTA_PCTL_R |= GPIO_PCTL_PA1_U0TX | GPIO_PCTL_PA0_U0RX;
-	GPIO_PORTA_DR2R_R |= 0x03;
-	GPIO_PORTA_PUR_R |= 0x02;
-	/*
-	 * Set the UART up for 8-bit, 115200 baud operation with one stop bit + FIFOs
-	 * BRD = 16MHz / (16 * 115200) = 8.68055*
-	 * IBRD = 8
-	 * FBRD = 0.68055* * 64 = 43.555 ~= 44
-	 */
-	UART0_IBRD_R = 8;
-	UART0_FBRD_R = 44;
-	UART0_LCRH_R = UART_LCRH_WLEN_8 | UART_LCRH_FEN;
-	UART0_CTL_R = UART_CTL_RXE | UART_CTL_TXE | UART_CTL_UARTEN;
+	uartInit();
 #endif
 
 	/* Ensure the LED and switch pins on Port F are straight GPIO */

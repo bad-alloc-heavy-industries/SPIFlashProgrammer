@@ -22,6 +22,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+extern void uartInit();
 extern void uartWrite(uint8_t data);
 extern uint8_t uartRead();
 
