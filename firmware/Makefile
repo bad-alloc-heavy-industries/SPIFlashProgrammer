@@ -17,7 +17,7 @@
 include Makefile.inc
 
 CFLAGS_EXTRA = -ffunction-sections -fdata-sections -Wno-unused-but-set-variable
-CFLAGS = -c $(OPTIM_FLAGS) -pedantic -Wall $(ARM_FLAGS) $(CFLAGS_EXTRA -Iinclude -I.. $(DEFINES) -o $@ $<
+CFLAGS = -c $(OPTIM_FLAGS) -pedantic -Wall $(ARM_FLAGS) $(CFLAGS_EXTRA) -Iinclude -I.. $(DEFINES) -o $@ $<
 #LFLAGS = $(ARM_FLAGS) -Wl,--static,--gc-sections,-T,$(LSCRIPT) -o $(ELF) $(O)
 LFLAGS = -T $(LSCRIPT) --static --gc-sections -o $(ELF) $(O)
 BFLAGS = -O binary $(ELF) $(BIN)
