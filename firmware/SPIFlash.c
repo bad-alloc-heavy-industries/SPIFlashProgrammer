@@ -359,7 +359,10 @@ void transferBitfile(const void *data, const size_t dataLen)
 			}
 			uartWrite(CMD_STOP);
 			if (programmed)
+			{
 				uartWrite(RPL_OK);
+				gpioShowOK();
+			}
 			else
 				uartWrite(RPL_FAIL);
 		}
