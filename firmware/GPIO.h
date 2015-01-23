@@ -19,12 +19,15 @@
 #ifndef GPIO_H
 #define GPIO_H
 
+#include <stdbool.h>
+
 extern void gpioInit();
 
 extern void gpioStopTimer();
 extern void gpioStartTimer();
 extern void gpioCheckIdle();
 
+extern bool gpioCanTransfer();
 extern void gpioBeginTransfer();
 extern void gpioSignalTransfer();
 extern void gpioEndTransfer();

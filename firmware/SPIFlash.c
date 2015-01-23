@@ -385,7 +385,7 @@ int main()
 	{
 #ifndef NOCONFIG
 		/* If either button has been pressed.. */
-		if (GPIO_PORTF_DATA_BITS_R[0x11] != 0x11)
+		if (gpioCanTransfer())
 		{
 			gpioStopTimer();
 			gpioBeginTransfer();

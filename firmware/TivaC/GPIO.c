@@ -90,6 +90,11 @@ void gpioCheckIdle()
 	}
 }
 
+bool gpioCanTransfer()
+{
+	return GPIO_PORTF_DATA_BITS_R[0x11] != 0x11;
+}
+
 void gpioBeginTransfer()
 {
 	/* Set the LED to red for busy/processing */
