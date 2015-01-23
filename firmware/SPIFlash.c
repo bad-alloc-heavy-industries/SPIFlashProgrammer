@@ -28,6 +28,7 @@
 #include "UART.h"
 #endif
 #include "SPI.h"
+#include "GPIO.h"
 
 #define WREN	0x06
 #define WRDI	0x04
@@ -374,51 +375,11 @@ void transferBitfile(const void *data, const size_t dataLen)
 
 int main()
 {
-	/* Enable ports A and F */
-	SYSCTL_RCGCGPIO_R |= SYSCTL_RCGCGPIO_R0 | SYSCTL_RCGCGPIO_R5;
-	/* Enable Timer 0 */
-	SYSCTL_RCGCTIMER_R |= SYSCTL_RCGCTIMER_R0;
-
-	/* Wait for the ports to come online */
-	while ((SYSCTL_PRGPIO_R & (SYSCTL_PRGPIO_R0 | SYSCTL_PRGPIO_R5)) != (SYSCTL_PRGPIO_R0 | SYSCTL_PRGPIO_R5));
-	/* Port F is protected, so enable changing it to digital GPIO */
-	GPIO_PORTF_LOCK_R = GPIO_LOCK_KEY;
-	GPIO_PORTF_CR_R |= 0x01;
-	GPIO_PORTF_LOCK_R = 0;
-	/* Set the ports to digital mode */
-	GPIO_PORTA_DEN_R |= 0xC0;
-	GPIO_PORTF_DEN_R |= 0x1F;
-	/* Wait for Timer 0 to come online */
-	while ((SYSCTL_PRTIMER_R & SYSCTL_PRTIMER_R0) != SYSCTL_PRTIMER_R0);
-
-	/* Configure PA7 as a digital O/D output */
-	GPIO_PORTA_ODR_R |= 0x80;
-	GPIO_PORTA_DIR_R |= 0x80;
-	GPIO_PORTA_DATA_BITS_R[0x80] = 0x80;
-
+	gpioInit();
 	spiInit();
 #ifndef NOUSB
 	uartInit();
 #endif
-
-	/* Ensure the LED and switch pins on Port F are straight GPIO */
-	GPIO_PORTF_AFSEL_R &= ~0x1F;
-	/* Enable the LED pin outputs */
-	GPIO_PORTF_DIR_R = 0x0E;
-#ifndef NOCONFIG
-	/* Set pullups on the 2 buttons */
-	GPIO_PORTF_DR2R_R |= 0x11;
-	GPIO_PORTF_PUR_R |= 0x11;
-#endif
-	/* Set the blue LED on */
-	GPIO_PORTF_DATA_BITS_R[0x0E] = 0x04;
-
-	/* Configure the Timer 0 module for submodule A operation */
-	TIMER0_CTL_R &= ~TIMER_CTL_TAEN;
-	TIMER0_TAMR_R = TIMER_TAMR_TAMR_1_SHOT | TIMER_TAMR_TACDIR | TIMER_TAMR_TAMIE;
-	/* Set the timeout for 500ms */
-	TIMER0_TAMATCHR_R = 8000000;
-	TIMER0_ICR_R = TIMER_ICR_TAMCINT;
 
 	while (1)
 	{
