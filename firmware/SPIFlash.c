@@ -387,15 +387,12 @@ int main()
 		/* If either button has been pressed.. */
 		if (GPIO_PORTF_DATA_BITS_R[0x11] != 0x11)
 		{
-			/* Stop the timer if it's already running */
-			TIMER0_CTL_R &= ~TIMER_CTL_TAEN;
+			gpioStopTimer();
 			/* Set the LED to red for busy/processing */
 			GPIO_PORTF_DATA_BITS_R[0x0E] = 0x02;
 			/* Attempt the transfer */
 			transferBitfile(config, configLen);
-			/* Reset the timer and set it running */
-			TIMER0_TAV_R = 0;
-			TIMER0_CTL_R |= TIMER_CTL_TAEN;
+			gpioStartTimer();
 		}
 #endif
 #ifndef NOUSB
@@ -405,8 +402,7 @@ int main()
 			if (uartPeak() == CMD_START)
 			{
 				uint8_t i;
-				/* Stop the timer if it's already running */
-				TIMER0_CTL_R &= ~TIMER_CTL_TAEN;
+				gpioStopTimer();
 				/* Set the LED to red for busy/processing */
 				GPIO_PORTF_DATA_BITS_R[0x0E] = 0x02;
 				/* Enable the interface */
@@ -423,9 +419,7 @@ int main()
 				transferBitfile(usbData, usbDataTotal);
 				/* Disable the interface */
 				GPIO_PORTA_DATA_BITS_R[0xAC] = 0xAC;
-				/* Reset the timer and set it running */
-				TIMER0_TAV_R = 0;
-				TIMER0_CTL_R |= TIMER_CTL_TAEN;
+				gpioStartTimer();
 			}
 			else
 			{
@@ -434,15 +428,7 @@ int main()
 			}
 		}
 #endif
-		/* If the timer has triggered the Match event */
-		if ((TIMER0_RIS_R & TIMER_RIS_TAMRIS) != 0)
-		{
-			/* Reset the LED back to blue for idle */
-			GPIO_PORTF_DATA_BITS_R[0x0E] = 0x04;
-			/* And stop the timer while resetting the interrupt flag for match */
-			TIMER0_CTL_R &= ~TIMER_CTL_TAEN;
-			TIMER0_ICR_R = TIMER_ICR_TAMCINT;
-		}
+		gpioCheckIdle();
 	}
 
 	return 0;

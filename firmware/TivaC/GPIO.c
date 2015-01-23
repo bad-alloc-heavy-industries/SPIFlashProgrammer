@@ -64,3 +64,29 @@ void gpioInit()
 	TIMER0_ICR_R = TIMER_ICR_TAMCINT;
 }
 
+void gpioStopTimer()
+{
+	/* Stop the timer if it's already running */
+	TIMER0_CTL_R &= ~TIMER_CTL_TAEN;
+}
+
+void gpioStartTimer()
+{
+	/* Reset the timer and set it running */
+	TIMER0_TAV_R = 0;
+	TIMER0_CTL_R |= TIMER_CTL_TAEN;
+}
+
+void gpioCheckIdle()
+{
+	/* If the timer has triggered the Match event */
+	if ((TIMER0_RIS_R & TIMER_RIS_TAMRIS) != 0)
+	{
+		/* Reset the LED back to blue for idle */
+		GPIO_PORTF_DATA_BITS_R[0x0E] = 0x04;
+		/* And stop the timer while resetting the interrupt flag for match */
+		TIMER0_CTL_R &= ~TIMER_CTL_TAEN;
+		TIMER0_ICR_R = TIMER_ICR_TAMCINT;
+	}
+}
+

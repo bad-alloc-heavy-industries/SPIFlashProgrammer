@@ -20,6 +20,9 @@
 #define GPIO_H
 
 extern void gpioInit();
+extern void gpioStopTimer();
+extern void gpioStartTimer();
+extern void gpioCheckIdle();
 
 #endif /*GPIO_H*/
 
