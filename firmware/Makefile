@@ -17,7 +17,7 @@
 include Makefile.inc
 
 DEFINES = -DPART_LM4F120H5QR -DARM_MATH_CM4 -DTARGET_IS_BLIZZARD_RA1 -Wno-unused-but-set-variable
-CFLAGS = -c $(OPTIM_FLAGS) -pedantic -Wall $(ARM_FLAGS) -ffunction-sections -fdata-sections -Iinclude -I.. -I. $(DEFINES) -o $@ $<
+CFLAGS = -c $(OPTIM_FLAGS) -pedantic -Wall $(ARM_FLAGS) -ffunction-sections -fdata-sections -Iinclude -I.. $(DEFINES) -o $@ $<
 #LFLAGS = $(ARM_FLAGS) -Wl,--static,--gc-sections,-T,$(LSCRIPT) -o $(ELF) $(O)
 LFLAGS = -T $(LSCRIPT) --static --gc-sections -o $(ELF) $(O)
 BFLAGS = -O binary $(ELF) $(BIN)
