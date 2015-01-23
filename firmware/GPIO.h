@@ -32,5 +32,7 @@ extern void gpioBeginTransfer();
 extern void gpioSignalTransfer();
 extern void gpioEndTransfer();
 
+extern void gpioShowOK();
+
 #endif /*GPIO_H*/
 

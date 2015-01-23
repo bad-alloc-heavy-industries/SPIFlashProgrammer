@@ -342,7 +342,7 @@ void transferBitfile(const void *data, const size_t dataLen)
 	if (data == config)
 	{
 		if (verifyData(0, data, dataLen))
-			GPIO_PORTF_DATA_BITS_R[0x0E] = 0x08;
+			gpioShowOK();
 	}
 #endif
 #ifndef NOUSB

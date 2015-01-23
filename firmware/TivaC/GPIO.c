@@ -115,3 +115,8 @@ void gpioEndTransfer()
 	GPIO_PORTA_DATA_BITS_R[0xAC] = 0xAC;
 }
 
+void gpioShowOK()
+{
+	GPIO_PORTF_DATA_BITS_R[0x0E] = 0x08;
+}
+
