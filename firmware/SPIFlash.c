@@ -19,7 +19,6 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include <tm4c123gh6pm.h>
 #ifndef NOCONFIG
 #include "config.h"
 #endif
@@ -175,7 +174,7 @@ void eraseDevice(const uint8_t *data)
 	while ((spiRead() & 0x01) != 0)
 	{
 #ifndef NOUSB
-		if (data == usbData && (UART0_FR_R & UART_FR_RXFE) == 0)
+		if (data == usbData && uartHaveData())
 		{
 			/* It doesn't matter what the request was.. */
 			uartRead();
