@@ -16,8 +16,8 @@
 
 include Makefile.inc
 
-DEFINES = -DPART_LM4F120H5QR -DARM_MATH_CM4 -DTARGET_IS_BLIZZARD_RA1 -Wno-unused-but-set-variable
-CFLAGS = -c $(OPTIM_FLAGS) -pedantic -Wall $(ARM_FLAGS) -ffunction-sections -fdata-sections -Iinclude -I.. $(DEFINES) -o $@ $<
+CFLAGS_EXTRA = -ffunction-sections -fdata-sections -Wno-unused-but-set-variable
+CFLAGS = -c $(OPTIM_FLAGS) -pedantic -Wall $(ARM_FLAGS) $(CFLAGS_EXTRA -Iinclude -I.. $(DEFINES) -o $@ $<
 #LFLAGS = $(ARM_FLAGS) -Wl,--static,--gc-sections,-T,$(LSCRIPT) -o $(ELF) $(O)
 LFLAGS = -T $(LSCRIPT) --static --gc-sections -o $(ELF) $(O)
 BFLAGS = -O binary $(ELF) $(BIN)
@@ -39,8 +39,11 @@ ifeq ($(TARGET), TivaC)
 O += $(O_TIVAC)
 LSCRIPT = TivaC/TM4C.ld
 ARM_FLAGS = -mthumb -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -msoft-float -mfloat-abi=softfp
+DEFINES = -DPART_LM4F120H5QR -DARM_MATH_CM4 -DTARGET_IS_BLIZZARD_RA1
+else ifeq ($(TARGET), LPC4370)
+O += $(O_LPC4370)
 else ifeq ($(MAKECMDGOALS),clean)
-O += $(O_TIVAC)
+O += $(O_TIVAC) $(O_LPC4370)
 else
 $(error Invalid build configuration detected, must see a valid TARGET)
 endif
