@@ -388,10 +388,11 @@ int main()
 		if (GPIO_PORTF_DATA_BITS_R[0x11] != 0x11)
 		{
 			gpioStopTimer();
-			/* Set the LED to red for busy/processing */
-			GPIO_PORTF_DATA_BITS_R[0x0E] = 0x02;
+			gpioBeginTransfer();
+			gpioSignalTransfer();
 			/* Attempt the transfer */
 			transferBitfile(config, configLen);
+			gpioEndTransfer();
 			gpioStartTimer();
 		}
 #endif
@@ -403,11 +404,7 @@ int main()
 			{
 				uint8_t i;
 				gpioStopTimer();
-				/* Set the LED to red for busy/processing */
-				GPIO_PORTF_DATA_BITS_R[0x0E] = 0x02;
-				/* Enable the interface */
-				GPIO_PORTA_ODR_R &= ~0x08;
-				GPIO_PORTA_DATA_BITS_R[0x88] = 0x08;
+				gpioBeginTransfer();
 				usbDataTotal = 0;
 				usbDataReceived = 0;
 				for (i = 0; i < 4; i++)
@@ -415,10 +412,9 @@ int main()
 					usbDataTotal <<= 8;
 					usbDataTotal |= uartRead();
 				}
-				GPIO_PORTA_ODR_R |= 0x08;
+				gpioSignalTransfer();
 				transferBitfile(usbData, usbDataTotal);
-				/* Disable the interface */
-				GPIO_PORTA_DATA_BITS_R[0xAC] = 0xAC;
+				gpioEndTransfer();
 				gpioStartTimer();
 			}
 			else

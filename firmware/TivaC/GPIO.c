@@ -90,3 +90,23 @@ void gpioCheckIdle()
 	}
 }
 
+void gpioBeginTransfer()
+{
+	/* Set the LED to red for busy/processing */
+	GPIO_PORTF_DATA_BITS_R[0x0E] = 0x02;
+	/* Enable the interface */
+	GPIO_PORTA_ODR_R &= ~0x08;
+	GPIO_PORTA_DATA_BITS_R[0x88] = 0x08;
+}
+
+void gpioSignalTransfer()
+{
+	GPIO_PORTA_ODR_R |= 0x08;
+}
+
+void gpioEndTransfer()
+{
+	/* Disable the interface */
+	GPIO_PORTA_DATA_BITS_R[0xAC] = 0xAC;
+}
+
