@@ -27,7 +27,7 @@ extern int main();
 void irqReset();
 void irqNMI();
 void irqEmptyDef();
-void irqHardFault();
+void irqHardFault() __attribute__((naked));
 
 extern uint32_t _stack_top;
 extern uint32_t _start_text, _end_text;
@@ -66,11 +66,11 @@ irqFunction vectorTable[] __attribute__((section(".nvic_table"))) =
 	irqEmptyDef, /* UART 1 */
 	irqEmptyDef, /* SSI 0 */
 	irqEmptyDef, /* I2C 0 */
-	NULL, /* Reserved */
-	NULL, /* Reserved */
-	NULL, /* Reserved */
-	NULL, /* Reserved */
-	NULL, /* Reserved */
+	irqEmptyDef, /* PWM 0 Fault */
+	irqEmptyDef, /* PWM 0 Gen 0 */
+	irqEmptyDef, /* PWM 0 Gen 1 */
+	irqEmptyDef, /* PWM 0 Gen 2 */
+	irqEmptyDef, /* QEI 0 */
 	irqEmptyDef, /* ADC 0 Seq 0 */
 	irqEmptyDef, /* ADC 0 Seq 1 */
 	irqEmptyDef, /* ADC 0 Seq 2 */
@@ -89,12 +89,13 @@ irqFunction vectorTable[] __attribute__((section(".nvic_table"))) =
 	irqEmptyDef, /* Flash + EEPROM Ctl */
 	irqEmptyDef, /* GPIO Port F */
 	NULL, /* Reserved */
+	NULL, /* Reserved */
 	irqEmptyDef, /* UART 2 */
 	irqEmptyDef, /* SSI 1 */
 	irqEmptyDef, /* Timer 3 A (16/32-bit) */
 	irqEmptyDef, /* Timer 3 B (16/32-bit) */
 	irqEmptyDef, /* I2C 1 */
-	NULL, /* Reserved */
+	irqEmptyDef, /* QEI 1 */
 	irqEmptyDef, /* CAN 0 */
 	NULL, /* Reserved */
 	NULL, /* Reserved */
@@ -223,6 +224,27 @@ void irqNMI()
 
 void irqHardFault()
 {
+	/* Get some information about the fault for the debugger.. */
+	__asm__("	movs	r0, #4\n"
+		"	movs	r1, lr\n"
+		"	tst		r0, r1\n"
+		"	beq		_MSP\n"
+		"	mrs		r0, psp\n"
+		"	b		_HALT\n"
+		"_MSP:\n"
+		"	mrs		r0, msp\n"
+		"_HALT:\n"
+		"	ldr		r1, [r0, 0x00]\n" /* r0 */
+		"	ldr		r2, [r0, 0x04]\n" /* r1 */
+		"	ldr		r3, [r0, 0x08]\n" /* r2 */
+		"	ldr		r4, [r0, 0x0C]\n" /* r3 */
+		"	ldr		r5, [r0, 0x10]\n" /* r12 */
+		"	ldr		r6, [r0, 0x14]\n" /* lr */
+		"	ldr		r7, [r0, 0x18]\n" /* pc */
+		"	ldr		r8, [r0, 0x1C]\n" /* xpsr */
+		"	bkpt	#0\n");
+	/* The lowest 8 bits of r8 (xpsr) contain which handler triggered this, if there is a signal handler frame before this. */
+
 	while (1);
 }
 
