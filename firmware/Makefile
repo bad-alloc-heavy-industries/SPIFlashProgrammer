@@ -42,8 +42,8 @@ ARM_FLAGS = -mthumb -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -msoft-float -mfloat-abi=s
 DEFINES = -DPART_LM4F120H5QR -DARM_MATH_CM4 -DTARGET_IS_BLIZZARD_RA1
 else ifeq ($(TARGET), LPC4370)
 O += $(O_LPC4370)
-LSCRIPT = LPC4370/
-ARM_FLAGS = -mthumb -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mhard-float -mfloat-abi=hardfp
+LSCRIPT = LPC4370/LPC4370.ld
+ARM_FLAGS = -mthumb -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mhard-float -mfloat-abi=hard
 DEFINES = 
 else ifeq ($(MAKECMDGOALS),clean)
 O += $(O_TIVAC) $(O_LPC4370)
