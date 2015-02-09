@@ -67,5 +67,9 @@ uint8_t spiRead()
 
 void spiChipSelect(bool select)
 {
+	if (select)
+		GPIO_PORT3_CLR = 0x00000100;
+	else
+		GPIO_PORT3_SET = 0x00000100;
 }
 
