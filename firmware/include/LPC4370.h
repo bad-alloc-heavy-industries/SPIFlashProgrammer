@@ -22,7 +22,7 @@ typedef struct
 	volatile uint32_t SFS_PortA[32];
 	volatile uint32_t SFS_PortB[32];
 	volatile uint32_t SFS_PortC[32];
-	volatile uint32_t SFS_PortF[32];
+	volatile uint32_t SFS_PortD[32];
 	volatile uint32_t SFS_PortE[32];
 	volatile uint32_t SFS_PortF[32];
 	volatile uint32_t SFS_PortClk[32];
@@ -33,7 +33,7 @@ typedef struct
 	volatile uint32_t ENAIO2;
 	volatile uint32_t reserved0[0x1C];
 	volatile uint32_t EMC_DLYCLK;
-	volatile unit32_t reserved1[0x1F];
+	volatile uint32_t reserved1[0x1F];
 	volatile uint32_t SD_DELAY;
 	volatile uint32_t reserved2[0x1F];
 	volatile uint32_t PINT_SEL0;
