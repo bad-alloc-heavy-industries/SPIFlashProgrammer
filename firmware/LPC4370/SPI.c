@@ -16,20 +16,35 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <LPC4370.h>
 #include "SPI.h"
 
 void spiInit()
 {
 	/* Initialise SPIFI (P3_{3..8}) to access SPI Flash */
+	SPI->CR = 0;
+	/* Set Freescale SPI, SPO = 1, SPH = 1 */
+	SPI->CR = SPI_CR_SPO | SPI_CR_SPH | SPI_CR_MASTER | SPI_CR_DSS_EN | SPI_CR_DSS_8;
+	/* Scale the clock by 8 (the datasheet minimum) to make it 4MHz */
+	SPI->CCR = 8;
+	/* Enable the interface */
+	/*SSI0_CR1_R = SSI_CR1_SSE;*/
 }
 
 void spiWrite(uint8_t data)
 {
+	uint8_t temp __attribute__((unused));
+	SPI->DR = data;
+	while ((SPI->SR & SPI_SR_SPIF) != 0);
+	temp = SPI->DR & 0xFF;
+/*	while ((SPI->*/
 }
 
 uint8_t spiRead()
 {
-	return 0;
+	SPI->DR = 0;
+	while ((SPI->SR & SPI_SR_SPIF) != 0);
+	return SPI->DR & 0xFF;
 }
 
 void spiChipSelect(bool select)
