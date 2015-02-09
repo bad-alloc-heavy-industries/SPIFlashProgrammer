@@ -52,7 +52,7 @@ void spiInit()
 
 void spiWrite(uint8_t data)
 {
-	uint8_t temp;
+	uint8_t temp __attribute__((unused));
 	SSI0_DR_R = data;
 	while ((SSI0_SR_R & 0x01) != 1);
 	temp = SSI0_DR_R & 0xFF;
