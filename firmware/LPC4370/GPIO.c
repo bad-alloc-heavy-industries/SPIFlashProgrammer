@@ -22,6 +22,9 @@
 void gpioInit()
 {
 	/* Initialise P1_1 as OK indicator */
+	SCU->SFS_Port1[1] = SCU_SFS_MODE_0 | SCU_SFS_DPU;
+	GPIO_PORT1_DIR |= 0x00000002;
+	GPIO_PORT1_CLR = 0x00000002;
 }
 
 void gpioStopTimer()
@@ -55,5 +58,6 @@ void gpioEndTransfer()
 
 void gpioShowOK()
 {
+	GPIO_PORT1_SET = 0x00000002;
 }
 
