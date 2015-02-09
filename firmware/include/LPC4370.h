@@ -3,6 +3,43 @@
 
 #include <stdint.h>
 
+/*
+ * SCU stands for System Controller Unit
+ * SFS stands for Special Function Select
+ */
+typedef struct
+{
+	volatile uint32_t SFS_Port0[32];
+	volatile uint32_t SFS_Port1[32];
+	volatile uint32_t SFS_Port2[32];
+	volatile uint32_t SFS_Port3[32];
+	volatile uint32_t SFS_Port4[32];
+	volatile uint32_t SFS_Port5[32];
+	volatile uint32_t SFS_Port6[32];
+	volatile uint32_t SFS_Port7[32];
+	volatile uint32_t SFS_Port8[32];
+	volatile uint32_t SFS_Port9[32];
+	volatile uint32_t SFS_PortA[32];
+	volatile uint32_t SFS_PortB[32];
+	volatile uint32_t SFS_PortC[32];
+	volatile uint32_t SFS_PortF[32];
+	volatile uint32_t SFS_PortE[32];
+	volatile uint32_t SFS_PortF[32];
+	volatile uint32_t SFS_PortClk[32];
+	volatile uint32_t SFS_USB;
+	volatile uint32_t SFS_I2C0;
+	volatile uint32_t ENAIO0;
+	volatile uint32_t ENAIO1;
+	volatile uint32_t ENAIO2;
+	volatile uint32_t reserved0[0x1C];
+	volatile uint32_t EMC_DLYCLK;
+	volatile unit32_t reserved1[0x1F];
+	volatile uint32_t SD_DELAY;
+	volatile uint32_t reserved2[0x1F];
+	volatile uint32_t PINT_SEL0;
+	volatile uint32_t PINT_SEL1;
+} lpcSCU_t;
+
 typedef struct
 {
 	volatile uint32_t CR;
@@ -12,6 +49,8 @@ typedef struct
 	volatile uint32_t reserved[3];
 	volatile uint32_t INT;
 } lpcSPI_t;
+
+static lpcSCU_t *SCU = (lpcSCU_t *)0x40086000;
 
 #define GPIO_PORT0_BYTES	((volatile uint8_t *)0x400F4000)
 #define GPIO_PORT0_WORDS	((volatile uint32_t *)0x400F5000)
@@ -95,10 +134,24 @@ typedef struct
 
 static lpcSPI_t *SPI = (lpcSPI_t *)0x40100000;
 
-#define SPI_CR_MASTER			0x00000020
-#define SPI_CR_SPO				0x00000010
-#define SPI_CR_SPH				0x00000008
-#define SPI_CR_DSS_EN			0x00000004
+#define SCU_SFS_EHD_4			0x00000000
+#define SCU_SFS_EHD_8			0x00000100
+#define SCU_SFS_EHD_14			0x00000200
+#define SCU_SFS_EHD_20			0x00000300
+#define SCU_SFS_DIF				0x00000080
+#define SCU_SFS_EIB				0x00000040
+#define SCU_SFS_EHS				0x00000020
+#define SCU_SFS_DPU				0x00000010
+#define SCU_SFS_EPD				0x00000008
+#define SCU_SFS_MODE_0			0x00000000
+#define SCU_SFS_MODE_1			0x00000001
+#define SCU_SFS_MODE_2			0x00000002
+#define SCU_SFS_MODE_3			0x00000003
+#define SCU_SFS_MODE_4			0x00000004
+#define SCU_SFS_MODE_5			0x00000005
+#define SCU_SFS_MODE_6			0x00000006
+#define SCU_SFS_MODE_7			0x00000007
+
 #define SPI_CR_DSS_8			0x00000800 /* 8-bit data */
 #define SPI_CR_DSS_9			0x00000900 /* 9-bit data */
 #define SPI_CR_DSS_10			0x00000A00 /* 10-bit data */
@@ -108,6 +161,10 @@ static lpcSPI_t *SPI = (lpcSPI_t *)0x40100000;
 #define SPI_CR_DSS_14			0x00000E00 /* 14-bit data */
 #define SPI_CR_DSS_15			0x00000F00 /* 15-bit data */
 #define SPI_CR_DSS_16			0x00000000 /* 16-bit data */
+#define SPI_CR_MASTER			0x00000020
+#define SPI_CR_SPO				0x00000010
+#define SPI_CR_SPH				0x00000008
+#define SPI_CR_DSS_EN			0x00000004
 
 #define SPI_SR_ABRT				0x00000008 /* SPI slave abort */
 #define SPI_SR_MODF				0x00000010 /* SPI mode fault */
