@@ -17,6 +17,7 @@
  */
 
 #include <stdint.h>
+#include <LPC4370.h>
 #include "GPIO.h"
 
 void gpioInit()
@@ -25,18 +26,41 @@ void gpioInit()
 	SCU->SFS_Port1[1] = SCU_SFS_MODE_0 | SCU_SFS_DPU;
 	GPIO_PORT1_DIR |= 0x00000002;
 	GPIO_PORT1_CLR = 0x00000002;
+
+	/* Configure the Timer 0 module for operation */
+	Timer0->TCR &= ~TIMER_TCR_CEN;
+	Timer0->CTCR = TIMER_CTCR_MODE_TIMER;
+	/* Set the timeout for 500ms */
+	Timer0->MR0 = 8000000;
+	/* This makes the timer one-shot and enables + clears the interrupt for the match */
+	Timer0->MCR = TIMER_MCR_MR0SE | TIMER_MCR_MR0IE;
+	Timer0->IR = TIMER_IR_CH0;
 }
 
 void gpioStopTimer()
 {
+	/* Stop the timer if it's already running */
+	Timer0->TCR &= ~TIMER_TCR_CEN;
 }
 
 void gpioStartTimer()
 {
+	/* Reset the timer and set it running */
+	Timer0->TC = 0;
+	Timer0->TCR |= TIMER_TCR_CEN;
 }
 
 void gpioCheckIdle()
 {
+	/* If the timer has triggered the Match event */
+	if ((Timer0->IR & TIMER_IR_CH0) != 0)
+	{
+		/* Reset the LED back to off for idle */
+		GPIO_PORT1_CLR = 0x00000002;
+		/* And stop the timer while resetting the interrupt flag for match */
+		Timer0->TCR &= ~TIMER_TCR_CEN;
+		Timer0->IR = TIMER_IR_CH0;
+	}
 }
 
 bool gpioCanTransfer()

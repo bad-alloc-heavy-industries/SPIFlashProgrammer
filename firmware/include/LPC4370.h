@@ -3,6 +3,27 @@
 
 #include <stdint.h>
 
+typedef struct
+{
+	volatile uint32_t IR;
+	volatile uint32_t TCR;
+	volatile uint32_t TC;
+	volatile uint32_t PR;
+	volatile uint32_t RC;
+	volatile uint32_t MCR;
+	volatile uint32_t MR0;
+	volatile uint32_t MR1;
+	volatile uint32_t MR2;
+	volatile uint32_t CCR;
+	volatile uint32_t CR0;
+	volatile uint32_t CR1;
+	volatile uint32_t CR2;
+	volatile uint32_t CR3;
+	volatile uint32_t EMR;
+	volatile uint32_t reserved[12];
+	volatile uint32_t CTCR;
+} lpcTimer_t;
+
 /*
  * SCU stands for System Controller Unit
  * SFS stands for Special Function Select
@@ -50,7 +71,11 @@ typedef struct
 	volatile uint32_t INT;
 } lpcSPI_t;
 
-static lpcSCU_t *SCU = (lpcSCU_t *)0x40086000;
+#define Timer0				((lpcTimer_t *)0x40084000)
+#define Timer1				((lpcTimer_t *)0x40085000)
+#define SCU					((lpcSCU_t *)0x40086000)
+#define Timer2				((lpcTimer_t *)0x400C3000)
+#define Timer3				((lpcTimer_t *)0x400C4000)
 
 #define GPIO_PORT0_BYTES	((volatile uint8_t *)0x400F4000)
 #define GPIO_PORT0_WORDS	((volatile uint32_t *)0x400F5000)
@@ -132,7 +157,41 @@ static lpcSCU_t *SCU = (lpcSCU_t *)0x40086000;
 #define GPIO_PORT7_CLR		*((volatile uint32_t *)0x400F629C)
 #define GPIO_PORT7_TGL		*((volatile uint32_t *)0x400F631C)
 
-static lpcSPI_t *SPI = (lpcSPI_t *)0x40100000;
+#define SPI					((lpcSPI_t *)0x40100000)
+
+#define TIMER_IR_EVT3				0x00000080
+#define TIMER_IR_EVT2				0x00000040
+#define TIMER_IR_EVT1				0x00000020
+#define TIMER_IR_EVT0				0x00000010
+#define TIMER_IR_CH3				0x00000008
+#define TIMER_IR_CH2				0x00000004
+#define TIMER_IR_CH1				0x00000002
+#define TIMER_IR_CH0				0x00000001
+
+#define TIMER_TCR_CRST			0x00000002
+#define TIMER_TCR_CEN				0x00000001
+
+#define TIMER_MCR_MR0IE			0x00000001
+#define TIMER_MCR_MR0RE			0x00000002
+#define TIMER_MCR_MR0SE			0x00000004
+#define TIMER_MCR_MR1IE			0x00000008
+#define TIMER_MCR_MR1RE			0x00000010
+#define TIMER_MCR_MR1SE			0x00000020
+#define TIMER_MCR_MR2IE			0x00000040
+#define TIMER_MCR_MR2RE			0x00000080
+#define TIMER_MCR_MR2SE			0x00000100
+#define TIMER_MCR_MR3IE			0x00000200
+#define TIMER_MCR_MR3RE			0x00000400
+#define TIMER_MCR_MR3SE			0x00000800
+
+#define TIMER_CTCR_MODE_TIMER		0x00000000
+#define TIMER_CTCR_MODE_COUNTR	0x00000001
+#define TIMER_CTCR_MODE_COUNTF	0x00000002
+#define TIMER_CTCR_MODE_COUNTE	0x00000003
+#define TIMER_CTCR_SEL_CAP0		0x00000000
+#define TIMER_CTCR_SEL_CAP1		0x00000004
+#define TIMER_CTCR_SEL_CAP2		0x00000008
+#define TIMER_CTCR_SEL_CAP3		0x0000000C
 
 #define SCU_SFS_EHD_4			0x00000000
 #define SCU_SFS_EHD_8			0x00000100
