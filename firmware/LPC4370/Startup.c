@@ -28,6 +28,7 @@ void irqReset();
 void irqNMI();
 void irqEmptyDef();
 void irqHardFault() __attribute__((naked));
+extern void irqUSB();
 
 extern uint32_t _stack_top;
 extern uint32_t _start_text, _end_text;
@@ -65,7 +66,7 @@ irqFunction vectorTable[] __attribute__((section(".nvic_table"))) =
 	irqEmptyDef, /* Ethernet */
 	irqEmptyDef, /* SDIO */
 	irqEmptyDef, /* LCD */
-	irqEmptyDef, /* USB 0 */
+	irqUSB, /* USB 0 */
 	irqEmptyDef, /* USB 1 */
 	irqEmptyDef, /* SCT */
 	irqEmptyDef, /* RITimer */
