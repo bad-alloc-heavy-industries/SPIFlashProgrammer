@@ -62,7 +62,7 @@ void usbAttach()
 
 	// Configure the controller here
 	/* Except, ignore reset and idle conditions for the time being */
-	USB0->usbIE = USB_INT_SRIE;
+	USB0->usbIE = USB_INT_UEIE | USB_INT_PCIE | USB_INT_SRIE;
 
 	/* And enable USB interrupts */
 	USB0->usbIE |= USB_INT_UIE;
@@ -90,7 +90,7 @@ void irqUSB()
 		/* Clear interrupt condition */
 		USB0->usbIF = ~USB_DINT_URIE;
 		/* Enable Idle and Reset interrupts now it makes sense to have them */
-		USB0->usbIE |= USB_DINT_URIE;
+		USB0->usbIE |= USB_DINT_URIE | USB_DINT_SLIE;
 		usbState = USB_STATE_POWERED;
 	}
 
