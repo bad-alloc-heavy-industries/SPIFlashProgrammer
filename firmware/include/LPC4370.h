@@ -5,6 +5,48 @@
 
 typedef struct
 {
+	volatile uint32_t reserved0[64];
+	volatile uint32_t capLength;
+	volatile uint32_t hcsParams;
+	volatile uint64_t hccParams;
+	volatile uint32_t dciVersion;
+	volatile uint32_t dccParams;
+	volatile uint32_t reserved1[6];
+	volatile uint32_t usbCmd;
+	volatile uint32_t usbIF;
+	volatile uint32_t usbIE;
+	volatile uint32_t frameIndex;
+	volatile uint32_t reserved2;
+	volatile uint32_t deviceAddr;
+	volatile uint32_t periodicListBase;
+	volatile uint32_t listAddr;
+	volatile uint32_t ttCtrl;
+	volatile uint32_t burstSize;
+	volatile uint32_t txFillTuning;
+	volatile uint32_t reserved3[3];
+	volatile uint32_t vFrameLen;
+	volatile uint32_t epNAK;
+	volatile uint32_t epNAKEnable;
+	volatile uint32_t reserved4;
+	volatile uint32_t portSC1;
+	volatile uint32_t reserved5[2];
+	volatile uint32_t otgSC;
+	volatile uint32_t usbMode;
+	volatile uint32_t epSetupStat;
+	volatile uint32_t epPrime;
+	volatile uint32_t epFlush;
+	volatile uint32_t epStat;
+	volatile uint32_t epComplete;
+	volatile uint32_t epCtrl0;
+	volatile uint32_t epCtrl1;
+	volatile uint32_t epCtrl2;
+	volatile uint32_t epCtrl3;
+	volatile uint32_t epCtrl4;
+	volatile uint32_t epCtrl5;
+} lpcUSB_t;
+
+typedef struct
+{
 	volatile uint32_t IR;
 	volatile uint32_t TCR;
 	volatile uint32_t TC;
@@ -71,6 +113,7 @@ typedef struct
 	volatile uint32_t INT;
 } lpcSPI_t;
 
+#define USB0				((lpcUSB_t *)0x40006000)
 #define Timer0				((lpcTimer_t *)0x40084000)
 #define Timer1				((lpcTimer_t *)0x40085000)
 #define SCU					((lpcSCU_t *)0x40086000)
@@ -158,6 +201,111 @@ typedef struct
 #define GPIO_PORT7_TGL		*((volatile uint32_t *)0x400F631C)
 
 #define SPI					((lpcSPI_t *)0x40100000)
+
+#define USB_CL_LENGTH_MASK		0x000000FF
+#define USB_CL_VERSION_MASK		0x00FFFF00
+
+#define USB_HCS_PORTS_MASK		0x0000000F
+#define USB_HCS_PPCSUP_MASK		0x00000010
+#define USB_HCS_PCC_MASK		0x00000F00
+#define USB_HCS_CC_MASK			0x0000F000
+#define USB_HCS_PISUP_MASK		0x00010000
+#define USB_HCS_PTT_MASK		0x00F00000
+#define USB_HCS_TT_MASK			0x0F000000
+
+#define USB_HCC_ADDR64_CAP		0x00000001
+#define USB_HCC_PFL_FLAG		0x00000002
+#define USB_HCC_ASP_CAP			0x00000004
+#define USB_HCC_ISOSCH_THRESH	0x000000F0
+#define USB_HCC_ECC_PTR			0x0000FF00
+
+#define USB_DCI_VERSION_MASK	0x0000FFFF
+
+#define USB_DCC_DEN_MASK		0x0000001F
+#define USB_DCC_DEV_CAP			0x00000080
+#define USB_DCC_HOST_CAP		0x00000100
+
+#define USB_DCMD_RUN			0x00000001
+#define USB_DCMD_STOP_MASK		0xFFFFFFFE
+#define USB_DCMD_RST			0x00000002
+#define USB_DCMD_SUTW			0x00002000
+#define USB_DCMD_ATDTW			0x00004000
+
+#define USB_HCMD_RUN			0x00000001
+#define USB_HCMD_STOP_MASK		0xFFFFFFFE
+#define USB_HCMD_RST			0x00000002
+#define USB_HCMD_FS01			0x0000000C
+#define USB_HCMD_PSE			0x00000010
+#define USB_HCMD_ASE			0x00000020
+#define USB_HCMD_IAA			0x00000040
+#define USB_HCMD_ASP_MODE_1		0x00000100
+#define USB_HCMD_ASP_MODE_3		0x00000300
+#define USB_HCMD_ASP_EN			0x00000800
+#define USB_HCMD_FS2			0x00008000
+
+#define USB_CMD_ITC				0x00FF0000
+#define USB_CMD_ITC_IMM			0x00000000
+#define USB_CMD_ITC_1			0x00010000
+#define USB_CMD_ITC_2			0x00020000
+#define USB_CMD_ITC_8			0x00080000
+#define USB_CMD_ITC_16			0x00100000
+#define USB_CMD_ITC_32			0x00200000
+#define USB_CMD_ITC_64			0x00400000
+
+#define USB_HCMD_FS_MASK		0x0000800C
+#define USB_HCMD_FS_1024		0x00000000
+#define USB_HCMD_FS_512			0x00000004
+#define USB_HCMD_FS_256			0x00000008
+#define USB_HCMD_FS_128			0x0000000C
+#define USB_HCMD_FS_64			0x00008000
+#define USB_HCMD_FS_32			0x00008004
+#define USB_HCMD_FS_16			0x00008008
+#define USB_HCMD_FS_8			0x0000800C
+
+#define USB_INT_UI				0x00000001
+#define USB_INT_UEI				0x00000002
+#define USB_INT_PCI				0x00000004
+#define USB_HINT_FRI			0x00000008
+#define USB_HINT_AAI			0x00000020
+#define USB_DINT_URI			0x00000040
+#define USB_INT_SRI				0x00000080
+#define USB_DINT_SLI			0x00000100
+#define USB_HINT_HCH			0x00001000
+#define USB_HINT_RCL			0x00002000
+#define USB_HINT_PS				0x00004000
+#define USB_HINT_AS				0x00008000
+#define USB_DINT_NAKI			0x00010000
+#define USB_HINT_UAI			0x00040000
+#define USB_HINT_UPI			0x00080000
+
+#define USB_INTR_UIE			0x00000001
+#define USB_INTR_UEIE			0x00000002
+#define USB_INTR_PCIE			0x00000004
+#define USB_HINTR_FRIE			0x00000008
+#define USB_HINTR_AAIE			0x00000020
+#define USB_DINTR_URIE			0x00000040
+#define USB_INTR_SRIE			0x00000080
+#define USB_DINTR_SLIE			0x00000100
+#define USB_DINTR_NAKIE			0x00010000
+#define USB_HINTR_UAIE			0x00040000
+#define USB_HINTR_UPIE			0x00080000
+
+#define USB_FRINDEX_MICRO		0x00000007
+#define USB_DFRINDEX_LASTTX		0x00003FF8
+#define USB_HFRINDEX_LISTIDX	0x00001FF8
+
+/* This allows the USB controller to have the USB address written in advance of being set for SET_ADDRESS */
+#define USB_DEVICEADDR_ADV		0x01000000
+
+#define USB_PERBASE_ADDR		0xFFFFF000
+#define USB_DEPBASE_ADDR		0xFFFFF800
+#define USB_HASYBASE_ADDR		0xFFFFFFE0
+
+#define USB_TTHA_MASK			0x7F000000
+#define USB_BURSTSIZE_RXLEN		0x000000FF
+#define USB_BURSTSIZE_TXLEN		0x0000FF00
+
+#define USB_BINTERVAL_MASK		0x0000000F
 
 #define TIMER_IR_EVT3			0x00000080
 #define TIMER_IR_EVT2			0x00000040
