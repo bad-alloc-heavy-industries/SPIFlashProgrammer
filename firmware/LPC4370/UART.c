@@ -42,7 +42,3 @@ uint8_t uartPeak()
 	return 0;
 }
 
-void irqUSB()
-{
-}
-
