@@ -118,7 +118,13 @@ typedef union
 	uint32_t value;
 	struct
 	{
-		// count, status, IOC, MuiO
+		uint32_t status : 8;
+		uint32_t : 2;
+		uint32_t multOverride : 2;
+		uint32_t : 3;
+		uint32_t IOC : 1;
+		uint32_t count : 15;
+		uint32_t : 1;
 	};
 } usbStatus_t;
 
@@ -139,7 +145,7 @@ typedef struct
 	uint32_t epCaps;
 	usbTD_t *activeTD;
 	usbTD_t *nextTD;
-	uint32_t count;
+	usbStatus_t status;
 	void *buffer0;
 	void *buffer1;
 	void *buffer2;
