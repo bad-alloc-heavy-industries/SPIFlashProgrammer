@@ -168,6 +168,75 @@ void usbSuspend()
 	usbSuspended = true;
 }
 
+bool usbHandleStandardRequest(volatile usbBDTEntry_t *BD)
+{
+	volatile usbSetupPacket_t *packet = &BD->setupPacket;
+	if (packet->requestType.type != USB_REQUEST_TYPE_STANDARD)
+		return false;
+
+	switch (packet->request)
+	{
+		case USB_REQUEST_SET_ADDRESS:
+			/* Generate a reply that is 0 bytes long to acknowledge */
+			usbStatusInEP[0].needsArming = 1;
+			/* And check + try setting the address */
+			if (packet->value.address.addrL >= 128 ||
+				packet->value.address.addrH != 0)
+				USB0->deviceAddr = USB_DEVICEADDR_ADV;
+			else
+				USB0->deviceAddr = (packet->value.address.addrL << 25) | USB_DEVICEADDR_ADV;
+
+			/* If the address payload was not 100% correct, enter the waiting state again */
+			if ((USB0->deviceAddr & USB_DEVICEADDR_MASK) == 0)
+				usbState = USB_STATE_WAITING;
+			else
+				usbState = USB_STATE_ADDRESSED;
+			return true;
+		case USB_REQUEST_GET_DESCRIPTOR:
+			/* Transmits the requested descriptor of the requested type to the host */
+			//usbRequestGetDescriptor();
+			return true;
+		case USB_REQUEST_SET_CONFIGURATION:
+			/* Reconfigures the device endpoints for the indicated configuration index */
+			//usbRequestSetConfiguration();
+			usbPacket.buff = 1;
+			return true;
+		case USB_REQUEST_GET_CONFIGURATION:
+			/* Returns the index of the active configuration */
+			usbStatusInEP[0].buffSrc = USB_BUFFER_SRC_MEM;
+			usbStatusInEP[0].buffer.memPtr = &usbActiveConfig;
+			usbStatusInEP[0].xferCount = 1;
+			usbStatusInEP[0].needsArming = 1;
+			return true;
+		case USB_REQUEST_GET_STATUS:
+			/* Returns the device status of the requested sub-entity */
+			//usbRequestGetStatus();
+			return true;
+		case USB_REQUEST_CLEAR_FEATURE:
+		case USB_REQUEST_SET_FEATURE:
+			/* Manipulates a device feature */
+			//usbRequestDoFeature();
+			return true;
+		case USB_REQUEST_GET_INTERFACE:
+			/* Set source and types */
+			usbStatusInEP[0].buffSrc = USB_BUFFER_SRC_MEM;
+			usbStatusInEP[0].xferCount = 1;
+			usbStatusInEP[0].needsArming = 1;
+			return true;
+		case USB_REQUEST_SET_INTERFACE:
+			/* Generate a reply that is 0 bytes long to acknowledge */
+			usbStatusInEP[0].needsArming = 1;
+			/* AltID */
+			return true;
+		case USB_REQUEST_SET_DESCRIPTOR:
+			/* Set descriptor handler */
+			return true;
+		case USB_REQUEST_SYNC_FRAME:
+			return true;
+	}
+	return false;
+}
+
 void irqUSB()
 {
 	/*
