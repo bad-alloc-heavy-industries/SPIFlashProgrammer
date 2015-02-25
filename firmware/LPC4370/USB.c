@@ -29,10 +29,11 @@ volatile uint8_t usbDeferalFlags;
 volatile usbStallState_t usbStallState;
 
 volatile uint8_t usbActiveConfig, usbStatusTimeout;
+volatile bool usbStageLock1 = false, usbStageLock2 = false;
 
 void usbInit()
 {
-	//USB0->usbMode = ;
+	USB0->usbMode = USB_MODE_DEVICE | USB_MODE_SLOD;
 	USB0->usbCmd = USB_DCMD_RST;
 	usbReset();
 	usbCtrlState = USB_CTRL_STATE_WAIT;
@@ -43,11 +44,54 @@ void usbInit()
 
 void usbReset()
 {
+	uint8_t i;
+
 	/* Reset all USB related interrupt enables */
 	USB0->usbIE = 0;
 
 	/* And flags */
 	USB0->usbIF = 0;
+
+	/*
+	 * Configure EP0 as default control endpoint.
+	 * By the defaults in the device, this leaves the others off,
+	 * we just ensure that with the loop that follows.
+	 */
+	for (i = 0; i < USB_ENDPOINTS; i++)
+		USB0->epCtrl[i] = 0;
+
+	/*
+	 * Enable necessary interrupts
+	 * UEIE: Listen to all error interrupts
+	 * usbIE: Listen to only:
+	 *     USB Reset (URIE)
+	 *     Transaction Complete ()
+	 *     Idle Detected (SLIE)
+	 *     Wakeup Detect (PCIE)
+	 *     Stall Handshake ()
+	 *     USB Error (UEIE)
+	 *     Start-Of-Frame (SRIE)
+	 */
+	USB0->usbIE = USB_INT_UEIE | USB_INT_PCIE | USB_DINT_URIE | USB_INT_SRIE | USB_DINT_SLIE;
+
+	/* Reset the ping-pong buffers, bus address and transfer status */
+	USB0->epFlush = USB_EP_ALL_MASK;
+	USB0->epNAK = USB_EP_ALL_MASK;
+	USB0->epNAKEnable &= ~USB_EP_ALL_MASK;
+	USB0->deviceAddr = 0;
+
+	/* Reset status flags */
+	usbStageLock1 = false;
+	usbStageLock2 = false;
+	usbSuspended = false;
+
+	/* Prepare for an EP0 Setup packet */
+	USB0->epCtrl0 = USB_EP_RX_TYPE_CTRL | USB_EP_RXR | USB_EP_RXE | USB_EP_TX_TYPE_CTRL | USB_EP_TXR | USB_EP_TXE;
+	USB0->epPrime |= USB_EP0_RX_MASK;
+
+	/* Finally, idle the peripheral */
+	usbState = USB_STATE_DETACHED;
+	usbActiveConfig = 0;
 }
 
 void usbAttach()
