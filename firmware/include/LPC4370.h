@@ -37,12 +37,19 @@ typedef struct
 	volatile uint32_t epFlush;
 	volatile uint32_t epStat;
 	volatile uint32_t epComplete;
-	volatile uint32_t epCtrl0;
-	volatile uint32_t epCtrl1;
-	volatile uint32_t epCtrl2;
-	volatile uint32_t epCtrl3;
-	volatile uint32_t epCtrl4;
-	volatile uint32_t epCtrl5;
+	union
+	{
+		volatile uint32_t epCtrl[6];
+		struct
+		{
+			volatile uint32_t epCtrl0;
+			volatile uint32_t epCtrl1;
+			volatile uint32_t epCtrl2;
+			volatile uint32_t epCtrl3;
+			volatile uint32_t epCtrl4;
+			volatile uint32_t epCtrl5;
+		};
+	};
 } lpcUSB_t;
 
 typedef struct
@@ -306,6 +313,49 @@ typedef struct
 #define USB_BURSTSIZE_TXLEN		0x0000FF00
 
 #define USB_BINTERVAL_MASK		0x0000000F
+
+#define USB_MODE_IDLE			0x00000000
+#define USB_MODE_DEVICE			0x00000002
+#define USB_MODE_HOST			0x00000003
+#define USB_MODE_BIGEND			0x00000004
+#define USB_MODE_SLOD			0x00000008
+#define USB_MODE_SD				0x00000010
+
+#define USB_EP0_RX_MASK			0x00000001
+#define USB_EP1_RX_MASK			0x00000002
+#define USB_EP2_RX_MASK			0x00000004
+#define USB_EP3_RX_MASK			0x00000008
+#define USB_EP4_RX_MASK			0x00000010
+#define USB_EP5_RX_MASK			0x00000020
+#define USB_EP_RX_MASK			0x0000003F
+#define USB_EP0_TX_MASK			0x00010000
+#define USB_EP1_TX_MASK			0x00020000
+#define USB_EP2_TX_MASK			0x00040000
+#define USB_EP3_TX_MASK			0x00080000
+#define USB_EP4_TX_MASK			0x00100000
+#define USB_EP5_TX_MASK			0x00200000
+#define USB_EP_TX_MASK			0x003F0000
+#define USB_EP_ALL_MASK			0x003F003F
+
+#define USB_EP_RX_OK_MASK		0xFFFFFFFE
+#define USB_EP_RX_STALLED		0x00000001
+#define USB_EP_RX_TYPE_CTRL		0x00000000
+#define USB_EP_RX_TYPE_ISO		0x00000004
+#define USB_EP_RX_TYPE_BULK		0x00000008
+#define USB_EP_RX_TYPE_INTR		0x0000000C
+#define USB_EP_RXI				0x00000020
+#define USB_EP_RXR				0x00000040
+#define USB_EP_RXE				0x00000080
+
+#define USB_EP_TX_OK_MASK		0xFFFEFFFF
+#define USB_EP_TX_STALLED		0x00010000
+#define USB_EP_TX_TYPE_CTRL		0x00000000
+#define USB_EP_TX_TYPE_ISO		0x00040000
+#define USB_EP_TX_TYPE_BULK		0x00080000
+#define USB_EP_TX_TYPE_INTR		0x000C0000
+#define USB_EP_TXI				0x00200000
+#define USB_EP_TXR				0x00400000
+#define USB_EP_TXE				0x00800000
 
 #define TIMER_IR_EVT3			0x00000080
 #define TIMER_IR_EVT2			0x00000040
