@@ -31,10 +31,101 @@
 #define USB_BDT_ENTRIES		12
 #define USB_BTD_ADDR		__attribute__((aligned(2048)))
 
+#define USB_EP0_SETUP_LEN		8
+#define USB_EP0_SETUP_ADDR		__attribute__((aligned(8)))
+#define USB_EP0_DATA_LEN		8
+#define USB_EP0_DATA_ADDR		__attribute__((aligned(8)))
+
+#define USB_EP1_OUT_LEN			64
+#define USB_EP1_OUT_ADDR		__attribute__((aligned(64)))
+#define USB_EP1_IN_LEN			64
+#define USB_EP1_IN_ADDR			__attribute__((aligned(64)))
+
+#define USB_EP2_IN_LEN			64
+#define USB_EP2_IN_ADDR			__attribute__((aligned(64)))
+
+#define USB_DIR_OUT				0
+#define USB_DIR_IN				1
+
+#define USB_DEFER_STATUS_PACKETS	0x01
+#define USB_DEFER_IN_PACKETS		0x02
+#define USB_DEFER_OUT_PACKETS		0x04
+
+#define USB_BUFFER_SRC_MEM		0
+#define USB_BUFFER_SRC_FLASH	1
+
+#define USB_STATUS_TIMEOUT		45
+
+typedef union
+{
+	uint8_t value;
+	struct
+	{
+		uint8_t bdtIndex : 5;
+		uint8_t : 3;
+	};
+	struct
+	{
+		uint8_t dir : 1;
+		uint8_t epNum : 4;
+		uint8_t buff : 1;
+		uint8_t : 2;
+	};
+} usbEP_t;
+
+typedef struct
+{
+	uint8_t length;
+	const void *descriptor;
+} usbMultiPartDesc_t;
+
+typedef struct
+{
+	uint8_t numDesc;
+	const usbMultiPartDesc_t *descriptors;
+} usbMultiPartTable_t;
+
+typedef struct
+{
+	union
+	{
+		uint8_t value;
+		struct
+		{
+			uint8_t needsArming : 1;
+			uint8_t buffSrc : 1;
+			uint8_t multiPart : 1;
+			uint8_t part : 4;
+		};
+	};
+	union
+	{
+		void *memPtr;
+		const void *flashPtr;
+		uint8_t *memBuff;
+		const uint8_t *flashBuff;
+	} buffer;
+	usbEP_t ep;
+	uint16_t xferCount;
+	uint16_t epLen;
+	uint8_t partCount;
+	const usbMultiPartTable_t *partDesc;
+	void (*func)();
+} usbEPStatus_t;
+
+typedef union
+{
+	uint32_t value;
+	struct
+	{
+		// count, status, IOC, MuiO
+	};
+} usbStatus_t;
+
 typedef struct usbTD_t
 {
 	struct usbTD_t *nextTD;
-	uint32_t count;
+	usbStatus_t status;
 	void *buffer0;
 	void *buffer1;
 	void *buffer2;
