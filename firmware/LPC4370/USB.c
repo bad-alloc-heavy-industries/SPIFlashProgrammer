@@ -31,6 +31,9 @@ volatile usbStallState_t usbStallState;
 volatile uint8_t usbActiveConfig, usbStatusTimeout;
 volatile bool usbStageLock1 = false, usbStageLock2 = false;
 
+usbEPStatus_t usbStatusInEP[USB_ENDPOINTS];
+usbEPStatus_t usbStatusOutEP[USB_ENDPOINTS];
+/* Defines the buffer descriptor table and places it at it's aligned address in RAM */
 volatile usbBDTEntry_t usbBDT[USB_BDT_ENTRIES] USB_BTD_ADDR;
 
 void usbInit()
