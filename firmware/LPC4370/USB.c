@@ -163,7 +163,7 @@ void usbWakeup()
 void usbSuspend()
 {
 	USB0->usbIE |= USB_INT_PCIE;
-	USB0->usbIF = USB_INT_SLI;
+	USB0->usbIF = USB_DINT_SLI;
 	// Suspend here
 	usbSuspended = true;
 }
@@ -209,7 +209,7 @@ void irqUSB()
 	if ((USB0->usbIF & USB0->usbIE) & USB_DINT_SLI)
 	{
 		usbSuspend();
-		USB0->usbIF = USB_INT_SLI;
+		USB0->usbIF = USB_DINT_SLI;
 	}
 
 	/* If we detect a start of frame, check the status stage timeout and dispatch as necessary */
