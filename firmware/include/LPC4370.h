@@ -301,6 +301,7 @@ typedef struct
 #define USB_DFRINDEX_LASTTX		0x00003FF8
 #define USB_HFRINDEX_LISTIDX	0x00001FF8
 
+#define USB_DEVICEADDR_MASK		0xFE000000
 /* This allows the USB controller to have the USB address written in advance of being set for SET_ADDRESS */
 #define USB_DEVICEADDR_ADV		0x01000000
 
