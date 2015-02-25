@@ -17,10 +17,11 @@
  */
 
 #include "UART.h"
+#include "USB.h"
 
 void uartInit()
 {
-	/* Initialise USB 0 for UART use */
+	usbInit();
 }
 
 void uartWrite(uint8_t data)
