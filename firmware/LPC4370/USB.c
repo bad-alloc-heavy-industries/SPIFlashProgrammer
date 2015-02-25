@@ -31,10 +31,13 @@ volatile usbStallState_t usbStallState;
 volatile uint8_t usbActiveConfig, usbStatusTimeout;
 volatile bool usbStageLock1 = false, usbStageLock2 = false;
 
+volatile usbBDTEntry_t usbBDT[USB_BDT_ENTRIES] USB_BTD_ADDR;
+
 void usbInit()
 {
 	USB0->usbMode = USB_MODE_DEVICE | USB_MODE_SLOD;
 	USB0->usbCmd = USB_DCMD_RST;
+	USB0->listAddr = (uint32_t)&usbBDT;
 	usbReset();
 	usbCtrlState = USB_CTRL_STATE_WAIT;
 	usbStallState = USB_STALL_STATE_STALL;
