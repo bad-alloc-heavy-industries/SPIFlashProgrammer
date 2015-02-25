@@ -142,6 +142,57 @@ typedef struct usbTD_t
 
 typedef struct
 {
+	union
+	{
+		uint8_t value;
+		struct
+		{
+			uint8_t recipient : 5;
+			uint8_t type : 2;
+			uint8_t direction : 1;
+		};
+	} requestType;
+	uint8_t request;
+	union
+	{
+		uint16_t value;
+		struct
+		{
+			uint8_t index;
+			uint8_t type;
+		} descriptor;
+		struct
+		{
+			uint8_t addrL;
+			uint8_t addrH;
+		} address;
+		struct
+		{
+			uint8_t value;
+			uint8_t reserved;
+		} config;
+		struct
+		{
+			uint8_t value;
+			uint8_t reserved;
+		} feature;
+	} value;
+	union
+	{
+		uint16_t value;
+		struct
+		{
+			uint8_t epNum : 4;
+			uint8_t : 3;
+			uint8_t epDir : 1;
+			uint8_t : 8;
+		};
+	} index;
+	uint16_t length;
+} usbSetupPacket_t;
+
+typedef struct
+{
 	uint32_t epCaps;
 	usbTD_t *activeTD;
 	usbTD_t *nextTD;
@@ -152,7 +203,7 @@ typedef struct
 	void *buffer3;
 	void *buffer4;
 	uint32_t reserved1;
-	uint32_t setup[2];
+	usbSetupPacket_t setupPacket;
 	uint32_t reserved2[4];
 } usbBDTEntry_t;
 
@@ -232,57 +283,6 @@ typedef enum
 	USB_FEATURE_REMOTE_WAKEUP,
 	USB_FEATURE_TEST_MODE
 } usbFeature_t;
-
-typedef struct
-{
-	union
-	{
-		uint8_t value;
-		struct
-		{
-			uint8_t recipient : 5;
-			uint8_t type : 2;
-			uint8_t direction : 1;
-		};
-	} requestType;
-	uint8_t request;
-	union
-	{
-		uint16_t value;
-		struct
-		{
-			uint8_t index;
-			uint8_t type;
-		} descriptor;
-		struct
-		{
-			uint8_t addrL;
-			uint8_t addrH;
-		} address;
-		struct
-		{
-			uint8_t value;
-			uint8_t reserved;
-		} config;
-		struct
-		{
-			uint8_t value;
-			uint8_t reserved;
-		} feature;
-	} value;
-	union
-	{
-		uint16_t value;
-		struct
-		{
-			uint8_t epNum : 4;
-			uint8_t : 3;
-			uint8_t epDir : 1;
-			uint8_t : 8;
-		};
-	} index;
-	uint16_t length;
-} usbSetupPacket_t;
 
 typedef enum
 {
