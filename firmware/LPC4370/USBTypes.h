@@ -27,34 +27,39 @@
  * PID => Packet ID
  */
 
-#define USB_ENDPOINTS		6
-#define USB_BDT_ENTRIES		12
-#define USB_BTD_ADDR		__attribute__((aligned(2048)))
+#define USB_ENDPOINTS				6
+#define USB_BDT_ENTRIES				12
+#define USB_BTD_ADDR				__attribute__((aligned(2048)))
 
-#define USB_EP0_SETUP_LEN		8
-#define USB_EP0_SETUP_ADDR		__attribute__((aligned(8)))
-#define USB_EP0_DATA_LEN		8
-#define USB_EP0_DATA_ADDR		__attribute__((aligned(8)))
+#define USB_EP0_SETUP_LEN			8
+#define USB_EP0_SETUP_ADDR			__attribute__((aligned(8)))
+#define USB_EP0_DATA_LEN			8
+#define USB_EP0_DATA_ADDR			__attribute__((aligned(8)))
 
-#define USB_EP1_OUT_LEN			64
-#define USB_EP1_OUT_ADDR		__attribute__((aligned(64)))
-#define USB_EP1_IN_LEN			64
-#define USB_EP1_IN_ADDR			__attribute__((aligned(64)))
+#define USB_EP1_OUT_LEN				64
+#define USB_EP1_OUT_ADDR			__attribute__((aligned(64)))
+#define USB_EP1_IN_LEN				64
+#define USB_EP1_IN_ADDR				__attribute__((aligned(64)))
 
-#define USB_EP2_IN_LEN			64
-#define USB_EP2_IN_ADDR			__attribute__((aligned(64)))
+#define USB_EP2_IN_LEN				64
+#define USB_EP2_IN_ADDR				__attribute__((aligned(64)))
 
-#define USB_DIR_OUT				0
-#define USB_DIR_IN				1
+#define USB_DIR_OUT					0
+#define USB_DIR_IN					1
 
 #define USB_DEFER_STATUS_PACKETS	0x01
 #define USB_DEFER_IN_PACKETS		0x02
 #define USB_DEFER_OUT_PACKETS		0x04
 
-#define USB_BUFFER_SRC_MEM		0
-#define USB_BUFFER_SRC_FLASH	1
+#define USB_BUFFER_SRC_MEM			0
+#define USB_BUFFER_SRC_FLASH		1
 
-#define USB_STATUS_TIMEOUT		45
+#define USB_STATUS_TIMEOUT			45
+
+#define USB_TD_STATUS_MASK			0x000000FF
+#define USB_TD_MULTO_MASK			0x00000C00
+#define USB_TD_IOC					0x00008000
+#define USB_TD_COUNT_MASK			0x7FFF0000
 
 typedef union
 {
@@ -113,25 +118,10 @@ typedef struct
 	void (*func)();
 } usbEPStatus_t;
 
-typedef union
-{
-	uint32_t value;
-	struct
-	{
-		uint32_t status : 8;
-		uint32_t : 2;
-		uint32_t multOverride : 2;
-		uint32_t : 3;
-		uint32_t IOC : 1;
-		uint32_t count : 15;
-		uint32_t : 1;
-	};
-} usbStatus_t;
-
 typedef struct usbTD_t
 {
 	struct usbTD_t *nextTD;
-	usbStatus_t status;
+	uint32_t status;
 	void *buffer0;
 	void *buffer1;
 	void *buffer2;
@@ -196,7 +186,7 @@ typedef struct
 	uint32_t epCaps;
 	usbTD_t *activeTD;
 	usbTD_t *nextTD;
-	usbStatus_t status;
+	uint32_t status;
 	void *buffer0;
 	void *buffer1;
 	void *buffer2;
