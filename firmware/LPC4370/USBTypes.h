@@ -60,6 +60,7 @@
 #define USB_TD_MULTO_MASK			0x00000C00
 #define USB_TD_IOC					0x00008000
 #define USB_TD_COUNT_MASK			0x7FFF0000
+#define USB_INVALID_TD				(void *)0x00000001
 
 typedef union
 {
@@ -122,8 +123,16 @@ typedef struct usbTD_t
 {
 	struct usbTD_t *nextTD;
 	uint32_t status;
-	void *buffer0;
-	void *buffer1;
+	union
+	{
+		void *buffer0;
+		uint32_t bufferOffset : 12;
+	};
+	union
+	{
+		void *buffer1;
+		uint32_t frameNumber : 11;
+	};
 	void *buffer2;
 	void *buffer3;
 	void *buffer4;
