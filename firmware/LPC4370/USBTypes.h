@@ -19,6 +19,46 @@
 #ifndef USBTypes_H
 #define USBTypes_H
 
+/*
+ * Definition of naming conventions used:
+ * EP => EndPoint
+ * BDT => Buffer Descriptor Table
+ * TD => Transfer Descriptor
+ * PID => Packet ID
+ */
+
+#define USB_ENDPOINTS		6
+#define USB_BDT_ENTRIES		12
+#define USB_BTD_ADDR		__attribute__((aligned(2048)))
+
+typedef struct usbTD_t
+{
+	struct usbTD_t *nextTD;
+	uint32_t count;
+	void *buffer0;
+	void *buffer1;
+	void *buffer2;
+	void *buffer3;
+	void *buffer4;
+	uint32_t reserved1;
+} usbTD_t;
+
+typedef struct
+{
+	uint32_t epCaps;
+	usbTD_t *activeTD;
+	usbTD_t *nextTD;
+	uint32_t count;
+	void *buffer0;
+	void *buffer1;
+	void *buffer2;
+	void *buffer3;
+	void *buffer4;
+	uint32_t reserved1;
+	uint32_t setup[2];
+	uint32_t reserved2[4];
+} usbBDTEntry_t;
+
 typedef enum
 {
 	USB_CTRL_STATE_WAIT,
@@ -141,7 +181,7 @@ typedef struct
 			uint8_t epNum : 4;
 			uint8_t : 3;
 			uint8_t epDir : 1;
-			uint8_t;
+			uint8_t : 8;
 		};
 	} index;
 	uint16_t length;
