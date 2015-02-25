@@ -46,6 +46,8 @@ void usbInit()
 	usbStallState = USB_STALL_STATE_STALL;
 	usbDeferalFlags = 0;
 	usbStatusTimeout = 0;
+
+	usbStatusInEP[0].epLen = USB_EP0_DATA_LEN;
 }
 
 void usbReset()
@@ -90,6 +92,23 @@ void usbReset()
 	usbStageLock1 = false;
 	usbStageLock2 = false;
 	usbSuspended = false;
+
+	/* Reset driver endpoint states */
+	for (i = 0; i < USB_ENDPOINTS; i++)
+	{
+		usbStatusInEP[i].value = 0;
+		usbStatusInEP[i].xferCount = 0;
+		usbStatusInEP[i].ep.value = 0;
+		usbStatusInEP[i].ep.epNum = i;
+		usbStatusInEP[i].ep.dir = USB_DIR_IN;
+		usbStatusInEP[i].ep.buff = 0;
+		usbStatusOutEP[i].value = 0;
+		usbStatusOutEP[i].xferCount = 0;
+		usbStatusOutEP[i].ep.value = 0;
+		usbStatusOutEP[i].ep.epNum = i;
+		usbStatusOutEP[i].ep.dir = USB_DIR_OUT;
+		usbStatusOutEP[i].ep.buff = 0;
+	}
 
 	/* Prepare for an EP0 Setup packet */
 	USB0->epCtrl0 = USB_EP_RX_TYPE_CTRL | USB_EP_RXR | USB_EP_RXE | USB_EP_TX_TYPE_CTRL | USB_EP_TXR | USB_EP_TXE;
