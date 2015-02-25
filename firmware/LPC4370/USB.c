@@ -152,8 +152,31 @@ void usbDetach()
 	usbState = USB_STATE_DETACHED;
 }
 
+void usbWakeup()
+{
+	usbSuspended = false;
+	// Wakeup here
+	USB0->usbIE &= ~USB_INT_PCIE;
+	USB0->usbIF = USB_INT_PCI;
+}
+
+void usbSuspend()
+{
+	USB0->usbIE |= USB_INT_PCIE;
+	USB0->usbIF = USB_INT_SLI;
+	// Suspend here
+	usbSuspended = true;
+}
+
 void irqUSB()
 {
+	/*
+	 * When Single-Ended 0 condition clears and we are in the freshly attached state,
+	 * switch state processing to the "powered" state where we are unconfigured, but
+	 * ready and awaiting address assignment and enumeration.
+	 * SE0 is held on the bus during the process of the D+ and D-
+	 * pair being bought up to operating voltage.
+	 */
 	if (usbState == USB_STATE_ATTACHED)
 	{
 		/* Clear interrupt condition */
@@ -163,20 +186,36 @@ void irqUSB()
 		usbState = USB_STATE_POWERED;
 	}
 
+	/* If we detect activity, ensure we are in an awake state */
+	if ((USB0->usbIF & USB0->usbIE) & USB_INT_PCI)
+	{
+		USB0->usbIF = USB_INT_PCI;
+		usbWakeup();
+	}
+
 	/* If we are in a suspended state due to inactivity, ignore all further USB interrupt processors */
 	if (usbSuspended)
 		return;
 
-	if (USB0->usbIF & USB_DINT_URI)
+	/* If we detect the USB reset condition then ready processing getting an address, etc */
+	if ((USB0->usbIF & USB0->usbIE) & USB_DINT_URI)
 	{
 		usbReset();
 		usbState = USB_STATE_WAITING;
 		USB0->usbIF = USB_DINT_URI;
 	}
 
+	/* If we detect an idle condition, suspend activity */
+	if ((USB0->usbIF & USB0->usbIE) & USB_DINT_SLI)
+	{
+		usbSuspend();
+		USB0->usbIF = USB_INT_SLI;
+	}
+
+	/* If we detect a start of frame, check the status stage timeout and dispatch as necessary */
 	if (USB0->usbIF & USB_INT_SRI)
 	{
-		//if (USB0->usbIE & USB_INT_SRI);
+		//if (USB0->usbIE & USB_INT_SRIE);
 		USB0->usbIF = USB_INT_SRI;
 
 		if (usbStatusTimeout != 0)
