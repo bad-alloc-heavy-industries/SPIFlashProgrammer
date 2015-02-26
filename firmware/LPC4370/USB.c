@@ -201,8 +201,61 @@ void usbSuspend()
 	usbSuspended = true;
 }
 
+void usbHandleDataCtrlEP()
+{
+}
+
+void usbHandleStatusCtrlEP()
+{
+}
+
 void usbServiceCtrlEPComplete()
 {
+	if (usbStatusInEP[0].needsArming == 0)
+	{
+		if (usbStatusOutEP[0].needsArming == 1)
+		{
+			/* <SETUP[0]><OUT[1]><OUT[0]>...<IN[1]> */
+			usbCtrlState = USB_CTRL_STATE_RX;
+			if ((usbDeferalFlags & USB_DEFER_OUT_PACKETS) == 0)
+				usbHandleDataCtrlEP();
+			usbStageLock1 = false;
+			usbStageLock2 = false;
+		}
+		else
+		{
+			/* If nothing handled the request, get ready for the next SETUP token */
+
+			/* And stall the IN endpoint */
+		}
+	}
+	else
+	{
+		volatile usbSetupPacket_t *packet = &usbBDT[0].setupPacket;
+		if (packet->requestType.direction == USB_DIR_IN)
+		{
+			/* <SETUP[0]><IN[1]><IN[0]>...<OUT[1]> */
+			usbCtrlState = USB_CTRL_STATE_TX;
+			if ((usbDeferalFlags & USB_DEFER_IN_PACKETS) == 0)
+				usbHandleDataCtrlEP();
+			usbStageLock1 = false;
+			usbStageLock2 = false;
+			if ((usbDeferalFlags & USB_DEFER_STATUS_PACKETS) == 0)
+				usbHandleStatusCtrlEP();
+		}
+		else
+		{
+			/* <SETUP[0] (OUT)><IN[1]> */
+			usbCtrlState = USB_CTRL_STATE_RX;
+
+			/* Get ready for the next SETUP token */
+
+			usbStageLock1 = false;
+			usbStageLock2 = false;
+			if ((usbDeferalFlags & USB_DEFER_STATUS_PACKETS) == 0)
+				usbHandleStatusCtrlEP();
+		}
+	}
 }
 
 bool usbHandleStandardRequest(volatile usbBDTEntry_t *BD)
