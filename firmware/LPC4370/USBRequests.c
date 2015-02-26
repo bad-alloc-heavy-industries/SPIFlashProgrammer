@@ -20,6 +20,7 @@
 #include "USB.h"
 #include "USBTypes.h"
 #include "USBRequests.h"
+#include "USBCDC.h"
 
 #define USB_VID					0x0
 #define USB_PID					0x0
