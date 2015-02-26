@@ -45,7 +45,6 @@ void usbInit()
 {
 	USB0->usbMode = USB_MODE_DEVICE | USB_MODE_SLOD;
 	USB0->usbCmd &= USB_DCMD_STOP_MASK;
-	USB0->listAddr = (uint32_t)&usbBDT;
 	usbReset();
 	usbCtrlState = USB_CTRL_STATE_WAIT;
 	usbStallState = USB_STALL_STATE_STALL;
@@ -103,6 +102,7 @@ void usbReset()
 	}
 	usbBDT[0].epCaps |= ((USB_EP0_SETUP_LEN << 16) & USB_EPCAP_LEN_MASK) | USB_EPCAP_IOS;
 	usbBDT[1].epCaps |= (USB_EP0_DATA_LEN << 16) & USB_EPCAP_LEN_MASK;
+	USB0->listAddr = (uint32_t)&usbBDT;
 
 	/* Reset status flags */
 	usbStageLock1 = false;
