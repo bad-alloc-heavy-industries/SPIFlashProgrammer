@@ -298,6 +298,68 @@ const usbStringDescBase_t *usbStrings[USB_NUM_STRING_DESC] =
 
 void usbRequestGetDescriptor(volatile usbSetupPacket_t *packet)
 {
+	if (packet->requestType.direction == USB_DIR_IN)
+	{
+		usbStatusInEP[0].buffSrc = USB_BUFFER_SRC_FLASH;
+		usbStatusInEP[0].needsArming = 1;
+
+		switch (packet->value.descriptor.type)
+		{
+			case USB_DESCRIPTOR_DEVICE:
+				usbStatusInEP[0].buffer.flashPtr = &usbDeviceDesc;
+				usbStatusInEP[0].xferCount = usbDeviceDesc.length;
+				break;
+			case USB_DESCRIPTOR_CONFIGURATION:
+				if (packet->value.descriptor.index < USB_NUM_CONFIG_DESC)
+				{
+					uint8_t i;
+					const usbMultiPartTable_t *configDesc = &usbConfigDescs[packet->value.descriptor.index];
+					usbStatusInEP[0].buffer.flashPtr = configDesc->descriptors[0].descriptor;
+					usbStatusInEP[0].xferCount = 0;
+					for (i = 0; i < configDesc->numDesc; i++)
+						usbStatusInEP[0].xferCount += configDesc->descriptors[i].length;
+					usbStatusInEP[0].multiPart = 1;
+					usbStatusInEP[0].part = 1;
+					usbStatusInEP[0].partDesc = configDesc;
+					usbStatusInEP[0].partCount = configDesc->descriptors[0].length;
+				}
+				else
+					usbStatusInEP[0].value = 0;
+				break;
+			case USB_DESCRIPTOR_INTERFACE:
+				if (packet->value.descriptor.index < USB_NUM_IFACE_DESC)
+				{
+					const usbInterfaceDescriptor_t *ifaceDesc = &usbInterfaceDesc[packet->value.descriptor.index];
+					usbStatusInEP[0].buffer.flashPtr = ifaceDesc;
+					usbStatusInEP[0].xferCount = ifaceDesc->length;
+				}
+				else
+					usbStatusInEP[0].value = 0;
+				break;
+			case USB_DESCRIPTOR_ENDPOINT:
+				if (packet->value.descriptor.index < USB_NUM_ENDPOINT_DESC)
+				{
+					const usbEndpointDescriptor_t *epDesc = &usbEndpointDesc[packet->value.descriptor.index];
+					usbStatusInEP[0].buffer.flashPtr = epDesc;
+					usbStatusInEP[0].xferCount = epDesc->length;
+				}
+				else
+					usbStatusInEP[0].value = 0;
+				break;
+			case USB_DESCRIPTOR_STRING:
+				if (packet->value.descriptor.index < USB_NUM_STRING_DESC)
+				{
+					const usbStringDescBase_t *strDesc = usbStrings[packet->value.descriptor.index];
+					usbStatusInEP[0].buffer.flashPtr = strDesc;
+					usbStatusInEP[0].xferCount = strDesc->length;
+				}
+				else
+					usbStatusInEP[0].value = 0;
+				break;
+			default:
+				usbStatusInEP[0].value = 0;
+		}
+	}
 }
 
 void usbRequestSetConfiguration()
