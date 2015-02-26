@@ -16,6 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <LPC4370.h>
 #include <stdint.h>
 #include "USB.h"
 #include "USBTypes.h"
@@ -368,6 +369,41 @@ void usbRequestSetConfiguration(volatile usbSetupPacket_t *packet)
 
 void usbRequestGetStatus(volatile usbSetupPacket_t *packet)
 {
+	usbEP0Data[0] = usbEP0Data[1] = 0;
+
+	switch (packet->requestType.recipient)
+	{
+		case USB_RECIPIENT_DEVICE:
+			usbStatusInEP[0].needsArming = 1;
+			/* We are never remotely woken up, and nor we are self-powered. */
+			usbEP0Data[0] |= 0x00;
+			break;
+		case USB_RECIPIENT_INTERFACE:
+			usbStatusInEP[0].needsArming = 1;
+			/* The spec mandates this has to return 0 for both bytes */
+			break;
+		case USB_RECIPIENT_ENDPOINT:
+		{
+			volatile uint32_t epStat;
+			usbStatusInEP[0].needsArming = 1;
+			/* Look the endpoint up */
+			epStat = USB0->epCtrl[packet->index.epNum];
+			/* Check if the endpoint is halted */
+			if (packet->index.epDir == USB_DIR_OUT && epStat & USB_EP_RX_STALLED)
+				usbEP0Data[0] = 0x01;
+			else if (packet->index.epDir == USB_DIR_IN && epStat & USB_EP_TX_STALLED)
+				usbEP0Data[0] = 0x01;
+			break;
+		}
+	}
+
+	/* If something generated something to report, set up the endpoint state for it */
+	if (usbStatusInEP[0].needsArming)
+	{
+		usbStatusInEP[0].buffer.memPtr = usbEP0Data;
+		usbStatusInEP[0].buffSrc = USB_BUFFER_SRC_MEM;
+		usbStatusInEP[0].xferCount = 2;
+	}
 }
 
 void usbRequestDoFeature(volatile usbSetupPacket_t *packet)
