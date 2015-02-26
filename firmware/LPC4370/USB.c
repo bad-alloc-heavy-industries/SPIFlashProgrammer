@@ -128,7 +128,23 @@ void usbReset()
 
 	/* Prepare for an EP0 Setup packet */
 	USB0->epCtrl0 = USB_EP_RX_TYPE_CTRL | USB_EP_RXR | USB_EP_RXE | USB_EP_TX_TYPE_CTRL | USB_EP_TXR | USB_EP_TXE;
+	setupTD.nextTD = USB_INVALID_TD;
+	setupTD.status = ((USB_EP0_SETUP_LEN << 16) & USB_TD_COUNT_MASK) | USB_TD_IOC;
+	setupTD.buffer0 = &usbBDT[0].setupPacket;
+	setupTD.buffer1 = nullptr;
+	setupTD.buffer2 = nullptr;
+	setupTD.buffer3 = nullptr;
+	setupTD.buffer4 = nullptr;
+	usbBDT[0].activeTD.nextTD = &setupTD;
 	USB0->epPrime |= USB_EP0_RX_MASK;
+
+	dataTD.nextTD = USB_INVALID_TD;
+	dataTD.status = ((USB_EP0_DATA_LEN << 16) & USB_TD_COUNT_MASK) | USB_TD_IOC;
+	dataTD.buffer0 = usbEP0Data;
+	dataTD.buffer1 = nullptr;
+	dataTD.buffer2 = nullptr;
+	dataTD.buffer3 = nullptr;
+	dataTD.buffer4 = nullptr;
 
 	/* Finally, idle the peripheral */
 	usbState = USB_STATE_DETACHED;
