@@ -30,6 +30,7 @@
 #define USB_ENDPOINTS				6
 #define USB_BDT_ENTRIES				12
 #define USB_BTD_ADDR				__attribute__((aligned(2048)))
+#define USB_TD_ALIGN				__attribute__((aligned(32)))
 
 #define USB_EP0_SETUP_LEN			8
 #define USB_EP0_SETUP_ADDR			__attribute__((aligned(8)))
@@ -56,11 +57,24 @@
 
 #define USB_STATUS_TIMEOUT			45
 
+#define USB_EPCAP_IOS				0x00008000
+#define USB_EPCAP_LEN_MASK			0x07FF0000
+#define USB_EPCAP_ZLT				0x20000000
+#define USB_EPCAP_MULT_MASK			0xC0000000
+#define USB_EPCAP_MULT_1			0x40000000
+#define USB_EPCAP_MULT_2			0x80000000
+#define USB_EPCAP_MULT_3			0xC0000000
+
 #define USB_TD_STATUS_MASK			0x000000FF
 #define USB_TD_MULTO_MASK			0x00000C00
 #define USB_TD_IOC					0x00008000
 #define USB_TD_COUNT_MASK			0x7FFF0000
 #define USB_INVALID_TD				(void *)0x00000001
+
+#define USB_PAGE_MASK				0xFFFFF000
+#define USB_PAGE_INC				0x00001000
+
+#define nullptr						((void *)0)
 
 typedef union
 {
@@ -106,7 +120,7 @@ typedef struct
 	};
 	union
 	{
-		void *memPtr;
+		volatile void *memPtr;
 		const void *flashPtr;
 		uint8_t *memBuff;
 		const uint8_t *flashBuff;
@@ -121,21 +135,21 @@ typedef struct
 
 typedef struct usbTD_t
 {
-	struct usbTD_t *nextTD;
+	volatile struct usbTD_t *nextTD;
 	uint32_t status;
 	union
 	{
-		void *buffer0;
+		volatile void *buffer0;
 		uint32_t bufferOffset : 12;
 	};
 	union
 	{
-		void *buffer1;
+		volatile void *buffer1;
 		uint32_t frameNumber : 11;
 	};
-	void *buffer2;
-	void *buffer3;
-	void *buffer4;
+	volatile void *buffer2;
+	volatile void *buffer3;
+	volatile void *buffer4;
 	uint32_t reserved1;
 } usbTD_t;
 
@@ -193,17 +207,10 @@ typedef struct
 typedef struct
 {
 	uint32_t epCaps;
-	usbTD_t *activeTD;
-	usbTD_t *nextTD;
-	uint32_t status;
-	void *buffer0;
-	void *buffer1;
-	void *buffer2;
-	void *buffer3;
-	void *buffer4;
-	uint32_t reserved1;
+	usbTD_t *activeHwTD;
+	usbTD_t activeTD;
 	usbSetupPacket_t setupPacket;
-	uint32_t reserved2[4];
+	uint32_t reserved[4];
 } usbBDTEntry_t;
 
 typedef enum
