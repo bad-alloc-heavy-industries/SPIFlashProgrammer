@@ -166,7 +166,8 @@ const usbCDCCallMgmt_t usbCDCCallMgmt =
 	sizeof(usbCDCCallMgmt_t),
 	USB_DESCRIPTOR_CDC,
 	USB_CDC_CM,
-	USB_CDC_CM_SELF_MANAGE
+	USB_CDC_CM_SELF_MANAGE,
+	2
 };
 
 const usbMultiPartDesc_t usbConfigSecs[USB_NUM_CONFIG_SECS] =
