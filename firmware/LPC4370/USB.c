@@ -23,6 +23,7 @@
 #include "USBTypes.h"
 
 volatile usbDeviceState usbState;
+volatile usbEP_t usbPacket;
 volatile bool usbSuspended;
 volatile usbCtrlState_t usbCtrlState;
 volatile uint8_t usbDeferalFlags;
@@ -35,11 +36,15 @@ usbEPStatus_t usbStatusInEP[USB_ENDPOINTS];
 usbEPStatus_t usbStatusOutEP[USB_ENDPOINTS];
 /* Defines the buffer descriptor table and places it at it's aligned address in RAM */
 volatile usbBDTEntry_t usbBDT[USB_BDT_ENTRIES] USB_BTD_ADDR;
+/* Define endpoint 0's buffers */
+volatile usbTD_t setupTD USB_TD_ALIGN;
+volatile usbTD_t dataTD USB_TD_ALIGN;
+volatile uint8_t usbEP0Data[USB_EP0_DATA_LEN] USB_EP0_DATA_ADDR;
 
 void usbInit()
 {
 	USB0->usbMode = USB_MODE_DEVICE | USB_MODE_SLOD;
-	USB0->usbCmd = USB_DCMD_RST;
+	USB0->usbCmd &= USB_DCMD_STOP_MASK;
 	USB0->listAddr = (uint32_t)&usbBDT;
 	usbReset();
 	usbCtrlState = USB_CTRL_STATE_WAIT;
@@ -83,10 +88,21 @@ void usbReset()
 	USB0->usbIE = USB_INT_UEIE | USB_INT_PCIE | USB_DINT_URIE | USB_INT_SRIE | USB_DINT_SLIE;
 
 	/* Reset the ping-pong buffers, bus address and transfer status */
+	USB0->epSetupStat = USB0->epSetupStat;
+	USB0->epComplete = USB0->epComplete;
+	while (USB0->epPrime);
 	USB0->epFlush = USB_EP_ALL_MASK;
 	USB0->epNAK = USB_EP_ALL_MASK;
 	USB0->epNAKEnable &= ~USB_EP_ALL_MASK;
 	USB0->deviceAddr = 0;
+
+	for (i = 0; i < (USB_ENDPOINTS << 1); i++)
+	{
+		usbBDT[i].activeTD.nextTD = USB_INVALID_TD;
+		usbBDT[i].epCaps &= ~(USB_EPCAP_LEN_MASK | USB_EPCAP_IOS | USB_EPCAP_ZLT | USB_EPCAP_MULT_MASK);
+	}
+	usbBDT[0].epCaps |= ((USB_EP0_SETUP_LEN << 16) & USB_EPCAP_LEN_MASK) | USB_EPCAP_IOS;
+	usbBDT[1].epCaps |= (USB_EP0_DATA_LEN << 16) & USB_EPCAP_LEN_MASK;
 
 	/* Reset status flags */
 	usbStageLock1 = false;
