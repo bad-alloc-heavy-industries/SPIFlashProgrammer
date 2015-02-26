@@ -411,5 +411,8 @@ typedef enum
 	USB_DESCRIPTOR_INTERFACE_ASSOCIATION
 } usbDescriptor_t;
 
+extern usbEPStatus_t usbStatusInEP[USB_ENDPOINTS];
+extern usbEPStatus_t usbStatusOutEP[USB_ENDPOINTS];
+
 #endif /*USBTypes_H*/
 
