@@ -20,9 +20,9 @@
 #define	USBREQUESTS_H
 
 extern void usbRequestGetDescriptor(volatile usbSetupPacket_t *packet);
-extern void usbRequestSetConfiguration();
-extern void usbRequestGetStatus();
-extern void usbRequestDoFeature();
+extern void usbRequestSetConfiguration(volatile usbSetupPacket_t *packet);
+extern void usbRequestGetStatus(volatile usbSetupPacket_t *packet);
+extern void usbRequestDoFeature(volatile usbSetupPacket_t *packet);
 
 extern volatile usbDeviceState usbState;
 extern volatile uint8_t usbActiveConfig;

@@ -235,7 +235,7 @@ bool usbHandleStandardRequest(volatile usbBDTEntry_t *BD)
 			return true;
 		case USB_REQUEST_SET_CONFIGURATION:
 			/* Reconfigures the device endpoints for the indicated configuration index */
-			usbRequestSetConfiguration();
+			usbRequestSetConfiguration(packet);
 			usbPacket.buff = 1;
 			return true;
 		case USB_REQUEST_GET_CONFIGURATION:
@@ -247,12 +247,12 @@ bool usbHandleStandardRequest(volatile usbBDTEntry_t *BD)
 			return true;
 		case USB_REQUEST_GET_STATUS:
 			/* Returns the device status of the requested sub-entity */
-			usbRequestGetStatus();
+			usbRequestGetStatus(packet);
 			return true;
 		case USB_REQUEST_CLEAR_FEATURE:
 		case USB_REQUEST_SET_FEATURE:
 			/* Manipulates a device feature */
-			usbRequestDoFeature();
+			usbRequestDoFeature(packet);
 			return true;
 		case USB_REQUEST_GET_INTERFACE:
 			/* Set source and types */

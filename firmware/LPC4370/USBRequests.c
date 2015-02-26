@@ -362,15 +362,15 @@ void usbRequestGetDescriptor(volatile usbSetupPacket_t *packet)
 	}
 }
 
-void usbRequestSetConfiguration()
+void usbRequestSetConfiguration(volatile usbSetupPacket_t *packet)
 {
 }
 
-void usbRequestGetStatus()
+void usbRequestGetStatus(volatile usbSetupPacket_t *packet)
 {
 }
 
-void usbRequestDoFeature()
+void usbRequestDoFeature(volatile usbSetupPacket_t *packet)
 {
 }
 
