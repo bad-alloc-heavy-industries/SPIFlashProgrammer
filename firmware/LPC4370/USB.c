@@ -231,7 +231,7 @@ bool usbHandleStandardRequest(volatile usbBDTEntry_t *BD)
 			return true;
 		case USB_REQUEST_GET_DESCRIPTOR:
 			/* Transmits the requested descriptor of the requested type to the host */
-			usbRequestGetDescriptor();
+			usbRequestGetDescriptor(packet);
 			return true;
 		case USB_REQUEST_SET_CONFIGURATION:
 			/* Reconfigures the device endpoints for the indicated configuration index */

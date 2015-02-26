@@ -296,7 +296,7 @@ const usbStringDescBase_t *usbStrings[USB_NUM_STRING_DESC] =
 	&usbStringUART.header
 };
 
-void usbRequestGetDescriptor()
+void usbRequestGetDescriptor(volatile usbSetupPacket_t *packet)
 {
 }
 

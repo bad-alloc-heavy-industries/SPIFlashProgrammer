@@ -19,7 +19,7 @@
 #ifndef USBREQUESTS_H
 #define	USBREQUESTS_H
 
-extern void usbRequestGetDescriptor();
+extern void usbRequestGetDescriptor(volatile usbSetupPacket_t *packet);
 extern void usbRequestSetConfiguration();
 extern void usbRequestGetStatus();
 extern void usbRequestDoFeature();
