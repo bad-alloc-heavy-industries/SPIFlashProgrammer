@@ -200,6 +200,10 @@ void usbSuspend()
 	usbSuspended = true;
 }
 
+void usbServiceCtrlEPComplete()
+{
+}
+
 bool usbHandleStandardRequest(volatile usbBDTEntry_t *BD)
 {
 	volatile usbSetupPacket_t *packet = &BD->setupPacket;
@@ -269,17 +273,52 @@ bool usbHandleStandardRequest(volatile usbBDTEntry_t *BD)
 	return false;
 }
 
+void usbHandleCtrlEPSetup()
+{
+	bool processed;
+
+	/* Reset in buffers for EP0 (de-arm them) to get to a clean state for this call */
+	while (USB0->epPrime & 0x00010001);
+	USB0->epFlush = 0x00010001;
+
+	/* Set flags up*/
+	usbStallState = USB_STALL_STATE_IDLE;
+	usbDeferalFlags = 0;
+	usbCtrlState = USB_CTRL_STATE_WAIT;
+	usbStatusInEP[0].value = 0;
+	usbStatusInEP[0].xferCount = 0;
+	usbStatusOutEP[0].value = 0;
+	usbStatusOutEP[0].xferCount = 0;
+
+	/* Handle the request */
+	processed = usbHandleStandardRequest(&usbBDT[usbPacket.bdtIndex]);
+	// CDC here
+
+	usbServiceCtrlEPComplete();
+	USB0->epSetupStat = 0x00000001;
+}
+
+void usbHandleCtrlEPOut()
+{
+	USB0->epComplete = 0x00000001;
+}
+
+void usbHandleCtrlEPIn()
+{
+	USB0->epComplete = 0x00010000;
+}
+
 void usbServiceCtrlEP()
 {
 	if (usbPacket.epNum != 0)
 		return;
 	usbStatusTimeout = USB_STATUS_TIMEOUT;
-	/*if (USB0->epSetupStat & 0x00000001)
+	if (USB0->epSetupStat & 0x00000001)
 		usbHandleCtrlEPSetup();
 	else if (USB0->epComplete & 0x00000001)
 		usbHandleCtrlEPOut();
 	else if (USB0->epComplete & 0x00010000)
-		usbHandleCtrlEPIn();*/
+		usbHandleCtrlEPIn();
 }
 
 void irqUSB()
