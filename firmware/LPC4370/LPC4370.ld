@@ -49,7 +49,7 @@ SECTIONS
 		*(.text.*)
 		*(.rodata.*)
 		_end_text = .;
-	} >LRAM2
+	} >LRAM1
 	/*>FLASH*/
 
 	.data :
@@ -58,7 +58,7 @@ SECTIONS
 		*(.data.*)
 		*(vtable)
 		_end_data = .;
-	}  >LRAM1 AT >LRAM2
+	}  >LRAM2 AT >LRAM1
 	/*>RAM AT >FLASH*/
 
 	.bss :
@@ -67,7 +67,7 @@ SECTIONS
 		*(.bss.*)
 		*(COMMON)
 		_end_bss = .;
-	}  >LRAM1
+	}  >LRAM2
 	/*>RAM*/
 
 	.stack :
