@@ -372,5 +372,12 @@ void usbRequestGetStatus(volatile usbSetupPacket_t *packet)
 
 void usbRequestDoFeature(volatile usbSetupPacket_t *packet)
 {
+	/* Process any eventual Remote Wakeup requests to apease Windows. */
+	if (packet->value.feature.value == USB_FEATURE_REMOTE_WAKEUP &&
+		packet->requestType.recipient == USB_RECIPIENT_DEVICE)
+	{
+		usbStatusInEP[0].needsArming = 1;
+		return;
+	}
 }
 
