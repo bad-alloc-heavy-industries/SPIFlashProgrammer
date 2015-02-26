@@ -253,6 +253,19 @@ bool usbHandleStandardRequest(volatile usbBDTEntry_t *BD)
 	return false;
 }
 
+void usbServiceCtrlEP()
+{
+	if (usbPacket.epNum != 0)
+		return;
+	usbStatusTimeout = USB_STATUS_TIMEOUT;
+	/*if (USB0->epSetupStat & 0x00000001)
+		usbHandleCtrlEPSetup();
+	else if (USB0->epComplete & 0x00000001)
+		usbHandleCtrlEPOut();
+	else if (USB0->epComplete & 0x00010000)
+		usbHandleCtrlEPIn();*/
+}
+
 void irqUSB()
 {
 	/*
@@ -312,4 +325,33 @@ void irqUSB()
 	/* If we are not yet configured, process no further. */
 	if (usbState < USB_STATE_WAITING)
 		return;
+
+	/* If we detect the SIE has completed IO for a transaction, handle that transaction */
+	while ((USB0->epComplete | USB0->epSetupStat) != 0)
+	{
+		uint32_t epMask = 0x01;
+		uint8_t endpointNum = 0;
+		/* Locate the next endpoint to process, we always start with the control endpoint */
+		while ((USB0->epComplete & ((epMask << 16) | epMask)) == 0 && (USB0->epSetupStat & epMask) == 0)
+		{
+			epMask <<= 1;
+			++endpointNum;
+		}
+		usbPacket.epNum = endpointNum;
+		usbPacket.dir = ((USB0->epComplete | USB0->epSetupStat) & epMask) ? USB_DIR_OUT : USB_DIR_IN;
+
+		if (usbPacket.dir == USB_DIR_OUT)
+		{
+			usbPacket.buff = usbStatusOutEP[endpointNum].ep.buff;
+			usbStatusOutEP[endpointNum].ep.buff ^= 1;
+		}
+		else
+		{
+			usbPacket.buff = usbStatusInEP[endpointNum].ep.buff;
+			usbStatusInEP[endpointNum].ep.buff ^= 1;
+		}
+
+		if (endpointNum == 0)
+			usbServiceCtrlEP();
+	}
 }
