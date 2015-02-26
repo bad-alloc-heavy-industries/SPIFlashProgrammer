@@ -21,6 +21,7 @@
 #include <stdbool.h>
 #include "USB.h"
 #include "USBTypes.h"
+#include "USBRequests.h"
 
 volatile usbDeviceState usbState;
 volatile usbEP_t usbPacket;
