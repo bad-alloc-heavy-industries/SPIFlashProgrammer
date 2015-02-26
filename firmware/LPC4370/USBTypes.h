@@ -413,6 +413,8 @@ typedef enum
 
 extern usbEPStatus_t usbStatusInEP[USB_ENDPOINTS];
 extern usbEPStatus_t usbStatusOutEP[USB_ENDPOINTS];
+extern volatile usbBDTEntry_t usbBDT[USB_BDT_ENTRIES];
+extern volatile uint8_t usbEP0Data[USB_EP0_DATA_LEN];
 
 #endif /*USBTypes_H*/
 
