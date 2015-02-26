@@ -365,6 +365,67 @@ void usbRequestGetDescriptor(volatile usbSetupPacket_t *packet)
 
 void usbRequestSetConfiguration(volatile usbSetupPacket_t *packet)
 {
+	uint8_t i;
+
+	/* Generate a 0 length ack for this */
+	usbStatusInEP[0].needsArming = 1;
+	/* And reset all non-EP0 endpoints */
+	/* Reset all BDT entiries to pristine state */
+
+	/* Reset the ping-pong buffers, and their states */
+
+	/* Reset alternate interface setting and set active config */
+	usbActiveConfig = packet->value.config.value;
+
+	if (usbActiveConfig == 0)
+		usbState = USB_STATE_ADDRESSED;
+	else if (usbActiveConfig <= USB_NUM_CONFIG_DESC)
+	{
+		uint8_t configIdx = usbActiveConfig - 1;
+		uint8_t j, ifaceIdx = 0, endpointIdx = 0;
+
+		usbState = USB_STATE_CONFIGURED;
+		/* Count interfaces to arrive at the first to deref */
+		for (i = 0; i < configIdx; i++)
+		{
+			j = ifaceIdx;
+			ifaceIdx += usbConfigDesc[i].numInterfaces;
+			for (; j < ifaceIdx; j++)
+				endpointIdx += usbInterfaceDesc[j].numEndpoints;
+		}
+
+		for (i = 0; i < usbConfigDesc[configIdx].numInterfaces; i++)
+		{
+			for (j = 0; j < usbInterfaceDesc[i].numEndpoints; j++)
+			{
+				const usbEndpointDescriptor_t *endpoint = &usbEndpointDesc[endpointIdx + j];
+				volatile uint32_t *ep = &USB0->epCtrl[endpoint->endpointAddress & 0x7F];
+				uint8_t epType = endpoint->attributes & 0x03;
+
+				if ((endpoint->endpointAddress & 0x80) == USB_EPDIR_IN)
+				{
+					if (epType == USB_EPTYPE_BULK)
+						*ep |= USB_EP_TX_TYPE_BULK;
+					else if (epType == USB_EPTYPE_INTR)
+						*ep |= USB_EP_TX_TYPE_INTR;
+					else
+						*ep |= USB_EP_TX_TYPE_ISO;
+					*ep |= USB_EP_TXE;
+				}
+				else
+				{
+					if (epType == USB_EPTYPE_BULK)
+						*ep |= USB_EP_RX_TYPE_BULK;
+					else if (epType == USB_EPTYPE_INTR)
+						*ep |= USB_EP_RX_TYPE_INTR;
+					else
+						*ep |= USB_EP_RX_TYPE_ISO;
+					*ep |= USB_EP_RXE;
+				}
+			}
+			endpointIdx += j;
+		}
+	}
 }
 
 void usbRequestGetStatus(volatile usbSetupPacket_t *packet)
