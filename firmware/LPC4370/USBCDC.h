@@ -16,8 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef USBVCP_H
-#define	USBVCP_H
+#ifndef USBCDC_H
+#define	USBCDC_H
 
 #define USB_DESCRIPTOR_CDC		0x24
 
@@ -81,5 +81,5 @@ typedef struct
 	uint8_t slaveInterface0;
 } usbCDCUnion2_t;
 
-#endif	/* USBVCP_H */
+#endif	/* USBCDC_H */
 
