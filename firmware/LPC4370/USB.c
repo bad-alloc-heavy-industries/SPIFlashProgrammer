@@ -46,6 +46,7 @@ void usbInit()
 {
 	NVIC_CLRIE0 &= ~(1 << 8);
 	NVIC_CLRPND0 &= ~(1 << 8);
+	SYSCTL_CREG0 &= ~SYSCTL_CREG0_USBPD;
 
 	USB0->usbMode = USB_MODE_DEVICE | USB_MODE_SLOD;
 	USB0->usbCmd &= USB_DCMD_STOP_MASK;

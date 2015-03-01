@@ -121,6 +121,9 @@ typedef struct
 } lpcSPI_t;
 
 #define USB0				((lpcUSB_t *)0x40006000)
+
+#define SYSCTL_CREG0		*((volatile uint32_t *)0x40043004)
+
 #define Timer0				((lpcTimer_t *)0x40084000)
 #define Timer1				((lpcTimer_t *)0x40085000)
 #define SCU					((lpcSCU_t *)0x40086000)
@@ -228,6 +231,12 @@ typedef struct
 #define NVIC_PRI6			*((volatile uint32_t *)0xE000E418)
 #define NVIC_PIR7			*((volatile uint32_t *)0xE000E41C)
 #define NVIC_SW_TRIG		*((volatile uint32_t *)0xE000EF00)
+
+#define SYSCTL_CREG0_1KHzEN		0x00000001
+#define SYSCTL_CREG0_32KHzEN	0x00000002
+#define SYSCTL_CREG0_32kHzRST	0x00000004
+#define SYSCTL_CREG0_32kHzPD	0x00000008
+#define SYSCTL_CREG0_USBPD		0x00000020
 
 #define USB_CL_LENGTH_MASK		0x000000FF
 #define USB_CL_VERSION_MASK		0x00FFFF00
