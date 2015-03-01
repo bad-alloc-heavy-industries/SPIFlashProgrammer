@@ -209,6 +209,26 @@ typedef struct
 
 #define SPI					((lpcSPI_t *)0x40100000)
 
+#define NVIC_SETIE0			*((volatile uint32_t *)0xE000E100)
+#define NVIC_SETIE1			*((volatile uint32_t *)0xE000E104)
+#define NVIC_CLRIE0			*((volatile uint32_t *)0xE000E180)
+#define NVIC_CLRIE1			*((volatile uint32_t *)0xE000E184)
+#define NVIC_SETPND0		*((volatile uint32_t *)0xE000E200)
+#define NVIC_SETPND1		*((volatile uint32_t *)0xE000E204)
+#define NVIC_CLRPND0		*((volatile uint32_t *)0xE000E280)
+#define NVIC_CLRPND1		*((volatile uint32_t *)0xE000E284)
+#define NVIC_ACTIVE0		*((volatile uint32_t *)0xE000E300)
+#define NVIC_ACTIVE1		*((volatile uint32_t *)0xE000E304)
+#define NVIC_PRI0			*((volatile uint32_t *)0xE000E400)
+#define NVIC_PIR1			*((volatile uint32_t *)0xE000E404)
+#define NVIC_PRI2			*((volatile uint32_t *)0xE000E408)
+#define NVIC_PIR3			*((volatile uint32_t *)0xE000E40C)
+#define NVIC_PRI4			*((volatile uint32_t *)0xE000E410)
+#define NVIC_PIR5			*((volatile uint32_t *)0xE000E414)
+#define NVIC_PRI6			*((volatile uint32_t *)0xE000E418)
+#define NVIC_PIR7			*((volatile uint32_t *)0xE000E41C)
+#define NVIC_SW_TRIG		*((volatile uint32_t *)0xE000EF00)
+
 #define USB_CL_LENGTH_MASK		0x000000FF
 #define USB_CL_VERSION_MASK		0x00FFFF00
 

@@ -44,6 +44,9 @@ volatile uint8_t usbEP0Data[USB_EP0_DATA_LEN] USB_EP0_DATA_ADDR;
 
 void usbInit()
 {
+	NVIC_CLRIE0 &= ~(1 << 8);
+	NVIC_CLRPND0 &= ~(1 << 8);
+
 	USB0->usbMode = USB_MODE_DEVICE | USB_MODE_SLOD;
 	USB0->usbCmd &= USB_DCMD_STOP_MASK;
 	usbReset();
@@ -168,6 +171,7 @@ void usbAttach()
 
 	/* And enable USB interrupts */
 	USB0->usbIE |= USB_INT_UIE;
+	NVIC_SETIE0 |= (1 << 8);
 
 	/* Try to attach to the bus */
 	USB0->usbCmd |= USB_DCMD_RUN;
