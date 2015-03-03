@@ -311,8 +311,11 @@ void transferBitfile(const void *data, const size_t dataLen)
 #endif
 
 	pages = (dataLen >> 8) + ((dataLen & 0xFF) != 0 ? 1 : 0);
-	unlockDevice();
-	waitWriteComplete();
+	if (device == DEV_M25P80)
+	{
+		unlockDevice();
+		waitWriteComplete();
+	}
 	eraseDevice(data);
 	for (addr = 0; addr < pages; addr++)
 	{
@@ -362,8 +365,11 @@ void transferBitfile(const void *data, const size_t dataLen)
 		}
 #endif
 	}
-	lockDevice();
-	waitWriteComplete();
+	if (device == DEV_M25P80)
+	{
+		lockDevice();
+		waitWriteComplete();
+	}
 #ifndef NOCONFIG
 	if (data == config)
 	{
