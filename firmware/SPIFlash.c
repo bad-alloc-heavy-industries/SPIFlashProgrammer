@@ -43,8 +43,6 @@ typedef enum
 #define RDID	0x9F
 #define RDSR	0x05
 #define WRSR	0x01
-#define WRLR	0xE5
-#define RDLR	0xE8
 #define READ	0x03
 #define PP		0x02
 #define SSE		0x20
