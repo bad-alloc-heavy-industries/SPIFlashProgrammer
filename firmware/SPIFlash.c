@@ -31,8 +31,8 @@
 
 #define WREN	0x06
 #define WRDI	0x04
-#define RDIDL	0x9F
-#define RDIDS	0x9E
+/* 0x9F is the JEDEC guaranteed instruction for reading device ID info. */
+#define RDID	0x9F
 #define RDSR	0x05
 #define WRSR	0x01
 #define WRLR	0xE5
@@ -51,10 +51,22 @@ uint32_t usbDataReceived;
 
 /*
  * 0x20 => Manufacturer ID (Numonyx)
- * 0x71 => Memory Type (SPI Flash)
- * 0x14 => Memory Capacity - 4Mbit
+ * 0x20 => Memory Type (SPI Flash)
+ * 0x14 => Memory Capacity - 8Mbit
  */
-static const uint8_t expectedDID[3] = { 0x20, 0x71, 0x14 };
+static const uint8_t M25P80_DID[3] = { 0x20, 0x71, 0x14 };
+/*
+ * 0x20 => Manufacturer ID (Numonyx)
+ * 0x20 => Memory Type (SPI Flash)
+ * 0x15 => Memory Capacity - 16Mbit
+ */
+static const uint8_t M25P16_DID[3] = { 0x20, 0x20, 0x15 };
+/*
+ * 0xEF => Winbond
+ * 0x40 => SPIFlash
+ * 0x14 => 8Mbit
+ */
+static const uint8_t W25Q80BV_DID[3] = { 0xEF, 0x40, 0x14 };
 
 int datacmp(const uint8_t *a, const uint8_t *b, const size_t n)
 {
@@ -96,8 +108,8 @@ bool verifyDID()
 	uint8_t data[3], i;
 	/* Select the device */
 	spiChipSelect(true);
-	/* Send a short DID read request */
-	spiWrite(RDIDS);
+	/* Send a JEDEC DID read request */
+	spiWrite(RDID);
 	/* For each of the three bytes returned */
 	for (i = 0; i < 3; i++)
 		/* And having recieved the answer, buffer it */
@@ -106,7 +118,7 @@ bool verifyDID()
 	spiChipSelect(false);
 	/* Compare the recieved data to the expected data */
 	/* I wanted to use memcmp here, but could not make use of the newlib implemenation */
-	return datacmp(data, expectedDID, 3) == 0;
+	return datacmp(data, M25P80_DID, 3) == 0;
 }
 
 void writeEnable()
