@@ -29,6 +29,14 @@
 #include "SPI.h"
 #include "GPIO.h"
 
+typedef enum
+{
+	DEV_INVALID,
+	DEV_M25P80,
+	DEV_M25P16,
+	DEV_W25Q80BV,
+} FlashDevice_t;
+
 #define WREN	0x06
 #define WRDI	0x04
 /* 0x9F is the JEDEC guaranteed instruction for reading device ID info. */
@@ -43,6 +51,7 @@
 #define SE		0xD8
 #define BE		0xC7
 
+FlashDevice_t device;
 #ifndef NOUSB
 uint8_t usbData[256];
 uint32_t usbDataTotal;
@@ -118,7 +127,15 @@ bool verifyDID()
 	spiChipSelect(false);
 	/* Compare the recieved data to the expected data */
 	/* I wanted to use memcmp here, but could not make use of the newlib implemenation */
-	return datacmp(data, M25P80_DID, 3) == 0;
+	if (datacmp(data, M25P80_DID, 3) == 0)
+		device = DEV_M25P80;
+	else if (datacmp(data, M25P16_DID, 3) == 0)
+		device = DEV_M25P16;
+	else if (datacmp(data, W25Q80BV_DID, 3) == 0)
+		device = DEV_W25Q80BV;
+	else
+		device = DEV_INVALID;
+	return device != DEV_INVALID;
 }
 
 void writeEnable()
