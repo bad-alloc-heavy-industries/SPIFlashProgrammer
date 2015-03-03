@@ -123,6 +123,8 @@ typedef struct
 #define USB0				((lpcUSB_t *)0x40006000)
 
 #define SYSCTL_CREG0		*((volatile uint32_t *)0x40043004)
+#define SYSCTL_M4MMAP		*((volatile uint32_t *)0x40043100)
+#define SYSCTL_CREG5		*((volatile uint32_t *)0x40043118)
 
 #define Timer0				((lpcTimer_t *)0x40084000)
 #define Timer1				((lpcTimer_t *)0x40085000)

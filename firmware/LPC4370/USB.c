@@ -167,6 +167,7 @@ void usbAttach()
 	USB0->usbIE = 0;
 
 	// Configure the controller here
+	USB0->portSC1 = USB_SC1_PSPD_HS;
 	/* Except, ignore reset and idle conditions for the time being */
 	USB0->usbIE = USB_INT_UEIE | USB_INT_PCIE | USB_INT_SRIE;
 
