@@ -3,18 +3,18 @@ EELAYER 30 0
 EELAYER END
 $Descr A4 11693 8268
 encoding utf-8
-Sheet 1 3
-Title ""
+Sheet 1 4
+Title "Top-level Schematic"
 Date ""
-Rev ""
-Comp ""
+Rev "R1"
+Comp "Rachel Mant"
 Comment1 ""
 Comment2 ""
 Comment3 ""
 Comment4 ""
 $EndDescr
 Wire Wire Line
-	5250 3350 6250 3350
+	5250 3350 6150 3350
 Wire Wire Line
 	6250 3450 5250 3450
 Wire Wire Line
@@ -81,4 +81,18 @@ F15 "~SRST" I R 5250 4750 39
 $EndSheet
 Wire Wire Line
 	5250 4750 6250 4750
+$Sheet
+S 6250 2650 1000 200 
+U 5F6E308F
+F0 "Power Supply" 157
+F1 "Power_Supply.sch" 157
+F2 "VBUS" I L 6250 2750 39 
+$EndSheet
+Wire Wire Line
+	6250 2750 6150 2750
+Wire Wire Line
+	6150 2750 6150 3350
+Connection ~ 6150 3350
+Wire Wire Line
+	6150 3350 6250 3350
 $EndSCHEMATC
