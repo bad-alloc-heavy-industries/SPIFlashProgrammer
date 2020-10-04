@@ -239,7 +239,7 @@
     (add_net "Net-(U1-Pad9)")
   )
 
-  (module package-smd:SOT-23-5 (layer F.Cu) (tedit 5F7A0651) (tstamp 5F67562F)
+  (module rhais_package-smd:SOT-23-5 (layer F.Cu) (tedit 5F7A0651) (tstamp 5F67562F)
     (at 125.9 77)
     (descr "5-pin SOT23 package")
     (tags SOT-23-5)
@@ -285,7 +285,7 @@
     )
   )
 
-  (module package-smd:SOT-23 (layer F.Cu) (tedit 5F7A0644) (tstamp 5F7AAE40)
+  (module rhais_package-smd:SOT-23 (layer F.Cu) (tedit 5F7A0644) (tstamp 5F7AAE40)
     (at 150.7 88.6)
     (descr "SOT-23, Standard")
     (tags SOT-23)
@@ -326,7 +326,7 @@
     )
   )
 
-  (module "usb:MICRO-USB-B-(IN_PCB)" locked (layer F.Cu) (tedit 5F691928) (tstamp 5F675AFD)
+  (module "rhais_usb:MICRO-USB-B-(IN_PCB)" locked (layer F.Cu) (tedit 5F691928) (tstamp 5F675AFD)
     (at 115 85 270)
     (path /5F0A82B6/5F0E0772)
     (solder_mask_margin 0.05)
@@ -552,7 +552,7 @@
     )
   )
 
-  (module rcl:C0603 (layer B.Cu) (tedit 5F79F49E) (tstamp 5F66D9C3)
+  (module rhais_rcl:C0603 (layer B.Cu) (tedit 5F79F49E) (tstamp 5F66D9C3)
     (at 135.2 83.3 180)
     (descr "Multi-Layer Ceramic Chip Capacitor, 0603 (1608 metric) iron and air reflow solderable")
     (path /5F0A81B1/5F6E7E4C)
@@ -584,7 +584,7 @@
     )
   )
 
-  (module rcl:C0603 (layer B.Cu) (tedit 5F79F49E) (tstamp 5F66D9B9)
+  (module rhais_rcl:C0603 (layer B.Cu) (tedit 5F79F49E) (tstamp 5F66D9B9)
     (at 135.2 81.7 180)
     (descr "Multi-Layer Ceramic Chip Capacitor, 0603 (1608 metric) iron and air reflow solderable")
     (path /5F0A81B1/5F6E6CE5)
@@ -616,7 +616,7 @@
     )
   )
 
-  (module rcl:C0603 (layer B.Cu) (tedit 5F79F49E) (tstamp 5F66D9AF)
+  (module rhais_rcl:C0603 (layer B.Cu) (tedit 5F79F49E) (tstamp 5F66D9AF)
     (at 137.7 77.2 270)
     (descr "Multi-Layer Ceramic Chip Capacitor, 0603 (1608 metric) iron and air reflow solderable")
     (path /5F0A81B1/5F6E459D)
@@ -648,7 +648,7 @@
     )
   )
 
-  (module rcl:C0603 (layer B.Cu) (tedit 5F79F49E) (tstamp 5F66DE3E)
+  (module rhais_rcl:C0603 (layer B.Cu) (tedit 5F79F49E) (tstamp 5F66DE3E)
     (at 137.5 88.8 90)
     (descr "Multi-Layer Ceramic Chip Capacitor, 0603 (1608 metric) iron and air reflow solderable")
     (path /5F0A81B1/5F6E4597)
@@ -680,7 +680,7 @@
     )
   )
 
-  (module rcl:C0603 (layer B.Cu) (tedit 5F79F49E) (tstamp 5F66BDA1)
+  (module rhais_rcl:C0603 (layer B.Cu) (tedit 5F79F49E) (tstamp 5F66BDA1)
     (at 131.6 79.8 90)
     (descr "Multi-Layer Ceramic Chip Capacitor, 0603 (1608 metric) iron and air reflow solderable")
     (path /5F0A81B1/5F6B3ABF)
@@ -712,7 +712,7 @@
     )
   )
 
-  (module rcl:C0603 (layer B.Cu) (tedit 5F79F49E) (tstamp 5F67611E)
+  (module rhais_rcl:C0603 (layer B.Cu) (tedit 5F79F49E) (tstamp 5F67611E)
     (at 143.3 81.5 90)
     (descr "Multi-Layer Ceramic Chip Capacitor, 0603 (1608 metric) iron and air reflow solderable")
     (path /5F0A81B1/5F6FB822)
@@ -744,7 +744,7 @@
     )
   )
 
-  (module rcl:C0603 (layer B.Cu) (tedit 5F79F49E) (tstamp 5F66E104)
+  (module rhais_rcl:C0603 (layer B.Cu) (tedit 5F79F49E) (tstamp 5F66E104)
     (at 136.3 77.2 270)
     (descr "Multi-Layer Ceramic Chip Capacitor, 0603 (1608 metric) iron and air reflow solderable")
     (path /5F0A81B1/5F6FB351)
@@ -776,7 +776,7 @@
     )
   )
 
-  (module rcl:C0603 (layer B.Cu) (tedit 5F79F49E) (tstamp 5F67610A)
+  (module rhais_rcl:C0603 (layer B.Cu) (tedit 5F79F49E) (tstamp 5F67610A)
     (at 143.3 86 180)
     (descr "Multi-Layer Ceramic Chip Capacitor, 0603 (1608 metric) iron and air reflow solderable")
     (path /5F0A81B1/5F6FACFB)
@@ -808,7 +808,7 @@
     )
   )
 
-  (module rcl:C0603 (layer B.Cu) (tedit 5F79F49E) (tstamp 5F676100)
+  (module rhais_rcl:C0603 (layer B.Cu) (tedit 5F79F49E) (tstamp 5F676100)
     (at 131.6 83 90)
     (descr "Multi-Layer Ceramic Chip Capacitor, 0603 (1608 metric) iron and air reflow solderable")
     (path /5F0A81B1/5F6FA7D3)
@@ -840,7 +840,7 @@
     )
   )
 
-  (module rcl:C0603 (layer B.Cu) (tedit 5F79F49E) (tstamp 5F67682B)
+  (module rhais_rcl:C0603 (layer B.Cu) (tedit 5F79F49E) (tstamp 5F67682B)
     (at 136 88.8 90)
     (descr "Multi-Layer Ceramic Chip Capacitor, 0603 (1608 metric) iron and air reflow solderable")
     (path /5F0A81B1/5F6F9D96)
@@ -872,7 +872,7 @@
     )
   )
 
-  (module rcl:C0603 (layer B.Cu) (tedit 5F79F49E) (tstamp 5F6753FC)
+  (module rhais_rcl:C0603 (layer B.Cu) (tedit 5F79F49E) (tstamp 5F6753FC)
     (at 127.5 76.8 180)
     (descr "Multi-Layer Ceramic Chip Capacitor, 0603 (1608 metric) iron and air reflow solderable")
     (path /5F6E308F/5F6E94E9)
@@ -904,7 +904,7 @@
     )
   )
 
-  (module rcl:C0603 (layer B.Cu) (tedit 5F79F49E) (tstamp 5F6753F2)
+  (module rhais_rcl:C0603 (layer B.Cu) (tedit 5F79F49E) (tstamp 5F6753F2)
     (at 127.5 75.3)
     (descr "Multi-Layer Ceramic Chip Capacitor, 0603 (1608 metric) iron and air reflow solderable")
     (path /5F6E308F/5F6E94EF)
@@ -936,7 +936,7 @@
     )
   )
 
-  (module rcl:C0603 (layer B.Cu) (tedit 5F79F49E) (tstamp 5F67A52E)
+  (module rhais_rcl:C0603 (layer B.Cu) (tedit 5F79F49E) (tstamp 5F67A52E)
     (at 127.5 78.3 180)
     (descr "Multi-Layer Ceramic Chip Capacitor, 0603 (1608 metric) iron and air reflow solderable")
     (path /5F6E308F/5F6E72D6)
@@ -968,7 +968,7 @@
     )
   )
 
-  (module rcl:C0603 (layer B.Cu) (tedit 5F79F49E) (tstamp 5F6753BA)
+  (module rhais_rcl:C0603 (layer B.Cu) (tedit 5F79F49E) (tstamp 5F6753BA)
     (at 124.3 76.8)
     (descr "Multi-Layer Ceramic Chip Capacitor, 0603 (1608 metric) iron and air reflow solderable")
     (path /5F6E308F/5F6E7C90)
@@ -1000,7 +1000,7 @@
     )
   )
 
-  (module rcl:C0603 (layer B.Cu) (tedit 5F79F49E) (tstamp 5F6753B0)
+  (module rhais_rcl:C0603 (layer B.Cu) (tedit 5F79F49E) (tstamp 5F6753B0)
     (at 124.3 75.3 180)
     (descr "Multi-Layer Ceramic Chip Capacitor, 0603 (1608 metric) iron and air reflow solderable")
     (path /5F6E308F/5F6E812F)
@@ -1065,7 +1065,7 @@
     )
   )
 
-  (module rcl:R0603 (layer B.Cu) (tedit 5F79F411) (tstamp 5F674FE8)
+  (module rhais_rcl:R0603 (layer B.Cu) (tedit 5F79F411) (tstamp 5F674FE8)
     (at 146.9 87.65 180)
     (descr "Ceramic Chip Resistor, 0603 (1608 metric) iron and air reflow solderable")
     (path /5F0A82B6/5F675EB5)
@@ -1247,7 +1247,7 @@
     )
   )
 
-  (module rcl:R0603 (layer F.Cu) (tedit 5F79F411) (tstamp 5F4BF7F9)
+  (module rhais_rcl:R0603 (layer F.Cu) (tedit 5F79F411) (tstamp 5F4BF7F9)
     (at 128.5 82.2 270)
     (descr "Ceramic Chip Resistor, 0603 (1608 metric) iron and air reflow solderable")
     (path /5F0A81B1/5F504ECC)
@@ -1279,7 +1279,7 @@
     )
   )
 
-  (module rcl:C0603 (layer B.Cu) (tedit 5F79F49E) (tstamp 5F4B5EF3)
+  (module rhais_rcl:C0603 (layer B.Cu) (tedit 5F79F49E) (tstamp 5F4B5EF3)
     (at 151.9 80.3 270)
     (descr "Multi-Layer Ceramic Chip Capacitor, 0603 (1608 metric) iron and air reflow solderable")
     (path /5F0A82B6/5F4F468E)
@@ -1311,7 +1311,7 @@
     )
   )
 
-  (module rcl:C0603 (layer B.Cu) (tedit 5F79F49E) (tstamp 5F66E94D)
+  (module rhais_rcl:C0603 (layer B.Cu) (tedit 5F79F49E) (tstamp 5F66E94D)
     (at 149.5 80.3 90)
     (descr "Multi-Layer Ceramic Chip Capacitor, 0603 (1608 metric) iron and air reflow solderable")
     (path /5F0A82B6/5F4F4694)
@@ -1404,7 +1404,7 @@
     )
   )
 
-  (module rcl:R0603 (layer F.Cu) (tedit 5F79F411) (tstamp 5F0BCE4D)
+  (module rhais_rcl:R0603 (layer F.Cu) (tedit 5F79F411) (tstamp 5F0BCE4D)
     (at 117.8 92.9 90)
     (descr "Ceramic Chip Resistor, 0603 (1608 metric) iron and air reflow solderable")
     (path /5F0A82B6/5F0E37B3)
@@ -1436,7 +1436,7 @@
     )
   )
 
-  (module rcl:C0603 (layer F.Cu) (tedit 5F79F49E) (tstamp 5F0BCE26)
+  (module rhais_rcl:C0603 (layer F.Cu) (tedit 5F79F49E) (tstamp 5F0BCE26)
     (at 119.1 92.9 270)
     (descr "Multi-Layer Ceramic Chip Capacitor, 0603 (1608 metric) iron and air reflow solderable")
     (path /5F0A82B6/5F0E2EAB)
