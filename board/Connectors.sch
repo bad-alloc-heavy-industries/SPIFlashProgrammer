@@ -3,7 +3,7 @@ EELAYER 30 0
 EELAYER END
 $Descr A4 11693 8268
 encoding utf-8
-Sheet 2 4
+Sheet 2 5
 Title ""
 Date ""
 Rev ""
@@ -282,7 +282,7 @@ U 1 1 5F4C668C
 P 7500 2500
 F 0 "U2" H 7600 3050 50  0000 C CNN
 F 1 "FXL4TD245BQX" H 7500 1950 50  0000 C CNN
-F 2 "DX-MON:DQFN16_1EP_2.5x3.5mm_P0.5mm" H 7500 2500 50  0001 C CNN
+F 2 "rhais_package-qfn:DQFN16_1EP_2.5x3.5mm_P0.5mm" H 7500 2500 50  0001 C CNN
 F 3 "https://www.farnell.com/datasheets/2298347.pdf" H 7500 2500 50  0001 C CNN
 	1    7500 2500
 	1    0    0    -1  
@@ -384,30 +384,6 @@ F 2 "" H 9500 1800 50  0001 C CNN
 F 3 "" H 9500 1800 50  0001 C CNN
 	1    9500 1800
 	1    0    0    -1  
-$EndComp
-$Comp
-L power:GND #PWR013
-U 1 1 5F512BAB
-P 2500 3000
-F 0 "#PWR013" H 2500 2750 50  0001 C CNN
-F 1 "GND" H 2505 2827 50  0000 C CNN
-F 2 "" H 2500 3000 50  0001 C CNN
-F 3 "" H 2500 3000 50  0001 C CNN
-	1    2500 3000
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	2500 2900 2500 3000
-$Comp
-L Connector_Generic_MountingPin:Conn_02x05_Odd_Even_MountingPin J2
-U 1 1 5F518617
-P 2550 2500
-F 0 "J2" H 2600 2917 50  0000 C CNN
-F 1 "Conn_02x05_Odd_Even_MountingPin" H 2600 2826 50  0000 C CNN
-F 2 "Connector_PinSocket_1.27mm:PinSocket_2x05_P1.27mm_Vertical_SMD" H 2550 2500 50  0001 C CNN
-F 3 "~" H 2550 2500 50  0001 C CNN
-	1    2550 2500
-	-1   0    0    -1  
 $EndComp
 Text HLabel 2150 2300 0    39   Output ~ 0
 TMS
@@ -528,4 +504,15 @@ Wire Wire Line
 	2250 2600 2150 2600
 Text HLabel 2150 2600 0    39   Output ~ 0
 TDI
+$Comp
+L Connector_Generic:Conn_02x05_Odd_Even J2
+U 1 1 5F518617
+P 2550 2500
+F 0 "J2" H 2600 2917 50  0000 C CNN
+F 1 "Conn_02x05_Odd_Even" H 2600 2826 50  0000 C CNN
+F 2 "rhais_connector-pinheader:PinSocket_2x05_P1.27mm_Vertical_SMD" H 2550 2500 50  0001 C CNN
+F 3 "~" H 2550 2500 50  0001 C CNN
+	1    2550 2500
+	-1   0    0    -1  
+$EndComp
 $EndSCHEMATC
