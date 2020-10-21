@@ -515,4 +515,104 @@ F 3 "~" H 2550 2500 50  0001 C CNN
 	1    2550 2500
 	-1   0    0    -1  
 $EndComp
+$Comp
+L Device:R_Small R?
+U 1 1 5F95430B
+P 6000 5600
+AR Path="/5F6E308F/5F95430B" Ref="R?"  Part="1" 
+AR Path="/5F0A82B6/5F95430B" Ref="R12"  Part="1" 
+F 0 "R12" H 6059 5646 50  0000 L CNN
+F 1 "440R" H 6059 5555 50  0000 L CNN
+F 2 "rhais_rcl:R0603" H 6000 5600 50  0001 C CNN
+F 3 "http://www.farnell.com/datasheets/2860681.pdf" H 6000 5600 50  0001 C CNN
+F 4 "Multicomp" H 6000 5600 50  0001 C CNN "MFR"
+F 5 "MCWR06X4700FTL" H 6000 5600 50  0001 C CNN "MPN"
+F 6 "2447374" H 6000 5600 50  0001 C CNN "OC_FARNELL"
+F 7 "https://uk.farnell.com/multicomp/mcwr06x4700ftl/res-470r-1-0-1w-0603-thick-film/dp/2447374" H 6000 5600 50  0001 C CNN "URL_FARNELL"
+	1    6000 5600
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:LED D?
+U 1 1 5F954311
+P 6000 5150
+AR Path="/5F6E308F/5F954311" Ref="D?"  Part="1" 
+AR Path="/5F0A82B6/5F954311" Ref="D2"  Part="1" 
+F 0 "D2" V 6039 5032 50  0000 R CNN
+F 1 "LED" V 5948 5032 50  0000 R CNN
+F 2 "rhais_led:LED0603" H 6000 5150 50  0001 C CNN
+F 3 "https://www.kingbright.com/attachments/file/psearch/000/00/20160808bak/KP-1608SGC(Ver.21B).pdf" H 6000 5150 50  0001 C CNN
+F 4 "8529833" V 6000 5150 50  0001 C CNN "OC_FARNELL"
+F 5 "https://uk.farnell.com/kingbright/kp-1608sgc/led-0-8mm-x-1-2mm-green-12mcd/dp/8529833" V 6000 5150 50  0001 C CNN "URL_FARNELL"
+F 6 "Kingbright" H 6000 5150 50  0001 C CNN "MFR"
+F 7 "KP-1608SGC" H 6000 5150 50  0001 C CNN "MPN"
+	1    6000 5150
+	0    -1   -1   0   
+$EndComp
+$Comp
+L power:+3.3V #PWR?
+U 1 1 5F954317
+P 6000 4900
+AR Path="/5F6E308F/5F954317" Ref="#PWR?"  Part="1" 
+AR Path="/5F0A82B6/5F954317" Ref="#PWR038"  Part="1" 
+F 0 "#PWR038" H 6000 4750 50  0001 C CNN
+F 1 "+3.3V" H 6015 5073 50  0000 C CNN
+F 2 "" H 6000 4900 50  0001 C CNN
+F 3 "" H 6000 4900 50  0001 C CNN
+	1    6000 4900
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	6000 4900 6000 5000
+Wire Wire Line
+	6000 5300 6000 5500
+$Comp
+L power:GND #PWR?
+U 1 1 5F95431F
+P 6000 6300
+AR Path="/5F6E308F/5F95431F" Ref="#PWR?"  Part="1" 
+AR Path="/5F0A82B6/5F95431F" Ref="#PWR039"  Part="1" 
+F 0 "#PWR039" H 6000 6050 50  0001 C CNN
+F 1 "GND" H 6005 6127 50  0000 C CNN
+F 2 "" H 6000 6300 50  0001 C CNN
+F 3 "" H 6000 6300 50  0001 C CNN
+	1    6000 6300
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	6000 5700 6000 5800
+Text Label 6700 6000 0    39   ~ 0
+SPI_VCC
+$Comp
+L Device:Q_NMOS_GSD Q2
+U 1 1 5F958118
+P 6100 6000
+F 0 "Q2" H 6100 6150 50  0000 R BNN
+F 1 "DMN65D8L-7" V 6300 6000 50  0000 C TNN
+F 2 "rhais_package-smd:SOT-23" H 6300 6100 50  0001 C CNN
+F 3 "https://www.farnell.com/datasheets/2040106.pdf" H 6100 6000 50  0001 C CNN
+	1    6100 6000
+	-1   0    0    -1  
+$EndComp
+Wire Wire Line
+	6000 6300 6000 6200
+$Comp
+L Device:R_Small R?
+U 1 1 5F964FD0
+P 6500 6000
+AR Path="/5F6E308F/5F964FD0" Ref="R?"  Part="1" 
+AR Path="/5F0A82B6/5F964FD0" Ref="R13"  Part="1" 
+F 0 "R13" V 6304 6000 50  0000 C CNN
+F 1 "10k" V 6395 6000 50  0000 C CNN
+F 2 "rhais_rcl:R0603" H 6500 6000 50  0001 C CNN
+F 3 "~" H 6500 6000 50  0001 C CNN
+	1    6500 6000
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	6300 6000 6400 6000
+Wire Wire Line
+	6700 6000 6600 6000
+Text Notes 6500 5500 0    50   ~ 0
+KP-1608SGC LEDs have Vf = 2.2V
 $EndSCHEMATC
