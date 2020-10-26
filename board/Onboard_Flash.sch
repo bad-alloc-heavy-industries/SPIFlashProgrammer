@@ -153,22 +153,6 @@ Wire Wire Line
 	7500 3100 7500 3200
 Wire Wire Line
 	7500 3900 7500 4000
-Text HLabel 3000 3600 0    50   Input ~ 0
-SCK
-Text HLabel 3000 3700 0    50   Input ~ 0
-COPI
-Text HLabel 4200 3700 2    50   Output ~ 0
-CIPO
-Text HLabel 7000 3600 0    50   Input ~ 0
-SCK
-Text HLabel 7000 3700 0    50   Input ~ 0
-COPI
-Text HLabel 8200 3700 2    50   Output ~ 0
-CIPO
-Text HLabel 2900 3400 0    50   Input ~ 0
-~CS1
-Text HLabel 6900 3400 0    50   Input ~ 0
-~CS2
 Wire Wire Line
 	2900 3400 3000 3400
 Wire Wire Line
@@ -335,4 +319,20 @@ Wire Wire Line
 Connection ~ 8300 3400
 Wire Wire Line
 	8300 3400 8300 3300
+Text HLabel 6900 3400 0    50   Input ~ 0
+~CS2
+Text HLabel 7000 3600 0    50   Input ~ 0
+SCK
+Text HLabel 7000 3700 0    50   Input ~ 0
+COPI
+Text HLabel 8200 3700 2    50   Output ~ 0
+CIPO
+Text HLabel 2900 3400 0    50   Input ~ 0
+~CS1
+Text HLabel 3000 3600 0    50   Input ~ 0
+SCK
+Text HLabel 3000 3700 0    50   Input ~ 0
+COPI
+Text HLabel 4200 3700 2    50   Output ~ 0
+CIPO
 $EndSCHEMATC

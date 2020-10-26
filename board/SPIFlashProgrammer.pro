@@ -1,4 +1,4 @@
-update=Sun 18 Oct 2020 00:27:24 BST
+update=Thu 22 Oct 2020 20:29:01 BST
 version=1
 last_client=kicad
 [general]
@@ -213,11 +213,11 @@ Enabled=1
 [pcbnew/Layer.Dwgs.User]
 Enabled=1
 [pcbnew/Layer.Cmts.User]
-Enabled=1
+Enabled=0
 [pcbnew/Layer.Eco1.User]
-Enabled=1
+Enabled=0
 [pcbnew/Layer.Eco2.User]
-Enabled=1
+Enabled=0
 [pcbnew/Layer.Edge.Cuts]
 Enabled=1
 [pcbnew/Layer.Margin]

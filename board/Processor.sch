@@ -3,7 +3,7 @@ EELAYER 30 0
 EELAYER END
 $Descr A4 11693 8268
 encoding utf-8
-Sheet 3 5
+Sheet 4 5
 Title "Processor"
 Date ""
 Rev "R1"
@@ -559,14 +559,6 @@ NoConn ~ 5400 6450
 NoConn ~ 5400 6750
 NoConn ~ 8100 2200
 NoConn ~ 8100 2300
-Text HLabel 2650 6300 0    39   Input ~ 0
-FLASH_CIPO
-Text HLabel 2650 6400 0    39   Output ~ 0
-FLASH_COPI
-Text HLabel 2650 6500 0    39   Output ~ 0
-FLASH_CLK
-Text HLabel 2650 5350 0    39   Output ~ 0
-~FLASH_CS1
 NoConn ~ 2750 6700
 Wire Wire Line
 	2650 5350 2750 5350
@@ -576,8 +568,6 @@ Wire Wire Line
 	2650 6400 2750 6400
 Wire Wire Line
 	2750 6300 2650 6300
-Text HLabel 2650 5250 0    39   Output ~ 0
-~FLASH_CS2
 Wire Wire Line
 	2650 5250 2750 5250
 $Comp
@@ -983,4 +973,14 @@ Wire Wire Line
 	5100 6000 5100 6250
 Wire Wire Line
 	5100 6250 5400 6250
+Text HLabel 2650 5250 0    39   Output ~ 0
+~FLASH_CS2
+Text HLabel 2650 5350 0    39   Output ~ 0
+~FLASH_CS1
+Text HLabel 2650 6300 0    39   Input ~ 0
+FLASH_CIPO
+Text HLabel 2650 6400 0    39   Output ~ 0
+FLASH_COPI
+Text HLabel 2650 6500 0    39   Output ~ 0
+FLASH_CLK
 $EndSCHEMATC
