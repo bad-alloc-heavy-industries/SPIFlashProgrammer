@@ -20,7 +20,11 @@ P 3500 3500
 F 0 "U4" H 3200 3750 50  0000 L CNN
 F 1 "AT25SF641-MHB-T" H 3550 3150 50  0000 L CNN
 F 2 "rhais_package-qfn:UDFN-8-1EP_6x5mm_P1.27mm_EP3.4x4mm" H 3500 3200 50  0001 C CNN
-F 3 "" H 3500 3200 50  0001 C CNN
+F 3 "https://www.dialog-semiconductor.com/sites/default/files/at25sf641_111.pdf" H 3500 3200 50  0001 C CNN
+F 4 "Adesto Technologies" H 3500 3500 50  0001 C CNN "MFR"
+F 5 "	AT25SF641-MHB-T" H 3500 3500 50  0001 C CNN "MPN"
+F 6 "2988544" H 3500 3500 50  0001 C CNN "OC_FARNELL"
+F 7 "https://uk.farnell.com/adesto-technologies/at25sf641-mhb-t/flash-memory-64mbit-40-to-85deg/dp/2988544" H 3500 3500 50  0001 C CNN "URL_FARNELL"
 	1    3500 3500
 	1    0    0    -1  
 $EndComp
@@ -31,7 +35,11 @@ P 7500 3500
 F 0 "U5" H 7200 3750 50  0000 L CNN
 F 1 "AT25SF641-MHB-T" H 7550 3150 50  0000 L CNN
 F 2 "rhais_package-qfn:UDFN-8-1EP_6x5mm_P1.27mm_EP3.4x4mm" H 7500 3200 50  0001 C CNN
-F 3 "" H 7500 3200 50  0001 C CNN
+F 3 "https://www.dialog-semiconductor.com/sites/default/files/at25sf641_111.pdf" H 7500 3200 50  0001 C CNN
+F 4 "Adesto Technologies" H 7500 3500 50  0001 C CNN "MFR"
+F 5 "	AT25SF641-MHB-T" H 7500 3500 50  0001 C CNN "MPN"
+F 6 "2988544" H 7500 3500 50  0001 C CNN "OC_FARNELL"
+F 7 "https://uk.farnell.com/adesto-technologies/at25sf641-mhb-t/flash-memory-64mbit-40-to-85deg/dp/2988544" H 7500 3500 50  0001 C CNN "URL_FARNELL"
 	1    7500 3500
 	1    0    0    -1  
 $EndComp
@@ -42,7 +50,11 @@ P 5000 3500
 F 0 "C19" H 5092 3546 50  0000 L CNN
 F 1 "0.1uF" H 5092 3455 50  0000 L CNN
 F 2 "rhais_rcl:C0603" H 5000 3500 50  0001 C CNN
-F 3 "~" H 5000 3500 50  0001 C CNN
+F 3 "http://www.farnell.com/datasheets/1870456.pdf" H 5000 3500 50  0001 C CNN
+F 4 "Multicomp" H 5000 3500 50  0001 C CNN "MFR"
+F 5 "MC0603B104J250CT" H 5000 3500 50  0001 C CNN "MPN"
+F 6 "2310559" H 5000 3500 50  0001 C CNN "OC_FARNELL"
+F 7 "https://uk.farnell.com/multicomp/mc0603b104j250ct/cap-0-1-f-25v-5-x7r-0603-reel/dp/2310559" H 5000 3500 50  0001 C CNN "URL_FARNELL"
 	1    5000 3500
 	1    0    0    -1  
 $EndComp
@@ -53,7 +65,11 @@ P 5500 3500
 F 0 "C20" H 5592 3546 50  0000 L CNN
 F 1 "0.1uF" H 5592 3455 50  0000 L CNN
 F 2 "rhais_rcl:C0603" H 5500 3500 50  0001 C CNN
-F 3 "~" H 5500 3500 50  0001 C CNN
+F 3 "http://www.farnell.com/datasheets/1870456.pdf" H 5500 3500 50  0001 C CNN
+F 4 "Multicomp" H 5500 3500 50  0001 C CNN "MFR"
+F 5 "MC0603B104J250CT" H 5500 3500 50  0001 C CNN "MPN"
+F 6 "2310559" H 5500 3500 50  0001 C CNN "OC_FARNELL"
+F 7 "https://uk.farnell.com/multicomp/mc0603b104j250ct/cap-0-1-f-25v-5-x7r-0603-reel/dp/2310559" H 5500 3500 50  0001 C CNN "URL_FARNELL"
 	1    5500 3500
 	1    0    0    -1  
 $EndComp
@@ -184,7 +200,11 @@ P 7000 3200
 F 0 "R5" H 6941 3154 50  0000 R CNN
 F 1 "10k" H 6941 3245 50  0000 R CNN
 F 2 "rhais_rcl:R0603" H 7000 3200 50  0001 C CNN
-F 3 "~" H 7000 3200 50  0001 C CNN
+F 3 "http://www.farnell.com/datasheets/1788326.pdf" H 7000 3200 50  0001 C CNN
+F 4 "Multicomp" H 7000 3200 50  0001 C CNN "MFR"
+F 5 "MC0063W0603110K" H 7000 3200 50  0001 C CNN "MPN"
+F 6 "2130939" H 7000 3200 50  0001 C CNN "OC_FARNELL"
+F 7 "https://uk.farnell.com/multicomp/mc0063w0603110k/res-10k-1-0-063w-0603-thick-film/dp/2130939" H 7000 3200 50  0001 C CNN "URL_FARNELL"
 	1    7000 3200
 	1    0    0    1   
 $EndComp
@@ -195,7 +215,11 @@ P 3000 3200
 F 0 "R4" H 2941 3154 50  0000 R CNN
 F 1 "10k" H 2941 3245 50  0000 R CNN
 F 2 "rhais_rcl:R0603" H 3000 3200 50  0001 C CNN
-F 3 "~" H 3000 3200 50  0001 C CNN
+F 3 "http://www.farnell.com/datasheets/1788326.pdf" H 3000 3200 50  0001 C CNN
+F 4 "Multicomp" H 3000 3200 50  0001 C CNN "MFR"
+F 5 "MC0063W0603110K" H 3000 3200 50  0001 C CNN "MPN"
+F 6 "2130939" H 3000 3200 50  0001 C CNN "OC_FARNELL"
+F 7 "https://uk.farnell.com/multicomp/mc0063w0603110k/res-10k-1-0-063w-0603-thick-film/dp/2130939" H 3000 3200 50  0001 C CNN "URL_FARNELL"
 	1    3000 3200
 	1    0    0    1   
 $EndComp
@@ -242,7 +266,11 @@ P 8100 3400
 F 0 "R8" V 7950 3400 50  0000 C CNN
 F 1 "10k" V 8025 3400 50  0000 C CNN
 F 2 "rhais_rcl:R0603" H 8100 3400 50  0001 C CNN
-F 3 "~" H 8100 3400 50  0001 C CNN
+F 3 "http://www.farnell.com/datasheets/1788326.pdf" H 8100 3400 50  0001 C CNN
+F 4 "Multicomp" H 8100 3400 50  0001 C CNN "MFR"
+F 5 "MC0063W0603110K" H 8100 3400 50  0001 C CNN "MPN"
+F 6 "2130939" H 8100 3400 50  0001 C CNN "OC_FARNELL"
+F 7 "https://uk.farnell.com/multicomp/mc0063w0603110k/res-10k-1-0-063w-0603-thick-film/dp/2130939" H 8100 3400 50  0001 C CNN "URL_FARNELL"
 	1    8100 3400
 	0    1    1    0   
 $EndComp
@@ -253,7 +281,11 @@ P 8100 3500
 F 0 "R9" V 8250 3500 50  0000 C CNN
 F 1 "10k" V 8175 3500 50  0000 C CNN
 F 2 "rhais_rcl:R0603" H 8100 3500 50  0001 C CNN
-F 3 "~" H 8100 3500 50  0001 C CNN
+F 3 "http://www.farnell.com/datasheets/1788326.pdf" H 8100 3500 50  0001 C CNN
+F 4 "Multicomp" H 8100 3500 50  0001 C CNN "MFR"
+F 5 "MC0063W0603110K" H 8100 3500 50  0001 C CNN "MPN"
+F 6 "2130939" H 8100 3500 50  0001 C CNN "OC_FARNELL"
+F 7 "https://uk.farnell.com/multicomp/mc0063w0603110k/res-10k-1-0-063w-0603-thick-film/dp/2130939" H 8100 3500 50  0001 C CNN "URL_FARNELL"
 	1    8100 3500
 	0    -1   1    0   
 $EndComp
@@ -264,7 +296,11 @@ P 4100 3400
 F 0 "R6" V 3950 3400 50  0000 C CNN
 F 1 "10k" V 4025 3400 50  0000 C CNN
 F 2 "rhais_rcl:R0603" H 4100 3400 50  0001 C CNN
-F 3 "~" H 4100 3400 50  0001 C CNN
+F 3 "http://www.farnell.com/datasheets/1788326.pdf" H 4100 3400 50  0001 C CNN
+F 4 "Multicomp" H 4100 3400 50  0001 C CNN "MFR"
+F 5 "MC0063W0603110K" H 4100 3400 50  0001 C CNN "MPN"
+F 6 "2130939" H 4100 3400 50  0001 C CNN "OC_FARNELL"
+F 7 "https://uk.farnell.com/multicomp/mc0063w0603110k/res-10k-1-0-063w-0603-thick-film/dp/2130939" H 4100 3400 50  0001 C CNN "URL_FARNELL"
 	1    4100 3400
 	0    1    1    0   
 $EndComp
@@ -275,7 +311,11 @@ P 4100 3500
 F 0 "R7" V 4250 3500 50  0000 C CNN
 F 1 "10k" V 4175 3500 50  0000 C CNN
 F 2 "rhais_rcl:R0603" H 4100 3500 50  0001 C CNN
-F 3 "~" H 4100 3500 50  0001 C CNN
+F 3 "http://www.farnell.com/datasheets/1788326.pdf" H 4100 3500 50  0001 C CNN
+F 4 "Multicomp" H 4100 3500 50  0001 C CNN "MFR"
+F 5 "MC0063W0603110K" H 4100 3500 50  0001 C CNN "MPN"
+F 6 "2130939" H 4100 3500 50  0001 C CNN "OC_FARNELL"
+F 7 "https://uk.farnell.com/multicomp/mc0063w0603110k/res-10k-1-0-063w-0603-thick-film/dp/2130939" H 4100 3500 50  0001 C CNN "URL_FARNELL"
 	1    4100 3500
 	0    -1   1    0   
 $EndComp

@@ -20,7 +20,11 @@ P 1600 6000
 F 0 "JP1" H 1600 6350 59  0000 C CNN
 F 1 "USB-Micro-B" V 1400 6000 59  0000 C CNN
 F 2 "rhais_usb:MICRO-USB-B-(IN_PCB)" H 1650 6000 59  0001 C CNN
-F 3 "" H 1650 6000 59  0001 C CNN
+F 3 "https://cdn.amphenol-icc.com/media/wysiwyg/files/drawing/10103593.pdf" H 1650 6000 59  0001 C CNN
+F 4 "Amphenol ICC" H 1600 6000 50  0001 C CNN "MFR"
+F 5 "10103593-0001LF" H 1600 6000 50  0001 C CNN "MPN"
+F 6 "2293751" H 1600 6000 50  0001 C CNN "OC_FARNELL"
+F 7 "https://uk.farnell.com/amphenol-icc-fci/10103593-0001lf/micro-usb-2-0-type-b-receptacle/dp/2293751" H 1600 6000 50  0001 C CNN "URL_FARNELL"
 	1    1600 6000
 	1    0    0    -1  
 $EndComp
@@ -73,7 +77,11 @@ P 2900 6000
 F 0 "C1" H 2809 5954 50  0000 R CNN
 F 1 "0.1uF" H 2809 6045 50  0000 R CNN
 F 2 "rhais_rcl:C0603" H 2900 6000 50  0001 C CNN
-F 3 "~" H 2900 6000 50  0001 C CNN
+F 3 "http://www.farnell.com/datasheets/1870456.pdf" H 2900 6000 50  0001 C CNN
+F 4 "Multicomp" H 2900 6000 50  0001 C CNN "MFR"
+F 5 "MC0603B104J250CT" H 2900 6000 50  0001 C CNN "MPN"
+F 6 "2310559" H 2900 6000 50  0001 C CNN "OC_FARNELL"
+F 7 "https://uk.farnell.com/multicomp/mc0603b104j250ct/cap-0-1-f-25v-5-x7r-0603-reel/dp/2310559" H 2900 6000 50  0001 C CNN "URL_FARNELL"
 	1    2900 6000
 	1    0    0    1   
 $EndComp
@@ -84,7 +92,11 @@ P 3100 6000
 F 0 "R1" H 3159 6046 50  0000 L CNN
 F 1 "1M" H 3159 5955 50  0000 L CNN
 F 2 "rhais_rcl:R0603" H 3100 6000 50  0001 C CNN
-F 3 "~" H 3100 6000 50  0001 C CNN
+F 3 "http://www.farnell.com/datasheets/2860681.pdf" H 3100 6000 50  0001 C CNN
+F 4 "Multicomp" H 3100 6000 50  0001 C CNN "MFR"
+F 5 "MCWR06X1004FTL" H 3100 6000 50  0001 C CNN "MPN"
+F 6 "2447285" H 3100 6000 50  0001 C CNN "OC_FARNELL"
+F 7 "https://uk.farnell.com/multicomp/mcwr06x1004ftl/res-1m-1-0-1w-0603-thick-film/dp/2447285" H 3100 6000 50  0001 C CNN "URL_FARNELL"
 	1    3100 6000
 	1    0    0    -1  
 $EndComp
@@ -152,7 +164,11 @@ P 9450 2950
 F 0 "J1" H 9500 3150 50  0000 C CNN
 F 1 "Conn_02x04_Counter_Clockwise" H 9100 2650 50  0000 C CNN
 F 2 "DX-MON:75867-132LF" H 9450 2950 50  0001 C CNN
-F 3 "~" H 9450 2950 50  0001 C CNN
+F 3 "https://cdn.amphenol-icc.com/media/wysiwyg/files/drawing/75867.pdf" H 9450 2950 50  0001 C CNN
+F 4 "Amphenol ICC" H 9450 2950 50  0001 C CNN "MFR"
+F 5 "75867-132LF" H 9450 2950 50  0001 C CNN "MPN"
+F 6 "1924603" H 9450 2950 50  0001 C CNN "OC_FARNELL"
+F 7 "https://uk.farnell.com/amphenol-icc/75867-132lf/connector-header-8-position-2/dp/1924603" H 9450 2950 50  0001 C CNN "URL_FARNELL"
 	1    9450 2950
 	1    0    0    -1  
 $EndComp
@@ -276,7 +292,11 @@ P 7500 2500
 F 0 "U2" H 7600 3050 50  0000 C CNN
 F 1 "FXL4TD245BQX" H 7500 1950 50  0000 C CNN
 F 2 "rhais_package-qfn:DQFN16_1EP_2.5x3.5mm_P0.5mm" H 7500 2500 50  0001 C CNN
-F 3 "https://www.farnell.com/datasheets/2298347.pdf" H 7500 2500 50  0001 C CNN
+F 3 "https://www.onsemi.com/pub/Collateral/FXL4TD245-D.pdf" H 7500 2500 50  0001 C CNN
+F 4 "On Smi" H 7500 2500 50  0001 C CNN "MFR"
+F 5 "FXL4TD245BQX" H 7500 2500 50  0001 C CNN "MPN"
+F 6 "1495484" H 7500 2500 50  0001 C CNN "OC_FARNELL"
+F 7 "https://uk.farnell.com/on-semiconductor/fxl4td245bqx/fxl-tiny-translator-smd-dqfn-16/dp/1495484" H 7500 2500 50  0001 C CNN "URL_FARNELL"
 	1    7500 2500
 	1    0    0    -1  
 $EndComp
@@ -311,7 +331,11 @@ P 6100 2500
 F 0 "C5" H 6192 2546 50  0000 L CNN
 F 1 "0.1uF" H 6192 2455 50  0000 L CNN
 F 2 "rhais_rcl:C0603" H 6100 2500 50  0001 C CNN
-F 3 "~" H 6100 2500 50  0001 C CNN
+F 3 "http://www.farnell.com/datasheets/1870456.pdf" H 6100 2500 50  0001 C CNN
+F 4 "Multicomp" H 6100 2500 50  0001 C CNN "MFR"
+F 5 "MC0603B104J250CT" H 6100 2500 50  0001 C CNN "MPN"
+F 6 "2310559" H 6100 2500 50  0001 C CNN "OC_FARNELL"
+F 7 "https://uk.farnell.com/multicomp/mc0603b104j250ct/cap-0-1-f-25v-5-x7r-0603-reel/dp/2310559" H 6100 2500 50  0001 C CNN "URL_FARNELL"
 	1    6100 2500
 	1    0    0    -1  
 $EndComp
@@ -322,7 +346,11 @@ P 5900 2500
 F 0 "C4" H 5809 2454 50  0000 R CNN
 F 1 "0.1uF" H 5809 2545 50  0000 R CNN
 F 2 "rhais_rcl:C0603" H 5900 2500 50  0001 C CNN
-F 3 "~" H 5900 2500 50  0001 C CNN
+F 3 "http://www.farnell.com/datasheets/1870456.pdf" H 5900 2500 50  0001 C CNN
+F 4 "Multicomp" H 5900 2500 50  0001 C CNN "MFR"
+F 5 "MC0603B104J250CT" H 5900 2500 50  0001 C CNN "MPN"
+F 6 "2310559" H 5900 2500 50  0001 C CNN "OC_FARNELL"
+F 7 "https://uk.farnell.com/multicomp/mc0603b104j250ct/cap-0-1-f-25v-5-x7r-0603-reel/dp/2310559" H 5900 2500 50  0001 C CNN "URL_FARNELL"
 	1    5900 2500
 	1    0    0    1   
 $EndComp
@@ -437,7 +465,11 @@ P 9400 1500
 F 0 "Q1" H 9400 1650 50  0000 R BNN
 F 1 "DMN65D8L-7" V 9600 1500 50  0000 C TNN
 F 2 "rhais_package-smd:SOT-23" H 9600 1600 50  0001 C CNN
-F 3 "https://www.farnell.com/datasheets/2040106.pdf" H 9400 1500 50  0001 C CNN
+F 3 "https://www.diodes.com/assets/Datasheets/DMN65D8L.pdf" H 9400 1500 50  0001 C CNN
+F 4 "Diodes Inc" H 9400 1500 50  0001 C CNN "MFR"
+F 5 "DMN65D8L-7" H 9400 1500 50  0001 C CNN "MPN"
+F 6 "2543546" H 9400 1500 50  0001 C CNN "OC_FARNELL"
+F 7 "https://uk.farnell.com/diodes-inc/dmn65d8l-7/mosfet-n-ch-20v-sot-23-3/dp/2543546" H 9400 1500 50  0001 C CNN "URL_FARNELL"
 	1    9400 1500
 	1    0    0    -1  
 $EndComp
@@ -448,7 +480,11 @@ P 9000 1500
 F 0 "R2" V 8950 1500 50  0000 C BNN
 F 1 "10k" V 9050 1500 50  0000 C TNN
 F 2 "rhais_rcl:R0603" H 9000 1500 50  0001 C CNN
-F 3 "~" H 9000 1500 50  0001 C CNN
+F 3 "http://www.farnell.com/datasheets/1788326.pdf" H 9000 1500 50  0001 C CNN
+F 4 "Multicomp" H 9000 1500 50  0001 C CNN "MFR"
+F 5 "MC0063W0603110K" H 9000 1500 50  0001 C CNN "MPN"
+F 6 "2130939" H 9000 1500 50  0001 C CNN "OC_FARNELL"
+F 7 "https://uk.farnell.com/multicomp/mc0063w0603110k/res-10k-1-0-063w-0603-thick-film/dp/2130939" H 9000 1500 50  0001 C CNN "URL_FARNELL"
 	1    9000 1500
 	0    1    1    0   
 $EndComp
@@ -463,9 +499,13 @@ L Device:D_Schottky_Small D1
 U 1 1 5F68D777
 P 10000 1500
 F 0 "D1" V 9954 1570 50  0000 L CNN
-F 1 "D_Schottky_Small" V 10045 1570 50  0000 L CNN
+F 1 "PMEG2010BELD,315" V 10045 1570 50  0000 L CNN
 F 2 "DX-MON:SOD882D_DFN1006D-2" V 10000 1500 50  0001 C CNN
-F 3 "https://www.farnell.com/datasheets/1996746.pdf" V 10000 1500 50  0001 C CNN
+F 3 "https://assets.nexperia.com/documents/data-sheet/PMEG2010BELD.pdf" V 10000 1500 50  0001 C CNN
+F 4 "NXP" H 10000 1500 50  0001 C CNN "MFR"
+F 5 "PMEG2010BELD,315" H 10000 1500 50  0001 C CNN "MPN"
+F 6 "2191801" H 10000 1500 50  0001 C CNN "OC_FARNELL"
+F 7 "https://uk.farnell.com/nexperia/pmeg2010beld-315/diode-rectifier-20v-1a-sod882d/dp/2191801" H 10000 1500 50  0001 C CNN "URL_FARNELL"
 	1    10000 1500
 	0    1    1    0   
 $EndComp
@@ -504,7 +544,11 @@ P 2550 2500
 F 0 "J2" H 2600 2917 50  0000 C CNN
 F 1 "Conn_02x05_Odd_Even" H 2600 2826 50  0000 C CNN
 F 2 "rhais_connector-pinheader:PinSocket_2x05_P1.27mm_Vertical_SMD" H 2550 2500 50  0001 C CNN
-F 3 "~" H 2550 2500 50  0001 C CNN
+F 3 "https://cdn.amphenol-icc.com/media/wysiwyg/files/drawing/20021321.pdf" H 2550 2500 50  0001 C CNN
+F 4 "Amphenol ICC" H 2550 2500 50  0001 C CNN "MFR"
+F 5 "20021321-00010C4LF" H 2550 2500 50  0001 C CNN "MPN"
+F 6 "1865309" H 2550 2500 50  0001 C CNN "OC_FARNELL"
+F 7 "https://uk.farnell.com/amphenol-icc-fci/20021321-00010c4lf/receptacle-vert-1-27mm-smt-10way/dp/1865309" H 2550 2500 50  0001 C CNN "URL_FARNELL"
 	1    2550 2500
 	-1   0    0    -1  
 $EndComp
@@ -583,7 +627,11 @@ P 6100 6000
 F 0 "Q2" H 6100 6150 50  0000 R BNN
 F 1 "DMN65D8L-7" V 6300 6000 50  0000 C TNN
 F 2 "rhais_package-smd:SOT-23" H 6300 6100 50  0001 C CNN
-F 3 "https://www.farnell.com/datasheets/2040106.pdf" H 6100 6000 50  0001 C CNN
+F 3 "https://www.diodes.com/assets/Datasheets/DMN65D8L.pdf" H 6100 6000 50  0001 C CNN
+F 4 "Diodes Inc" H 6100 6000 50  0001 C CNN "MFR"
+F 5 "DMN65D8L-7" H 6100 6000 50  0001 C CNN "MPN"
+F 6 "2543546" H 6100 6000 50  0001 C CNN "OC_FARNELL"
+F 7 "https://uk.farnell.com/diodes-inc/dmn65d8l-7/mosfet-n-ch-20v-sot-23-3/dp/2543546" H 6100 6000 50  0001 C CNN "URL_FARNELL"
 	1    6100 6000
 	-1   0    0    -1  
 $EndComp
@@ -598,7 +646,11 @@ AR Path="/5F0A82B6/5F964FD0" Ref="R13"  Part="1"
 F 0 "R13" V 6304 6000 50  0000 C CNN
 F 1 "10k" V 6395 6000 50  0000 C CNN
 F 2 "rhais_rcl:R0603" H 6500 6000 50  0001 C CNN
-F 3 "~" H 6500 6000 50  0001 C CNN
+F 3 "http://www.farnell.com/datasheets/1788326.pdf" H 6500 6000 50  0001 C CNN
+F 4 "Multicomp" H 6500 6000 50  0001 C CNN "MFR"
+F 5 "MC0063W0603110K" H 6500 6000 50  0001 C CNN "MPN"
+F 6 "2130939" H 6500 6000 50  0001 C CNN "OC_FARNELL"
+F 7 "https://uk.farnell.com/multicomp/mc0063w0603110k/res-10k-1-0-063w-0603-thick-film/dp/2130939" H 6500 6000 50  0001 C CNN "URL_FARNELL"
 	1    6500 6000
 	0    1    1    0   
 $EndComp
@@ -643,6 +695,10 @@ F 0 "SYM1" H 8500 5090 50  0001 C CNN
 F 1 "SYM_ESD_Small" H 8500 4825 50  0001 C CNN
 F 2 "Symbol:WEEE-Logo_4.2x6mm_SilkScreen" H 8500 4960 50  0001 C CNN
 F 3 "~" H 8500 4960 50  0001 C CNN
+F 4 "" H 8500 4950 50  0001 C CNN "MFR"
+F 5 "" H 8500 4950 50  0001 C CNN "MPN"
+F 6 "" H 8500 4950 50  0001 C CNN "OC_FARNELL"
+F 7 "" H 8500 4950 50  0001 C CNN "URL_FARNELL"
 	1    8500 4950
 	1    0    0    -1  
 $EndComp

@@ -20,7 +20,7 @@ P 5500 2500
 F 0 "U1" H 5450 2950 50  0000 L CNN
 F 1 "TM4C123GH6PM" H 5200 2050 50  0000 L CNN
 F 2 "DX-MON:QFP-64_10.2x10.2_Pitch0.5mm" H 5450 2500 50  0001 C CNN
-F 3 "" H 5450 2500 50  0001 C CNN
+F 3 "https://www.ti.com/lit/ds/symlink/tm4c123gh6pm.pdf" H 5450 2500 50  0001 C CNN
 F 4 "3008366" H 5500 1850 50  0001 C CNN "OC_FARNELL"
 F 5 "https://uk.farnell.com/texas-instruments/tm4c123gh6pmi/mcu-32bit-cortex-m4f-80mhz-lqfp/dp/3008366" H 5500 1950 50  0001 C CNN "URL_FARNELL"
 F 6 "Texas Instruments" H 5500 3050 50  0001 C CNN "MFR"
@@ -35,7 +35,7 @@ P 5500 4000
 F 0 "U1" H 5450 4450 50  0000 L CNN
 F 1 "TM4C123GH6PM" H 5200 3550 50  0000 L CNN
 F 2 "DX-MON:QFP-64_10.2x10.2_Pitch0.5mm" H 5450 4000 50  0001 C CNN
-F 3 "" H 5450 4000 50  0001 C CNN
+F 3 "https://www.ti.com/lit/ds/symlink/tm4c123gh6pm.pdf" H 5450 4000 50  0001 C CNN
 F 4 "3008366" H 5500 3350 50  0001 C CNN "OC_FARNELL"
 F 5 "https://uk.farnell.com/texas-instruments/tm4c123gh6pmi/mcu-32bit-cortex-m4f-80mhz-lqfp/dp/3008366" H 5500 3450 50  0001 C CNN "URL_FARNELL"
 F 6 "Texas Instruments" H 5500 4550 50  0001 C CNN "MFR"
@@ -50,7 +50,7 @@ P 8500 5500
 F 0 "U1" H 8450 5950 50  0000 L CNN
 F 1 "TM4C123GH6PM" H 8200 5050 50  0000 L CNN
 F 2 "DX-MON:QFP-64_10.2x10.2_Pitch0.5mm" H 8450 5500 50  0001 C CNN
-F 3 "" H 8450 5500 50  0001 C CNN
+F 3 "https://www.ti.com/lit/ds/symlink/tm4c123gh6pm.pdf" H 8450 5500 50  0001 C CNN
 F 4 "3008366" H 8500 4850 50  0001 C CNN "OC_FARNELL"
 F 5 "https://uk.farnell.com/texas-instruments/tm4c123gh6pmi/mcu-32bit-cortex-m4f-80mhz-lqfp/dp/3008366" H 8500 4950 50  0001 C CNN "URL_FARNELL"
 F 6 "Texas Instruments" H 8500 6050 50  0001 C CNN "MFR"
@@ -65,7 +65,7 @@ P 5650 6500
 F 0 "U1" H 5600 6950 50  0000 L CNN
 F 1 "TM4C123GH6PM" H 5350 6050 50  0000 L CNN
 F 2 "DX-MON:QFP-64_10.2x10.2_Pitch0.5mm" H 5600 6500 50  0001 C CNN
-F 3 "" H 5600 6500 50  0001 C CNN
+F 3 "https://www.ti.com/lit/ds/symlink/tm4c123gh6pm.pdf" H 5600 6500 50  0001 C CNN
 F 4 "3008366" H 5650 5850 50  0001 C CNN "OC_FARNELL"
 F 5 "https://uk.farnell.com/texas-instruments/tm4c123gh6pmi/mcu-32bit-cortex-m4f-80mhz-lqfp/dp/3008366" H 5650 5950 50  0001 C CNN "URL_FARNELL"
 F 6 "Texas Instruments" H 5650 7050 50  0001 C CNN "MFR"
@@ -80,7 +80,7 @@ P 3000 5500
 F 0 "U1" H 2950 5850 50  0000 L CNN
 F 1 "TM4C123GH6PM" H 2700 5150 50  0000 L CNN
 F 2 "DX-MON:QFP-64_10.2x10.2_Pitch0.5mm" H 2950 5500 50  0001 C CNN
-F 3 "" H 2950 5500 50  0001 C CNN
+F 3 "https://www.ti.com/lit/ds/symlink/tm4c123gh6pm.pdf" H 2950 5500 50  0001 C CNN
 F 4 "3008366" H 3000 4850 50  0001 C CNN "OC_FARNELL"
 F 5 "https://uk.farnell.com/texas-instruments/tm4c123gh6pmi/mcu-32bit-cortex-m4f-80mhz-lqfp/dp/3008366" H 3000 4950 50  0001 C CNN "URL_FARNELL"
 F 6 "Texas Instruments" H 3000 6050 50  0001 C CNN "MFR"
@@ -95,7 +95,7 @@ P 3000 6500
 F 0 "U1" H 2950 6800 50  0000 L CNN
 F 1 "TM4C123GH6PM" H 2700 6200 50  0000 L CNN
 F 2 "DX-MON:QFP-64_10.2x10.2_Pitch0.5mm" H 2950 6500 50  0001 C CNN
-F 3 "" H 2950 6500 50  0001 C CNN
+F 3 "https://www.ti.com/lit/ds/symlink/tm4c123gh6pm.pdf" H 2950 6500 50  0001 C CNN
 F 4 "3008366" H 3000 5850 50  0001 C CNN "OC_FARNELL"
 F 5 "https://uk.farnell.com/texas-instruments/tm4c123gh6pmi/mcu-32bit-cortex-m4f-80mhz-lqfp/dp/3008366" H 3000 5950 50  0001 C CNN "URL_FARNELL"
 F 6 "Texas Instruments" H 3000 7050 50  0001 C CNN "MFR"
@@ -110,7 +110,7 @@ P 8500 2450
 F 0 "U1" H 8500 2850 50  0000 C CNN
 F 1 "TM4C123GH6PM" H 8500 2050 50  0000 C CNN
 F 2 "DX-MON:QFP-64_10.2x10.2_Pitch0.5mm" H 8450 2450 50  0001 C CNN
-F 3 "" H 8450 2450 50  0001 C CNN
+F 3 "https://www.ti.com/lit/ds/symlink/tm4c123gh6pm.pdf" H 8450 2450 50  0001 C CNN
 F 4 "3008366" H 8500 1800 50  0001 C CNN "OC_FARNELL"
 F 5 "https://uk.farnell.com/texas-instruments/tm4c123gh6pmi/mcu-32bit-cortex-m4f-80mhz-lqfp/dp/3008366" H 8500 1900 50  0001 C CNN "URL_FARNELL"
 F 6 "Texas Instruments" H 8500 3000 50  0001 C CNN "MFR"
@@ -125,7 +125,7 @@ P 8500 4000
 F 0 "U1" H 8500 4450 50  0000 C CNN
 F 1 "TM4C123GH6PM" H 8500 3550 50  0000 C CNN
 F 2 "DX-MON:QFP-64_10.2x10.2_Pitch0.5mm" H 8450 4000 50  0001 C CNN
-F 3 "" H 8450 4000 50  0001 C CNN
+F 3 "https://www.ti.com/lit/ds/symlink/tm4c123gh6pm.pdf" H 8450 4000 50  0001 C CNN
 F 4 "3008366" H 8500 3350 50  0001 C CNN "OC_FARNELL"
 F 5 "https://uk.farnell.com/texas-instruments/tm4c123gh6pmi/mcu-32bit-cortex-m4f-80mhz-lqfp/dp/3008366" H 8500 3450 50  0001 C CNN "URL_FARNELL"
 F 6 "Texas Instruments" H 8500 4550 50  0001 C CNN "MFR"
@@ -201,7 +201,11 @@ P 8000 2200
 F 0 "R3" H 7941 2154 50  0000 R CNN
 F 1 "10k" H 7941 2245 50  0000 R CNN
 F 2 "rhais_rcl:R0603" H 8000 2200 50  0001 C CNN
-F 3 "~" H 8000 2200 50  0001 C CNN
+F 3 "http://www.farnell.com/datasheets/1788326.pdf" H 8000 2200 50  0001 C CNN
+F 4 "Multicomp" H 8000 2200 50  0001 C CNN "MFR"
+F 5 "MC0063W0603110K" H 8000 2200 50  0001 C CNN "MPN"
+F 6 "2130939" H 8000 2200 50  0001 C CNN "OC_FARNELL"
+F 7 "https://uk.farnell.com/multicomp/mc0063w0603110k/res-10k-1-0-063w-0603-thick-film/dp/2130939" H 8000 2200 50  0001 C CNN "URL_FARNELL"
 	1    8000 2200
 	1    0    0    1   
 $EndComp
@@ -270,7 +274,11 @@ P 2500 2500
 F 0 "C9" V 2550 2550 50  0000 L TNN
 F 1 "0.1uF" V 2550 2450 50  0000 R TNN
 F 2 "rhais_rcl:C0603" H 2500 2500 50  0001 C CNN
-F 3 "~" H 2500 2500 50  0001 C CNN
+F 3 "http://www.farnell.com/datasheets/1870456.pdf" H 2500 2500 50  0001 C CNN
+F 4 "Multicomp" H 2500 2500 50  0001 C CNN "MFR"
+F 5 "MC0603B104J250CT" H 2500 2500 50  0001 C CNN "MPN"
+F 6 "2310559" H 2500 2500 50  0001 C CNN "OC_FARNELL"
+F 7 "https://uk.farnell.com/multicomp/mc0603b104j250ct/cap-0-1-f-25v-5-x7r-0603-reel/dp/2310559" H 2500 2500 50  0001 C CNN "URL_FARNELL"
 	1    2500 2500
 	1    0    0    -1  
 $EndComp
@@ -281,7 +289,11 @@ P 2700 2500
 F 0 "C10" V 2750 2550 50  0000 L TNN
 F 1 "0.1uF" V 2750 2450 50  0000 R TNN
 F 2 "rhais_rcl:C0603" H 2700 2500 50  0001 C CNN
-F 3 "~" H 2700 2500 50  0001 C CNN
+F 3 "http://www.farnell.com/datasheets/1870456.pdf" H 2700 2500 50  0001 C CNN
+F 4 "Multicomp" H 2700 2500 50  0001 C CNN "MFR"
+F 5 "MC0603B104J250CT" H 2700 2500 50  0001 C CNN "MPN"
+F 6 "2310559" H 2700 2500 50  0001 C CNN "OC_FARNELL"
+F 7 "https://uk.farnell.com/multicomp/mc0603b104j250ct/cap-0-1-f-25v-5-x7r-0603-reel/dp/2310559" H 2700 2500 50  0001 C CNN "URL_FARNELL"
 	1    2700 2500
 	1    0    0    -1  
 $EndComp
@@ -292,7 +304,11 @@ P 2900 2500
 F 0 "C11" V 2950 2550 50  0000 L TNN
 F 1 "0.1uF" V 2950 2450 50  0000 R TNN
 F 2 "rhais_rcl:C0603" H 2900 2500 50  0001 C CNN
-F 3 "~" H 2900 2500 50  0001 C CNN
+F 3 "http://www.farnell.com/datasheets/1870456.pdf" H 2900 2500 50  0001 C CNN
+F 4 "Multicomp" H 2900 2500 50  0001 C CNN "MFR"
+F 5 "MC0603B104J250CT" H 2900 2500 50  0001 C CNN "MPN"
+F 6 "2310559" H 2900 2500 50  0001 C CNN "OC_FARNELL"
+F 7 "https://uk.farnell.com/multicomp/mc0603b104j250ct/cap-0-1-f-25v-5-x7r-0603-reel/dp/2310559" H 2900 2500 50  0001 C CNN "URL_FARNELL"
 	1    2900 2500
 	1    0    0    -1  
 $EndComp
@@ -303,7 +319,11 @@ P 3100 2500
 F 0 "C12" V 3150 2550 50  0000 L TNN
 F 1 "0.1uF" V 3150 2450 50  0000 R TNN
 F 2 "rhais_rcl:C0603" H 3100 2500 50  0001 C CNN
-F 3 "~" H 3100 2500 50  0001 C CNN
+F 3 "http://www.farnell.com/datasheets/1870456.pdf" H 3100 2500 50  0001 C CNN
+F 4 "Multicomp" H 3100 2500 50  0001 C CNN "MFR"
+F 5 "MC0603B104J250CT" H 3100 2500 50  0001 C CNN "MPN"
+F 6 "2310559" H 3100 2500 50  0001 C CNN "OC_FARNELL"
+F 7 "https://uk.farnell.com/multicomp/mc0603b104j250ct/cap-0-1-f-25v-5-x7r-0603-reel/dp/2310559" H 3100 2500 50  0001 C CNN "URL_FARNELL"
 	1    3100 2500
 	1    0    0    -1  
 $EndComp
@@ -314,7 +334,11 @@ P 3300 2500
 F 0 "C13" V 3350 2550 50  0000 L TNN
 F 1 "0.1uF" V 3350 2450 50  0000 R TNN
 F 2 "rhais_rcl:C0603" H 3300 2500 50  0001 C CNN
-F 3 "~" H 3300 2500 50  0001 C CNN
+F 3 "http://www.farnell.com/datasheets/1870456.pdf" H 3300 2500 50  0001 C CNN
+F 4 "Multicomp" H 3300 2500 50  0001 C CNN "MFR"
+F 5 "MC0603B104J250CT" H 3300 2500 50  0001 C CNN "MPN"
+F 6 "2310559" H 3300 2500 50  0001 C CNN "OC_FARNELL"
+F 7 "https://uk.farnell.com/multicomp/mc0603b104j250ct/cap-0-1-f-25v-5-x7r-0603-reel/dp/2310559" H 3300 2500 50  0001 C CNN "URL_FARNELL"
 	1    3300 2500
 	1    0    0    -1  
 $EndComp
@@ -418,7 +442,11 @@ P 3500 2500
 F 0 "C14" V 3550 2550 50  0000 L TNN
 F 1 "1uF" V 3550 2450 50  0000 R TNN
 F 2 "rhais_rcl:C0603" H 3500 2500 50  0001 C CNN
-F 3 "~" H 3500 2500 50  0001 C CNN
+F 3 "http://www.farnell.com/datasheets/2860632.pdf" H 3500 2500 50  0001 C CNN
+F 4 "Multicomp" H 3500 2500 50  0001 C CNN "MFR"
+F 5 "MC0603B105K160CT" H 3500 2500 50  0001 C CNN "MPN"
+F 6 "2320814" H 3500 2500 50  0001 C CNN "OC_FARNELL"
+F 7 "https://uk.farnell.com/multicomp/mc0603b105k160ct/cap-1-f-16v-10-x7r-0603/dp/2320814" H 3500 2500 50  0001 C CNN "URL_FARNELL"
 	1    3500 2500
 	1    0    0    -1  
 $EndComp
@@ -454,7 +482,11 @@ P 2700 4000
 F 0 "C15" V 2750 4050 50  0000 L TNN
 F 1 "0.1uF" V 2750 3950 50  0000 R TNN
 F 2 "rhais_rcl:C0603" H 2700 4000 50  0001 C CNN
-F 3 "~" H 2700 4000 50  0001 C CNN
+F 3 "http://www.farnell.com/datasheets/1870456.pdf" H 2700 4000 50  0001 C CNN
+F 4 "Multicomp" H 2700 4000 50  0001 C CNN "MFR"
+F 5 "MC0603B104J250CT" H 2700 4000 50  0001 C CNN "MPN"
+F 6 "2310559" H 2700 4000 50  0001 C CNN "OC_FARNELL"
+F 7 "https://uk.farnell.com/multicomp/mc0603b104j250ct/cap-0-1-f-25v-5-x7r-0603-reel/dp/2310559" H 2700 4000 50  0001 C CNN "URL_FARNELL"
 	1    2700 4000
 	1    0    0    -1  
 $EndComp
@@ -465,7 +497,11 @@ P 2900 4000
 F 0 "C16" V 2950 4050 50  0000 L TNN
 F 1 "0.1uF" V 2950 3950 50  0000 R TNN
 F 2 "rhais_rcl:C0603" H 2900 4000 50  0001 C CNN
-F 3 "~" H 2900 4000 50  0001 C CNN
+F 3 "http://www.farnell.com/datasheets/1870456.pdf" H 2900 4000 50  0001 C CNN
+F 4 "Multicomp" H 2900 4000 50  0001 C CNN "MFR"
+F 5 "MC0603B104J250CT" H 2900 4000 50  0001 C CNN "MPN"
+F 6 "2310559" H 2900 4000 50  0001 C CNN "OC_FARNELL"
+F 7 "https://uk.farnell.com/multicomp/mc0603b104j250ct/cap-0-1-f-25v-5-x7r-0603-reel/dp/2310559" H 2900 4000 50  0001 C CNN "URL_FARNELL"
 	1    2900 4000
 	1    0    0    -1  
 $EndComp
@@ -480,7 +516,11 @@ P 3100 4000
 F 0 "C17" V 3150 4050 50  0000 L TNN
 F 1 "1uF" V 3150 3950 50  0000 R TNN
 F 2 "rhais_rcl:C0603" H 3100 4000 50  0001 C CNN
-F 3 "~" H 3100 4000 50  0001 C CNN
+F 3 "http://www.farnell.com/datasheets/2860632.pdf" H 3100 4000 50  0001 C CNN
+F 4 "Multicomp" H 3100 4000 50  0001 C CNN "MFR"
+F 5 "MC0603B105K160CT" H 3100 4000 50  0001 C CNN "MPN"
+F 6 "2320814" H 3100 4000 50  0001 C CNN "OC_FARNELL"
+F 7 "https://uk.farnell.com/multicomp/mc0603b105k160ct/cap-1-f-16v-10-x7r-0603/dp/2320814" H 3100 4000 50  0001 C CNN "URL_FARNELL"
 	1    3100 4000
 	1    0    0    -1  
 $EndComp
@@ -493,7 +533,11 @@ P 3300 4000
 F 0 "C18" V 3350 4050 50  0000 L TNN
 F 1 "2.2uF" V 3350 3950 50  0000 R TNN
 F 2 "rhais_rcl:C0603" H 3300 4000 50  0001 C CNN
-F 3 "~" H 3300 4000 50  0001 C CNN
+F 3 "https://product.tdk.com/info/en/catalog/datasheets/mlcc_commercial_general_en.pdf" H 3300 4000 50  0001 C CNN
+F 4 "TDK" H 3300 4000 50  0001 C CNN "MFR"
+F 5 "C1608X5R1C225K080AB" H 3300 4000 50  0001 C CNN "MPN"
+F 6 "2211169" H 3300 4000 50  0001 C CNN "OC_FARNELL"
+F 7 "https://uk.farnell.com/tdk/c1608x5r1c225k080ab/cap-2-2-f-16v-10-x5r-0603/dp/2211169" H 3300 4000 50  0001 C CNN "URL_FARNELL"
 	1    3300 4000
 	1    0    0    -1  
 $EndComp
@@ -577,7 +621,11 @@ P 4250 3850
 F 0 "SW1" H 4150 3950 50  0000 C CNN
 F 1 "B3U-1000P-B" H 4350 4050 50  0000 C CNN
 F 2 "rhais_button-smd:B3U-1000P-B" H 4250 4050 50  0001 C CNN
-F 3 "~" H 4250 4050 50  0001 C CNN
+F 3 "http://omronfs.omron.com/en_US/ecb/products/pdf/en-b3u.pdf" H 4250 4050 50  0001 C CNN
+F 4 "Omron" H 4250 3850 50  0001 C CNN "MFR"
+F 5 "B3U-1000P-B" H 4250 3850 50  0001 C CNN "MPN"
+F 6 "1333654" H 4250 3850 50  0001 C CNN "OC_FARNELL"
+F 7 "https://uk.farnell.com/omron/b3u-1000p-b/switch-spst-no-0-05a-12v-smd-boss/dp/1333654" H 4250 3850 50  0001 C CNN "URL_FARNELL"
 	1    4250 3850
 	1    0    0    -1  
 $EndComp
@@ -588,7 +636,11 @@ P 4250 3950
 F 0 "SW2" H 4150 4050 50  0000 C CNN
 F 1 "B3U-1000P-B" H 4100 4150 50  0000 C CNN
 F 2 "rhais_button-smd:B3U-1000P-B" H 4250 4150 50  0001 C CNN
-F 3 "~" H 4250 4150 50  0001 C CNN
+F 3 "http://omronfs.omron.com/en_US/ecb/products/pdf/en-b3u.pdf" H 4250 4150 50  0001 C CNN
+F 4 "Omron" H 4250 3950 50  0001 C CNN "MFR"
+F 5 "B3U-1000P-B" H 4250 3950 50  0001 C CNN "MPN"
+F 6 "1333654" H 4250 3950 50  0001 C CNN "OC_FARNELL"
+F 7 "https://uk.farnell.com/omron/b3u-1000p-b/switch-spst-no-0-05a-12v-smd-boss/dp/1333654" H 4250 3950 50  0001 C CNN "URL_FARNELL"
 	1    4250 3950
 	1    0    0    1   
 $EndComp
@@ -603,7 +655,11 @@ P 4550 4150
 F 0 "R10" V 4600 4150 50  0000 C TNN
 F 1 "10k" V 4500 4150 50  0000 C BNN
 F 2 "rhais_rcl:R0603" H 4550 4150 50  0001 C CNN
-F 3 "~" H 4550 4150 50  0001 C CNN
+F 3 "http://www.farnell.com/datasheets/1788326.pdf" H 4550 4150 50  0001 C CNN
+F 4 "Multicomp" H 4550 4150 50  0001 C CNN "MFR"
+F 5 "MC0063W0603110K" H 4550 4150 50  0001 C CNN "MPN"
+F 6 "2130939" H 4550 4150 50  0001 C CNN "OC_FARNELL"
+F 7 "https://uk.farnell.com/multicomp/mc0063w0603110k/res-10k-1-0-063w-0603-thick-film/dp/2130939" H 4550 4150 50  0001 C CNN "URL_FARNELL"
 	1    4550 4150
 	1    0    0    -1  
 $EndComp
@@ -614,7 +670,11 @@ P 4850 4150
 F 0 "R11" V 4900 4150 50  0000 C TNN
 F 1 "10k" V 4800 4150 50  0000 C BNN
 F 2 "rhais_rcl:R0603" H 4850 4150 50  0001 C CNN
-F 3 "~" H 4850 4150 50  0001 C CNN
+F 3 "http://www.farnell.com/datasheets/1788326.pdf" H 4850 4150 50  0001 C CNN
+F 4 "Multicomp" H 4850 4150 50  0001 C CNN "MFR"
+F 5 "MC0063W0603110K" H 4850 4150 50  0001 C CNN "MPN"
+F 6 "2130939" H 4850 4150 50  0001 C CNN "OC_FARNELL"
+F 7 "https://uk.farnell.com/multicomp/mc0063w0603110k/res-10k-1-0-063w-0603-thick-film/dp/2130939" H 4850 4150 50  0001 C CNN "URL_FARNELL"
 	1    4850 4150
 	1    0    0    -1  
 $EndComp
@@ -684,6 +744,10 @@ F 0 "X1" H 9600 2850 50  0000 R CNN
 F 1 "TXC-7C" H 9350 2350 50  0000 R CNN
 F 2 "rhais_osc:SMD3225" H 10100 2250 50  0001 C CNN
 F 3 "http://www.txccorp.com/download/products/osc/7C_o.pdf" H 9300 2600 50  0001 C CNN
+F 4 "Multicomp" H 9400 2600 50  0001 C CNN "MFR"
+F 5 "MCSJK-3N-25.00-3.3-50-B" H 9400 2600 50  0001 C CNN "MPN"
+F 6 "2854308" H 9400 2600 50  0001 C CNN "OC_FARNELL"
+F 7 "https://uk.farnell.com/multicomp/mcsjk-3n-25-00-3-3-50-b/oscillator-25mhz-3-2mm-x-2-5mm/dp/2854308" H 9400 2600 50  0001 C CNN "URL_FARNELL"
 	1    9400 2600
 	-1   0    0    -1  
 $EndComp
@@ -723,7 +787,11 @@ P 10000 2500
 F 0 "C21" H 10050 2550 50  0000 L BNN
 F 1 "0.1uF" H 10050 2450 50  0000 L TNN
 F 2 "rhais_rcl:C0603" H 10000 2500 50  0001 C CNN
-F 3 "~" H 10000 2500 50  0001 C CNN
+F 3 "http://www.farnell.com/datasheets/1870456.pdf" H 10000 2500 50  0001 C CNN
+F 4 "Multicomp" H 10000 2500 50  0001 C CNN "MFR"
+F 5 "MC0603B104J250CT" H 10000 2500 50  0001 C CNN "MPN"
+F 6 "2310559" H 10000 2500 50  0001 C CNN "OC_FARNELL"
+F 7 "https://uk.farnell.com/multicomp/mc0603b104j250ct/cap-0-1-f-25v-5-x7r-0603-reel/dp/2310559" H 10000 2500 50  0001 C CNN "URL_FARNELL"
 	1    10000 2500
 	1    0    0    -1  
 $EndComp
@@ -760,7 +828,7 @@ P 3700 6000
 F 0 "Q3" H 3650 6050 50  0000 R CNN
 F 1 "2N7002DW" V 3900 6000 50  0000 C TNN
 F 2 "rhais_package-smd:SOT-363_SC-70-6" H 3900 6000 50  0001 C CNN
-F 3 "~" H 3900 6000 50  0001 C CNN
+F 3 "https://www.onsemi.com/pub/Collateral/2N7002DW-D.PDF" H 3900 6000 50  0001 C CNN
 F 4 "On Semi" H 3700 6000 50  0001 C CNN "MFR"
 F 5 "2N7002DW" H 3700 6000 50  0001 C CNN "MPN"
 F 6 "2464117" H 3700 6000 50  0001 C CNN "OC_FARNELL"
@@ -775,7 +843,7 @@ P 4100 6300
 F 0 "Q3" H 4050 6350 50  0000 R CNN
 F 1 "2N7002DW" V 4300 6300 50  0000 C TNN
 F 2 "rhais_package-smd:SOT-363_SC-70-6" H 4300 6300 50  0001 C CNN
-F 3 "~" H 4300 6300 50  0001 C CNN
+F 3 "https://www.onsemi.com/pub/Collateral/2N7002DW-D.PDF" H 4300 6300 50  0001 C CNN
 F 4 "On Semi" H 4100 6300 50  0001 C CNN "MFR"
 F 5 "2N7002DW" H 4100 6300 50  0001 C CNN "MPN"
 F 6 "2464117" H 4100 6300 50  0001 C CNN "OC_FARNELL"
@@ -816,7 +884,11 @@ P 3600 5600
 F 0 "R15" V 3650 5600 50  0000 C TNN
 F 1 "10k" V 3550 5600 50  0000 C BNN
 F 2 "rhais_rcl:R0603" H 3600 5600 50  0001 C CNN
-F 3 "~" H 3600 5600 50  0001 C CNN
+F 3 "http://www.farnell.com/datasheets/1788326.pdf" H 3600 5600 50  0001 C CNN
+F 4 "Multicomp" H 3600 5600 50  0001 C CNN "MFR"
+F 5 "MC0063W0603110K" H 3600 5600 50  0001 C CNN "MPN"
+F 6 "2130939" H 3600 5600 50  0001 C CNN "OC_FARNELL"
+F 7 "https://uk.farnell.com/multicomp/mc0063w0603110k/res-10k-1-0-063w-0603-thick-film/dp/2130939" H 3600 5600 50  0001 C CNN "URL_FARNELL"
 	1    3600 5600
 	1    0    0    -1  
 $EndComp
@@ -827,7 +899,11 @@ P 4000 5600
 F 0 "R16" V 4050 5600 50  0000 C TNN
 F 1 "10k" V 3950 5600 50  0000 C BNN
 F 2 "rhais_rcl:R0603" H 4000 5600 50  0001 C CNN
-F 3 "~" H 4000 5600 50  0001 C CNN
+F 3 "http://www.farnell.com/datasheets/1788326.pdf" H 4000 5600 50  0001 C CNN
+F 4 "Multicomp" H 4000 5600 50  0001 C CNN "MFR"
+F 5 "MC0063W0603110K" H 4000 5600 50  0001 C CNN "MPN"
+F 6 "2130939" H 4000 5600 50  0001 C CNN "OC_FARNELL"
+F 7 "https://uk.farnell.com/multicomp/mc0063w0603110k/res-10k-1-0-063w-0603-thick-film/dp/2130939" H 4000 5600 50  0001 C CNN "URL_FARNELL"
 	1    4000 5600
 	1    0    0    -1  
 $EndComp
@@ -842,7 +918,11 @@ P 4200 6000
 F 0 "R17" V 4250 6000 50  0000 C TNN
 F 1 "10k" V 4150 6000 50  0000 C BNN
 F 2 "rhais_rcl:R0603" H 4200 6000 50  0001 C CNN
-F 3 "~" H 4200 6000 50  0001 C CNN
+F 3 "http://www.farnell.com/datasheets/1788326.pdf" H 4200 6000 50  0001 C CNN
+F 4 "Multicomp" H 4200 6000 50  0001 C CNN "MFR"
+F 5 "MC0063W0603110K" H 4200 6000 50  0001 C CNN "MPN"
+F 6 "2130939" H 4200 6000 50  0001 C CNN "OC_FARNELL"
+F 7 "https://uk.farnell.com/multicomp/mc0063w0603110k/res-10k-1-0-063w-0603-thick-film/dp/2130939" H 4200 6000 50  0001 C CNN "URL_FARNELL"
 	1    4200 6000
 	0    1    1    0   
 $EndComp
@@ -855,7 +935,11 @@ P 4600 6300
 F 0 "R19" V 4650 6300 50  0000 C TNN
 F 1 "10k" V 4550 6300 50  0000 C BNN
 F 2 "rhais_rcl:R0603" H 4600 6300 50  0001 C CNN
-F 3 "~" H 4600 6300 50  0001 C CNN
+F 3 "http://www.farnell.com/datasheets/1788326.pdf" H 4600 6300 50  0001 C CNN
+F 4 "Multicomp" H 4600 6300 50  0001 C CNN "MFR"
+F 5 "MC0063W0603110K" H 4600 6300 50  0001 C CNN "MPN"
+F 6 "2130939" H 4600 6300 50  0001 C CNN "OC_FARNELL"
+F 7 "https://uk.farnell.com/multicomp/mc0063w0603110k/res-10k-1-0-063w-0603-thick-film/dp/2130939" H 4600 6300 50  0001 C CNN "URL_FARNELL"
 	1    4600 6300
 	0    1    1    0   
 $EndComp
@@ -893,7 +977,11 @@ AR Path="/5F0A81B1/5F923B4E" Ref="Q4"  Part="1"
 F 0 "Q4" H 4450 6650 50  0000 R CNN
 F 1 "DMN65D8L-7" V 4700 6600 50  0000 C TNN
 F 2 "rhais_package-smd:SOT-23" H 4700 6700 50  0001 C CNN
-F 3 "https://www.farnell.com/datasheets/2040106.pdf" H 4500 6600 50  0001 C CNN
+F 3 "https://www.diodes.com/assets/Datasheets/DMN65D8L.pdf" H 4500 6600 50  0001 C CNN
+F 4 "Diodes Inc" H 4500 6600 50  0001 C CNN "MFR"
+F 5 "DMN65D8L-7" H 4500 6600 50  0001 C CNN "MPN"
+F 6 "2543546" H 4500 6600 50  0001 C CNN "OC_FARNELL"
+F 7 "https://uk.farnell.com/diodes-inc/dmn65d8l-7/mosfet-n-ch-20v-sot-23-3/dp/2543546" H 4500 6600 50  0001 C CNN "URL_FARNELL"
 	1    4500 6600
 	-1   0    0    -1  
 $EndComp
@@ -904,7 +992,11 @@ P 4400 5600
 F 0 "R18" V 4450 5600 50  0000 C TNN
 F 1 "10k" V 4350 5600 50  0000 C BNN
 F 2 "rhais_rcl:R0603" H 4400 5600 50  0001 C CNN
-F 3 "~" H 4400 5600 50  0001 C CNN
+F 3 "http://www.farnell.com/datasheets/1788326.pdf" H 4400 5600 50  0001 C CNN
+F 4 "Multicomp" H 4400 5600 50  0001 C CNN "MFR"
+F 5 "MC0063W0603110K" H 4400 5600 50  0001 C CNN "MPN"
+F 6 "2130939" H 4400 5600 50  0001 C CNN "OC_FARNELL"
+F 7 "https://uk.farnell.com/multicomp/mc0063w0603110k/res-10k-1-0-063w-0603-thick-film/dp/2130939" H 4400 5600 50  0001 C CNN "URL_FARNELL"
 	1    4400 5600
 	1    0    0    1   
 $EndComp
@@ -915,7 +1007,11 @@ P 4900 6600
 F 0 "R20" V 4950 6600 50  0000 C TNN
 F 1 "10k" V 4850 6600 50  0000 C BNN
 F 2 "rhais_rcl:R0603" H 4900 6600 50  0001 C CNN
-F 3 "~" H 4900 6600 50  0001 C CNN
+F 3 "http://www.farnell.com/datasheets/1788326.pdf" H 4900 6600 50  0001 C CNN
+F 4 "Multicomp" H 4900 6600 50  0001 C CNN "MFR"
+F 5 "MC0063W0603110K" H 4900 6600 50  0001 C CNN "MPN"
+F 6 "2130939" H 4900 6600 50  0001 C CNN "OC_FARNELL"
+F 7 "https://uk.farnell.com/multicomp/mc0063w0603110k/res-10k-1-0-063w-0603-thick-film/dp/2130939" H 4900 6600 50  0001 C CNN "URL_FARNELL"
 	1    4900 6600
 	0    -1   -1   0   
 $EndComp
