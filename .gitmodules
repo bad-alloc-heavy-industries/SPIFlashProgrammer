@@ -1,3 +1,3 @@
 [submodule "firmware/bin2src"]
-	path = firmware/bin2src
+	path = old/firmware/bin2src
 	url = https://github.com/DX-MON/bin2src.git
