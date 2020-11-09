@@ -1,0 +1,49 @@
+[constants]
+prefix = '/opt/cxc'
+exec_prefix = prefix / 'bin'
+common_flags = ['-mthumb', '-mcpu=cortex-m4+nofp.dp', '-march=armv7e-m+fp']
+compile_flags = ['-ffunction-sections', '-fdata-sections', '-DPART_TM4C123GH6PM', '-DARM_MATH_CM4F', '-DTARGET_IS_BLIZZARD_RA1']
+
+[binaries]
+c = exec_prefix / 'arm-none-eabi-gcc'
+cpp = exec_prefix / 'arm-none-eabi-g++'
+ar = exec_prefix / 'arm-none-eabi-ar'
+as = exec_prefix / 'arm-none-eabi-as'
+strip = exec_prefix / 'arm-none-eabi-strip'
+objcopy = exec_prefix / 'arm-none-eabi-objcopy'
+objdump = exec_prefix / 'arm-none-eabi-objdump'
+size = exec_prefix / 'arm-none-eabi-size'
+cmake = 'false'
+
+[properties]
+sizeof_char = 1
+sizeof_short = 2
+sizeof_int = 2
+sizeof_long = 4
+sizeof_longlong = 8
+sizeof_size_t = 2
+sizeof_ptrdiff_t = 2
+sizeof_void* = 2
+sizeof_float = 2
+sizeof_double = 8
+sizeof_longdouble = 8
+sizeof_wchar_t = 2
+
+needs_exe_wrapper = true
+has_function_printf = true
+sys_root = prefix
+
+[built-in options]
+c_args = common_flags + compile_flags
+cpp_args = common_flags + compile_flags + ['-fno-rtti', '-fno-exceptions']
+c_link_args = common_flags
+cpp_link_args = common_flags
+
+cpp_eh = 'none'
+cpp_rtti = false
+
+[host_machine]
+system = 'TM4C123GH6PM'
+cpu_family = 'arm'
+cpu = 'armv7e-m+fp'
+endian = 'little'
