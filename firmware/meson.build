@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 
 firmwareSrc = [
-	'startup.cxx', 'spiFlashProgrammer.cxx'
+	'startup.cxx', 'spiFlashProgrammer.cxx', 'led.cxx'
 ]
 
 firmware = executable(
