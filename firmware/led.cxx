@@ -1,20 +1,21 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "tm4c123gh6pm/platform.hxx"
+#include "tm4c123gh6pm/constants.hxx"
 #include "led.hxx"
 
 void ledInit() noexcept
 {
 	// Dwitch over to port D's AHB apeture
-	sysCtrl.gpioAHBCtrl |= sysCtrlGPIOAHBCtrlPortD;
+	sysCtrl.gpioAHBCtrl |= vals::sysCtrl::gpioAHBCtrlPortD;
 	// Enable port D
-	sysCtrl.runClockGateCtrlGPIO |= sysCtrlRunClockGateCtrlGPIOD;
+	sysCtrl.runClockGateCtrlGPIO |= vals::sysCtrl::runClockGateCtrlGPIOD;
 
 	// Wait for the port to come online
-	while (!(sysCtrl.periphReadyGPIO & sysCtrlPeriphReadyGPIOD))
+	while (!(sysCtrl.periphReadyGPIO & vals::sysCtrl::periphReadyGPIOD))
 		continue;
 
 	// Port D is protected, so enable changing it to digital GPIO
-	gpioD.lock = gpioLockKey;
+	gpioD.lock = vals::gpio::lockKey;
 	gpioD.commit |= 0x01;
 	gpioD.lock = 0;
 	// Set the RGB LED pins as digital mode outputs

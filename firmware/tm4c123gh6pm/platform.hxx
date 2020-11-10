@@ -1140,6 +1140,4 @@ auto &flashCtrl{*reinterpret_cast<flashCtrl_t *>(flashCtrlBase)};
 auto &sysCtrl{*reinterpret_cast<sysCtrl_t *>(sysCtrlBase)};
 auto &udma{*reinterpret_cast<udma_t *>(udmaBase)};
 
-#include "constants.hxx"
-
 #endif /*TM4C123GH6PM_PLATFORM__HXX*/
