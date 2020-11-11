@@ -12,6 +12,12 @@
  * PF1 - COPI
  * PF2 - CLK
  *
+ * Target SPI bus pinout:
+ * PA2 - CLK
+ * PA3 - CS
+ * PA4 - CIPO
+ * PA5 - COPI
+ *
  * The SPI peripheral on this device works in a write-to-read manner,
  * so the code in this file attempts to always keep the read and write
  * FIFOs equally fed and consumed.
@@ -19,23 +25,30 @@
 
 void spiInit() noexcept
 {
-	// Switch over to port E & F's AHB apeture
-	sysCtrl.gpioAHBCtrl |= vals::sysCtrl::gpioAHBCtrlPortE | vals::sysCtrl::gpioAHBCtrlPortF;
-	// Enable port E & F
-	sysCtrl.runClockGateCtrlGPIO |= vals::sysCtrl::runClockGateCtrlGPIOE | vals::sysCtrl::runClockGateCtrlGPIOF;
+	// Switch over to port A, E & F's AHB apeture
+	sysCtrl.gpioAHBCtrl |= vals::sysCtrl::gpioAHBCtrlPortA | vals::sysCtrl::gpioAHBCtrlPortE |
+		vals::sysCtrl::gpioAHBCtrlPortF;
+	// Enable port A, E & F
+	sysCtrl.runClockGateCtrlGPIO |= vals::sysCtrl::runClockGateCtrlGPIOA | vals::sysCtrl::runClockGateCtrlGPIOE |
+		vals::sysCtrl::runClockGateCtrlGPIOF;
 
 	// Wait for the ports to come online
-	while (!(sysCtrl.periphReadyGPIO & (vals::sysCtrl::periphReadyGPIOE | vals::sysCtrl::periphReadyGPIOF)))
+	while (!(sysCtrl.periphReadyGPIO & (vals::sysCtrl::periphReadyGPIOA | vals::sysCtrl::periphReadyGPIOE |
+			vals::sysCtrl::periphReadyGPIOF)))
 		continue;
 
-	// Enable SSI (SPI) port 1 (PF0-2)
-	sysCtrl.runClockGateCtrlSSI |= vals::sysCtrl::runClockGateCtrlSSI1;
+	// Enable SSI (SPI) port 0 (PA2-5), and 1 (PF0-2)
+	sysCtrl.runClockGateCtrlSSI |= vals::sysCtrl::runClockGateCtrlSSI0 | vals::sysCtrl::runClockGateCtrlSSI1;
 	// Wait for it to come online
-	while (!(sysCtrl.periphReadySSI & (vals::sysCtrl::periphReadySSI1)))
+	while (!(sysCtrl.periphReadySSI & (vals::sysCtrl::periphReadySSI0 | vals::sysCtrl::periphReadySSI1)))
 		continue;
 
 	// Set the chip select pins as high digital mode outputs
-	gpioE.dataBits[0x03] = 0x03U;
+	gpioA.dataBits[0x08U] = 0x08U;
+	gpioA.den |= 0x08U;
+	gpioA.afSel &= ~0x08U;
+	gpioA.dir = 0x08U;
+	gpioE.dataBits[0x03U] = 0x03U;
 	gpioE.den |= 0x03U;
 	gpioE.afSel &= ~0x03U;
 	gpioE.dir = 0x03U;
