@@ -93,6 +93,13 @@ namespace vals
 		constexpr static const uint32_t control1EnableOperations{0x00000002};
 		constexpr static const uint32_t control1LoopEnable{0x00000001};
 
+		// SSI controller status register constants
+		constexpr static const uint32_t statusBusy{0x00000010};
+		constexpr static const uint32_t statusRxFIFOFull{0x00000008};
+		constexpr static const uint32_t statusRxFIFONotEmpty{0x00000004};
+		constexpr static const uint32_t statusTxFIFONotFull{0x00000002};
+		constexpr static const uint32_t statusTxFIFOEmpty{0x00000001};
+
 		// SSI controller clock configuration constants
 		constexpr static const uint32_t clockConfigSysClk{0};
 		constexpr static const uint32_t clockConfigPIOsc{5};
