@@ -42,4 +42,14 @@ void spiInit() noexcept
 		vals::gpio::portF::portCtrlPin1SSI1Tx | vals::gpio::portF::portCtrlPin2SSI1Clk;
 	gpioF.afSel |= 0x07U;
 	gpioF.dir = (gpioF.dir & 0xF8U) | 0x06U;
+
+	// We want to use 8-bit SPI (Motorola) in mode 0
+	ssi1.ctrl0 = vals::ssi::ctrl0FormatMotorola | vals::ssi::ctrl0ClockPolarityLow |
+		vals::ssi::ctrl0ClockPhaseLeading | vals::ssi::ctrl0Data8Bit;
+	ssi1.clockConfig = vals::ssi::clockConfigSysClk;
+	// We have a 25MHz clock PLL'd to 80MHz, which we want divided down as little as possible
+	// Scale the clock by 2 to make it 1/2 the system clock
+	ssi1.cpsr = 2;
+	// Enable the interface
+	ssi1.ctrl1 = vals::ssi::control1ModeController | vals::ssi::control1EnableOperations;
 }

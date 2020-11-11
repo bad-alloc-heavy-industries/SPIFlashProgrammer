@@ -8,11 +8,9 @@ namespace vals
 {
 	namespace gpio
 	{
-		// The GPIO commit register is unlocked and may be modified
+		// GPIO lock register constants
 		constexpr static const uint32_t lockUnlocked{0x00000000};
-		// The GPIO commit register is locked and may not be modified
 		constexpr static const uint32_t lockLocked{0x00000001};
-		// Unlocks the GPIO commit register
 		constexpr static const uint32_t lockKey{0x4C4F434B};
 
 		namespace portF
@@ -58,6 +56,47 @@ namespace vals
 			constexpr static const uint32_t portCtrlPin4USB0ExtPwrEn{0x00080000};
 		}
 	} // namespace gpio
+
+	namespace ssi
+	{
+		// SSI controller ctrl0 register constants
+		constexpr static const uint32_t ctrl0ClockRateMask{0x0000FF00};
+		constexpr static const uint32_t ctrl0ClockPhaseLeading{0x00000000};
+		constexpr static const uint32_t ctrl0ClockPhaseTrailing{0x00000080};
+		constexpr static const uint32_t ctrl0ClockPolarityLow{0x00000000};
+		constexpr static const uint32_t ctrl0ClockPolarityHigh{0x00000040};
+		constexpr static const uint32_t ctrl0FormatMask{0x00000030};
+		constexpr static const uint32_t ctrl0FormatMotorola{0x00000000};
+		constexpr static const uint32_t ctrl0FormatTI{0x00000010};
+		constexpr static const uint32_t ctrl0FormatMicrowire{0x00000020};
+		constexpr static const uint32_t ctrl0DataMask{0x0000000F};
+		constexpr static const uint32_t ctrl0Data4Bit{0x00000003};
+		constexpr static const uint32_t ctrl0Data5Bit{0x00000004};
+		constexpr static const uint32_t ctrl0Data6Bit{0x00000005};
+		constexpr static const uint32_t ctrl0Data7Bit{0x00000006};
+		constexpr static const uint32_t ctrl0Data8Bit{0x00000007};
+		constexpr static const uint32_t ctrl0Data9Bit{0x00000008};
+		constexpr static const uint32_t ctrl0Data10Bit{0x00000009};
+		constexpr static const uint32_t ctrl0Data11Bit{0x0000000A};
+		constexpr static const uint32_t ctrl0Data12Bit{0x0000000B};
+		constexpr static const uint32_t ctrl0Data13Bit{0x0000000C};
+		constexpr static const uint32_t ctrl0Data14Bit{0x0000000D};
+		constexpr static const uint32_t ctrl0Data15Bit{0x0000000E};
+		constexpr static const uint32_t ctrl0Data16Bit{0x0000000F};
+		constexpr static const uint8_t ctrl0ClockRateShift{8};
+
+		// SSI controller ctrl1 register constants
+		constexpr static const uint32_t control1EOT{0x00000010};
+		constexpr static const uint32_t control1PeripheralOutDisable{0x00000008};
+		constexpr static const uint32_t control1ModeController{0x00000000};
+		constexpr static const uint32_t control1ModePeripheral{0x00000004};
+		constexpr static const uint32_t control1EnableOperations{0x00000002};
+		constexpr static const uint32_t control1LoopEnable{0x00000001};
+
+		// SSI controller clock configuration constants
+		constexpr static const uint32_t clockConfigSysClk{0};
+		constexpr static const uint32_t clockConfigPIOsc{5};
+	} // namespace ssi
 
 	namespace sysCtrl
 	{
