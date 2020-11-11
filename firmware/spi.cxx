@@ -71,6 +71,29 @@ void spiInit() noexcept
 	ssi1.ctrl1 = vals::ssi::control1ModeController | vals::ssi::control1EnableOperations;
 }
 
+void spiSelect(const spiChip_t chip) noexcept
+{
+	switch (chip)
+	{
+		case spiChip_t::local1:
+			gpioA.dataBits[0x08U] = 0x08U;
+			gpioE.dataBits[0x03U] = 0x02U;
+			break;
+		case spiChip_t::local2:
+			gpioA.dataBits[0x08U] = 0x08U;
+			gpioE.dataBits[0x03U] = 0x01U;
+			break;
+		case spiChip_t::target:
+			gpioE.dataBits[0x03U] = 0x03U;
+			gpioA.dataBits[0x08U] = 0x00U;
+			break;
+		case spiChip_t::none:
+			gpioE.dataBits[0x03U] = 0x03U;
+			gpioA.dataBits[0x08U] = 0x08U;
+			break;
+	}
+}
+
 void spiIntResync() noexcept
 {
 	[[unused]] uint8_t _;

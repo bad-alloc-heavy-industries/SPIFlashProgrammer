@@ -4,7 +4,16 @@
 
 #include <cstdint>
 
+enum class spiChip_t
+{
+	local1,
+	local2,
+	target,
+	none
+};
+
 extern void spiInit() noexcept;
+extern void spiSelect(spiChip_t chip) noexcept;
 extern uint8_t spiIntRead() noexcept;
 extern void spiIntWrite(uint8_t value) noexcept;
 extern uint8_t spiExtRead() noexcept;
