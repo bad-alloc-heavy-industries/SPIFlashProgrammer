@@ -5,7 +5,7 @@
 
 void ledInit() noexcept
 {
-	// Dwitch over to port D's AHB apeture
+	// Switch over to port D's AHB apeture
 	sysCtrl.gpioAHBCtrl |= vals::sysCtrl::gpioAHBCtrlPortD;
 	// Enable port D
 	sysCtrl.runClockGateCtrlGPIO |= vals::sysCtrl::runClockGateCtrlGPIOD;
@@ -14,15 +14,11 @@ void ledInit() noexcept
 	while (!(sysCtrl.periphReadyGPIO & vals::sysCtrl::periphReadyGPIOD))
 		continue;
 
-	// Port D is protected, so enable changing it to digital GPIO
-	gpioD.lock = vals::gpio::lockKey;
-	gpioD.commit |= 0x01;
-	gpioD.lock = 0;
 	// Set the RGB LED pins as digital mode outputs
-	gpioD.den |= 0x07;
-	gpioD.afSel &= ~0x07;
-	gpioD.dir = 0x07;
+	gpioD.den |= 0x07U;
+	gpioD.afSel &= ~0x07U;
+	gpioD.dir = 0x07U;
 
 	// Turn the LED purple.
-	gpioD.dataBits[0x07] = 0x06;
+	gpioD.dataBits[0x07] = 0x06U;
 }
