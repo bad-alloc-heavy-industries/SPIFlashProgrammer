@@ -3,5 +3,6 @@
 #define LED__HXX
 
 extern void ledInit() noexcept;
+extern void ledSetColour(bool r, bool g, bool b) noexcept;
 
 #endif /*LED__HXX*/

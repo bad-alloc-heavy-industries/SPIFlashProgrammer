@@ -3,6 +3,13 @@
 #include "tm4c123gh6pm/constants.hxx"
 #include "led.hxx"
 
+/*!
+ * RGB LED pinout:
+ * PD0 - G
+ * PD1 - R
+ * PD2 - B
+ */
+
 void ledInit() noexcept
 {
 	// Switch over to port D's AHB apeture
@@ -20,5 +27,13 @@ void ledInit() noexcept
 	gpioD.dir = 0x07U;
 
 	// Turn the LED purple.
-	gpioD.dataBits[0x07] = 0x06U;
+	ledSetColour(true, false, true);
+}
+
+void ledSetColour(bool r, bool g, bool b) noexcept
+{
+	gpioD.dataBits[0x07] =
+		(r ? 0x02 : 0x00) |
+		(g ? 0x01 : 0x00) |
+		(b ? 0x04 : 0x00);
 }
