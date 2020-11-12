@@ -135,7 +135,7 @@ void spiIntResync() noexcept
 
 uint8_t spiIntRead() noexcept
 {
-	spiIntResync();
+	//spiIntResync();
 	ssi1.data = 0;
 	// Wait for the dummy data to be shifted out and the reply read in
 	while (!(ssi1.status & vals::ssi::statusRxFIFONotEmpty))
@@ -145,14 +145,14 @@ uint8_t spiIntRead() noexcept
 
 void spiIntWrite(const uint8_t value) noexcept
 {
-	spiIntResync();
+	//spiIntResync();
 	ssi1.data = value;
 	while (!(ssi1.status & vals::ssi::statusTxFIFOEmpty))
 		continue;
 	while (!(ssi1.status & vals::ssi::statusRxFIFONotEmpty))
 		continue;
-	while (ssi1.status & vals::ssi::statusRxFIFONotEmpty)
-		[[maybe_unused]] const uint8_t _ = uint8_t(ssi1.data);
+	//while (ssi1.status & vals::ssi::statusRxFIFONotEmpty)
+	[[maybe_unused]] const uint8_t _ = uint8_t(ssi1.data);
 }
 
 uint8_t spiExtRead() noexcept
