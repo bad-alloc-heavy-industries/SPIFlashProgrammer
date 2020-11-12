@@ -2,6 +2,7 @@
 #include "tm4c123gh6pm/platform.hxx"
 #include "tm4c123gh6pm/constants.hxx"
 #include "spi.hxx"
+#include "led.hxx"
 
 /*!
  * Onboard SPI bus pinout:
@@ -22,6 +23,13 @@
  * so the code in this file attempts to always keep the read and write
  * FIFOs equally fed and consumed.
  */
+
+// These store what the local flash that's installed's manufacturer, type and capacity read as.
+uint8_t localMFR[2]{};
+uint8_t localType[2]{};
+uint8_t localCapacity[2]{};
+
+bool checkDeviceID(uint8_t index) noexcept;
 
 void spiInit() noexcept
 {
@@ -69,6 +77,24 @@ void spiInit() noexcept
 	ssi1.cpsr = 2;
 	// Enable the interface
 	ssi1.ctrl1 = vals::ssi::control1ModeController | vals::ssi::control1EnableOperations;
+
+	spiSelect(spiChip_t::local1);
+	spiIntWrite(spiOpcodes::jedecID);
+	localMFR[0] = spiIntRead();
+	localType[0] = spiIntRead();
+	localCapacity[0] = spiIntRead();
+
+	spiSelect(spiChip_t::local2);
+	spiIntWrite(spiOpcodes::jedecID);
+	localMFR[1] = spiIntRead();
+	localType[1] = spiIntRead();
+	localCapacity[1] = spiIntRead();
+
+	spiSelect(spiChip_t::none);
+	if (!checkDeviceID(0) || !checkDeviceID(0))
+		ledSetColour(true, false, false);
+	else
+		ledSetColour(false, true, false);
 }
 
 void spiSelect(const spiChip_t chip) noexcept
@@ -96,7 +122,7 @@ void spiSelect(const spiChip_t chip) noexcept
 
 void spiIntResync() noexcept
 {
-	[[unused]] uint8_t _;
+	[[maybe_unused]] uint8_t _;
 	// TxFIFOEmpty should always be true on entry as otherwise read-to-write desynced,
 	// but lets check all the same just in case.
 	while (!(ssi1.status & vals::ssi::statusTxFIFOEmpty))
@@ -126,13 +152,21 @@ void spiIntWrite(const uint8_t value) noexcept
 	while (!(ssi1.status & vals::ssi::statusRxFIFONotEmpty))
 		continue;
 	while (ssi1.status & vals::ssi::statusRxFIFONotEmpty)
-		[[unused]] const uint8_t _ = uint8_t(ssi1.data);
+		[[maybe_unused]] const uint8_t _ = uint8_t(ssi1.data);
 }
 
 uint8_t spiExtRead() noexcept
 {
+	return 0;
 }
 
 void spiExtWrite(const uint8_t value) noexcept
 {
+}
+
+bool checkDeviceID(const uint8_t index) noexcept
+{
+	return localMFR[index] == 0x1FU &&
+		localType[index] == 0x32U &&
+		localCapacity[index] == 0x17U;
 }

@@ -19,4 +19,9 @@ extern void spiIntWrite(uint8_t value) noexcept;
 extern uint8_t spiExtRead() noexcept;
 extern void spiExtWrite(uint8_t value) noexcept;
 
+namespace spiOpcodes
+{
+	constexpr static const uint8_t jedecID{0x9FU};
+} // namespace spiOpcodes
+
 #endif /*SPI__HXX*/
