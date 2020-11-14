@@ -107,6 +107,101 @@ namespace vals
 
 	namespace sysCtrl
 	{
+		// Oscillator config register 1 constants
+		constexpr static const uint32_t runClockCfg1Mask{0xF021D00E};
+		constexpr static const uint32_t runClockCfg1ACG{0x08000000};
+		constexpr static const uint32_t runClockCfg1SysClockDivMask{0x07800000};
+		constexpr static const uint32_t runClockCfg1NoSysClkDiv{0x00000000};
+		constexpr static const uint32_t runClockCfg1UseSysClkDiv{0x00400000};
+		constexpr static const uint32_t runClockCfg1NoPWMClkDiv{0x00000000};
+		constexpr static const uint32_t runClockCfg1UsePWMClkDiv{0x00100000};
+		constexpr static const uint32_t runClockCfg1PWMClkDivMask{0x000E0000};
+		constexpr static const uint32_t runClockCfg1PWMClkDiv2{0x00000000};
+		constexpr static const uint32_t runClockCfg1PWMClkDiv4{0x00020000};
+		constexpr static const uint32_t runClockCfg1PWMClkDiv8{0x00040000};
+		constexpr static const uint32_t runClockCfg1PWMClkDiv16{0x00060000};
+		constexpr static const uint32_t runClockCfg1PWMClkDiv32{0x00080000};
+		constexpr static const uint32_t runClockCfg1PWMClkDiv64{0x000A0000};
+		constexpr static const uint32_t runClockCfg1PLLPowerUp{0x00000000};
+		constexpr static const uint32_t runClockCfg1PLLPowerDown{0x00002000};
+		constexpr static const uint32_t runClockCfg1PLLNoBypass{0x00000000};
+		constexpr static const uint32_t runClockCfg1PLLBypass{0x00000800};
+		constexpr static const uint32_t runClockCfg1MainOscXtalMask{0x000007C0};
+		constexpr static const uint32_t runClockCfg1MainOscXtal4MHz{0x00000180};
+		constexpr static const uint32_t runClockCfg1MainOscXtal4_09MHz{0x000001C0};
+		constexpr static const uint32_t runClockCfg1MainOscXtal4_91MHz{0x00000200};
+		constexpr static const uint32_t runClockCfg1MainOscXtal5MHz{0x00000240};
+		constexpr static const uint32_t runClockCfg1MainOscXtal5_12MHz{0x00000280};
+		constexpr static const uint32_t runClockCfg1MainOscXtal6MHz{0x000002C0};
+		constexpr static const uint32_t runClockCfg1MainOscXtal6_14MHz{0x00000300};
+		constexpr static const uint32_t runClockCfg1MainOscXtal7_37MHz{0x00000340};
+		constexpr static const uint32_t runClockCfg1MainOscXtal8MHz{0x00000380};
+		constexpr static const uint32_t runClockCfg1MainOscXtal8_19MHz{0x000003C0};
+		constexpr static const uint32_t runClockCfg1MainOscXtal10MHz{0x00000400};
+		constexpr static const uint32_t runClockCfg1MainOscXtal12MHz{0x00000440};
+		constexpr static const uint32_t runClockCfg1MainOscXtal12_2MHz{0x00000480};
+		constexpr static const uint32_t runClockCfg1MainOscXtal13_5MHz{0x000004C0};
+		constexpr static const uint32_t runClockCfg1MainOscXtal14_3MHz{0x00000500};
+		constexpr static const uint32_t runClockCfg1MainOscXtal16MHz{0x00000540};
+		constexpr static const uint32_t runClockCfg1MainOscXtal16_3MHz{0x00000580};
+		constexpr static const uint32_t runClockCfg1MainOscXtal18MHz{0x000005C0};
+		constexpr static const uint32_t runClockCfg1MainOscXtal20MHz{0x00000600};
+		constexpr static const uint32_t runClockCfg1MainOscXtal24MHz{0x00000640};
+		constexpr static const uint32_t runClockCfg1MainOscXtal25MHz{0x00000680};
+		constexpr static const uint32_t runClockCfg1OscSourceMask{0x00000030};
+		constexpr static const uint32_t runClockCfg1OscSourceMainOsc{0x00000000};
+		constexpr static const uint32_t runClockCfg1OscSourceIntOsc{0x00000010};
+		constexpr static const uint32_t runClockCfg1OscSourceIntOscDiv4{0x00000020};
+		constexpr static const uint32_t runClockCfg1OscSource30kHzOsc{0x00000030};
+		constexpr static const uint32_t runClockCfg1MainOscEnable{0x00000000};
+		constexpr static const uint32_t runClockCfg1MainOscDisable{0x00000001};
+		constexpr static const uint32_t runClockCfg1MainOscEnableMask{0xFFFFFFFE};
+		constexpr static const uint8_t runClockCfg1SysClockDivShift{23};
+
+		constexpr static inline uint32_t runClockCfg1SysClockDiv(const uint8_t divider) noexcept
+		{
+			return (uint32_t{divider} << runClockCfg1SysClockDivShift) &
+				runClockCfg1SysClockDivMask;
+		}
+
+		// Oscillator config register 2 constants
+		constexpr static const uint32_t runClockCfg2Mask{0xF021D00E};
+		constexpr static const uint32_t runClockCfg2UseRCC2{0x80000000};
+		constexpr static const uint32_t runClockCfg2PLLPreDivEnable{0x00000000};
+		constexpr static const uint32_t runClockCfg2PLLPreDivDisable{0x40000000};
+		constexpr static const uint32_t runClockCfg2SysClockDivMask{0x1F800000};
+		constexpr static const uint32_t runClockCfgSysClockDivLSBSet{0x00400000};
+		constexpr static const uint32_t runClockCfgSysClockDivLSBClr{0x00000000};
+		constexpr static const uint32_t runClockCfg2PLLUSBPowerUp{0x00000000};
+		constexpr static const uint32_t runClockCfg2PLLUSBPowerDown{0x00004000};
+		constexpr static const uint32_t runClockCfg2PLLPowerUp{0x00000000};
+		constexpr static const uint32_t runClockCfg2PLLPowerDown{0x00002000};
+		constexpr static const uint32_t runClockCfg2PLLNoBypass{0x00000000};
+		constexpr static const uint32_t runClockCfg2PLLBypass{0x00000800};
+		constexpr static const uint32_t runClockCfg2OscSourceMask{0x00000070};
+		constexpr static const uint32_t runClockCfg2OscSourceMainOsc{0x00000000};
+		constexpr static const uint32_t runClockCfg2OscSourceIntOsc{0x00000010};
+		constexpr static const uint32_t runClockCfg2OscSourceIntOscDiv4{0x00000020};
+		constexpr static const uint32_t runClockCfg2OscSource30khzOsc{0x00000030};
+		constexpr static const uint32_t runClockCfg2OscSource32_768HzOsc{0x00000070};
+		constexpr static const uint8_t runClockCfg2SysClockDivShift{23};
+
+		constexpr static inline uint32_t runClockCfg2SysClockDiv(const uint8_t divider) noexcept
+		{
+			return (uint32_t{divider} << runClockCfg2SysClockDivShift) &
+				runClockCfg2SysClockDivMask;
+		}
+
+		// Main oscillator config register constants
+		constexpr static const uint32_t mainOscCtrlNoCrystal{0x00000004};
+		constexpr static const uint32_t mainOscCtrlOscFailReboot{0x00000000};
+		constexpr static const uint32_t mainOscCtrlOscFailInterrupt{0x00000002};
+		constexpr static const uint32_t mainOscCtrlClockMonitorEnable{0x00000001};
+		constexpr static const uint32_t mainOscCtrlClockMonitorDisable{0x00000000};
+
+		// PLL status constants
+		constexpr static const uint32_t pllStatusLocked{0x00000001};
+
 		// GPIO AHB enable constants
 		constexpr static const uint32_t gpioAHBCtrlPortA{0x00000001};
 		constexpr static const uint32_t gpioAHBCtrlPortB{0x00000002};
