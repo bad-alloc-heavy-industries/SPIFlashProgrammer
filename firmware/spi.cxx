@@ -61,8 +61,13 @@ void spiInit() noexcept
 	gpioE.afSel &= ~0x03U;
 	gpioE.dir = 0x03U;
 
+	// PF0 is an NMI, so unlock the port for reconfig
+	gpioF.lock = vals::gpio::lockKey;
+	gpioF.commit |= 1;
+	gpioF.lock = 0;
+
 	// Set the SPI bus pins as digital mode IO
-	gpioF.den |= 0x06U;
+	gpioF.den |= 0x07U;
 	gpioF.portCtrl |= vals::gpio::portF::portCtrlPin0SSI1Rx |
 		vals::gpio::portF::portCtrlPin1SSI1Tx | vals::gpio::portF::portCtrlPin2SSI1Clk;
 	gpioF.afSel |= 0x07U;
@@ -145,13 +150,12 @@ uint8_t spiIntRead() noexcept
 
 void spiIntWrite(const uint8_t value) noexcept
 {
-	//spiIntResync();
+	spiIntResync();
 	ssi1.data = value;
 	while (!(ssi1.status & vals::ssi::statusTxFIFOEmpty))
 		continue;
 	while (!(ssi1.status & vals::ssi::statusRxFIFONotEmpty))
 		continue;
-	//while (ssi1.status & vals::ssi::statusRxFIFONotEmpty)
 	[[maybe_unused]] const uint8_t _ = uint8_t(ssi1.data);
 }
 
