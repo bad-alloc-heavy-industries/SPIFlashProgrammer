@@ -94,7 +94,7 @@ struct nvic_t final
 		irqEmptyDef, /* CAN 2 */
 		nullptr, /* Reserved */
 		irqEmptyDef, /* Hibernation Module */
-		irqEmptyDef, /* USB */
+		irqUSB, /* USB */
 		irqEmptyDef, /* PWM 0 Generator 3 */
 		irqEmptyDef, /* UDMA SW */
 		irqEmptyDef, /* UDMA Error */

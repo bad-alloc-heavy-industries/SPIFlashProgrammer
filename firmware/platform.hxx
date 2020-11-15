@@ -3,5 +3,6 @@
 #define PLATFORM__HXX
 
 extern void run() noexcept;
+extern void irqUSB() noexcept;
 
 #endif /*PLATFORM__HXX*/

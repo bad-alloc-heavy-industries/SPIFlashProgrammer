@@ -3,12 +3,14 @@
 #include "osc.hxx"
 #include "led.hxx"
 #include "spi.hxx"
+#include "usb.hxx"
 
 void run() noexcept
 {
 	ledInit();
 	oscInit();
 	spiInit();
+	usbInit();
 
 	while (true);
 }

@@ -2,7 +2,7 @@
 
 firmwareSrc = [
 	'startup.cxx', 'spiFlashProgrammer.cxx', 'led.cxx', 'spi.cxx',
-	'osc.cxx'
+	'osc.cxx', 'usb.cxx', 'usb/descriptors.cxx'
 ]
 
 firmware = executable(
