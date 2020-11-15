@@ -13,6 +13,73 @@ namespace vals
 		constexpr static const uint32_t lockLocked{0x00000001};
 		constexpr static const uint32_t lockKey{0x4C4F434B};
 
+		namespace portD
+		{
+			// PD0 alternative functions
+			constexpr static const uint32_t portCtrlPin0Mask{0x0000000F};
+			constexpr static const uint32_t portCtrlPin0AnalogIn7{0x00000000};
+			constexpr static const uint32_t portCtrlPin0SSI3Clk{0x00000001};
+			constexpr static const uint32_t portCtrlPin0SSI1Clk{0x00000002};
+			constexpr static const uint32_t portCtrlPin0I2C3Clk{0x00000003};
+			constexpr static const uint32_t portCtrlPin0M0PWM6{0x00000004};
+			constexpr static const uint32_t portCtrlPin0M1PWM0{0x00000005};
+			constexpr static const uint32_t portCtrlPin0WideTimer2CCP0{0x00000007};
+
+			// PD1 alternative functions
+			constexpr static const uint32_t portCtrlPin1Mask{0x000000F0};
+			constexpr static const uint32_t portCtrlPin1AnalogIn6{0x00000000};
+			constexpr static const uint32_t portCtrlPin1SSI3CS{0x00000010};
+			constexpr static const uint32_t portCtrlPin1SSI1CS{0x00000020};
+			constexpr static const uint32_t portCtrlPin1I2CData{0x00000030};
+			constexpr static const uint32_t portCtrlPin1M0PWM7{0x00000040};
+			constexpr static const uint32_t portCtrlPin1M1PWM1{0x00000050};
+			constexpr static const uint32_t portCtrlPin1WideTimer2CCP1{0x00000070};
+
+			// PD2 alternative functions
+			constexpr static const uint32_t portCtrlPin2Mask{0x00000F00};
+			constexpr static const uint32_t portCtrlPin2AnalogIn5{0x00000000};
+			constexpr static const uint32_t portCtrlPin2SSI3Rx{0x00000100};
+			constexpr static const uint32_t portCtrlPin2SSI1Rx{0x00000200};
+			constexpr static const uint32_t portCtrlPin2M0Fault0{0x00000400};
+			constexpr static const uint32_t portCtrlPin2WideTimer3CCP0{0x00000700};
+			constexpr static const uint32_t portCtrlPin2USBExtPwrEnable{0x00000800};
+
+			// PD3 alternative functions
+			constexpr static const uint32_t portCtrlPin3Mask{0x0000F000};
+			constexpr static const uint32_t portCtrlPin3AnalogIn4{0x00000000};
+			constexpr static const uint32_t portCtrlPin3SSI3Tx{0x00001000};
+			constexpr static const uint32_t portCtrlPin3SSI1Tx{0x00002000};
+			constexpr static const uint32_t portCtrlPin3QEI0Index{0x00006000};
+			constexpr static const uint32_t portCtrlPin3WideTimer3CCP1{0x00007000};
+			constexpr static const uint32_t portCtrlPin3USBExPwrFault{0x00008000};
+
+			// PD4 alternative functions
+			constexpr static const uint32_t portCtrlPin4Mask{0x000F0000};
+			constexpr static const uint32_t portCtrlPin4USBDataMinus{0x00000000};
+			constexpr static const uint32_t portCtrlPin4UART6Rx{0x00010000};
+			constexpr static const uint32_t portCtrlPin4WideTimer4CCP0{0x00070000};
+
+			// PD5 alternative functions
+			constexpr static const uint32_t portCtrlPin5Mask{0x00F00000};
+			constexpr static const uint32_t portCtrlPin5USBDataPlus{0x00000000};
+			constexpr static const uint32_t portCtrlPin5UART6Tx{0x00100000};
+			constexpr static const uint32_t portCtrlPin5WideTimer4CCP1{0x00700000};
+
+			// PD6 alternative functions
+			constexpr static const uint32_t portCtrlPin6Mask{0x0F000000};
+			constexpr static const uint32_t portCtrlPin6UART2Rx{0x01000000};
+			constexpr static const uint32_t portCtrlPin6M0Fault0{0x04000000};
+			constexpr static const uint32_t portCtrlPin6QEI0PhaseA{0x06000000};
+			constexpr static const uint32_t portCtrlPin6WideTimer5CCP0{0x07000000};
+
+			// PD7 alternative functions
+			constexpr static const uint32_t portCtrlPin7Mask{0xF0000000};
+			constexpr static const uint32_t portCtrlPin7UART2Tx{0x10000000};
+			constexpr static const uint32_t portCtrlPin7QEI0PhaseB{0x60000000};
+			constexpr static const uint32_t portCtrlPin7WideTimer5CCP1{0x70000000};
+			constexpr static const uint32_t portCtrlPin7NMI{0x80000000};
+		} // namespace portD
+
 		namespace portF
 		{
 			// PF0 alternative functions
@@ -54,7 +121,7 @@ namespace vals
 			constexpr static const uint32_t portCtrlPin4QEI0Index{0x00060000};
 			constexpr static const uint32_t portCtrlPin4Timer2CCP0{0x00070000};
 			constexpr static const uint32_t portCtrlPin4USB0ExtPwrEn{0x00080000};
-		}
+		} // namespace portF
 	} // namespace gpio
 
 	namespace ssi
@@ -224,6 +291,9 @@ namespace vals
 		constexpr static const uint32_t runClockGateCtrlSSI2{0x00000004};
 		constexpr static const uint32_t runClockGateCtrlSSI3{0x00000008};
 
+		// USB run-mode clock gating control constants
+		constexpr static const uint32_t runClockGateCtrlUSB{0x00000001};
+
 		// GPIO perhipheral ready constants
 		constexpr static const uint32_t periphReadyGPIOA{0x00000001};
 		constexpr static const uint32_t periphReadyGPIOB{0x00000002};
@@ -237,6 +307,9 @@ namespace vals
 		constexpr static const uint32_t periphReadySSI1{0x00000002};
 		constexpr static const uint32_t periphReadySSI2{0x00000004};
 		constexpr static const uint32_t periphReadySSI3{0x00000008};
+
+		// USB perhipheral ready constants
+		constexpr static const uint32_t periphReadyUSB{0x00000001};
 	} // namespace sysCtrl
 } // namespace vals
 
