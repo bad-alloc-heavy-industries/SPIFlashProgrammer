@@ -32,8 +32,8 @@ void ledInit() noexcept
 
 void ledSetColour(bool r, bool g, bool b) noexcept
 {
-	gpioD.dataBits[0x07] =
-		(r ? 0x02 : 0x00) |
-		(g ? 0x01 : 0x00) |
-		(b ? 0x04 : 0x00);
+	gpioD.dataBits[0x07U] =
+		(r ? 0x02U : 0x00U) |
+		(g ? 0x01U : 0x00U) |
+		(b ? 0x04U : 0x00U);
 }
