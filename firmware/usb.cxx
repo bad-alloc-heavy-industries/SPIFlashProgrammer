@@ -3,6 +3,7 @@
 #include "tm4c123gh6pm/constants.hxx"
 #include "platform.hxx"
 #include "usb.hxx"
+#include "usb/types.hxx"
 
 /*!
  * USB pinout:
@@ -12,6 +13,12 @@
  * PB0 - ID
  * PB1 - VBus
  */
+
+//usbDeviceState_t usbState;
+usbTypes::ctrlState_t usbCtrlState;
+uint8_t usbDeferalFlags;
+
+void usbReset() noexcept;
 
 void usbInit() noexcept
 {
@@ -40,6 +47,21 @@ void usbInit() noexcept
 	gpioB.portCtrl |= vals::gpio::portB::portCtrlPin0USBID | vals::gpio::portB::portCtrlPin1USBVBus;
 	gpioD.afSel |= 0x03U;
 	gpioD.dir &= ~0x01U;
+
+	// Put the controller in device mode and reset the power control register completely.
+	usb.gpCtrlStatus = vals::usb::gpCtrlStatusDeviceMode | vals::usb::gpCtrlStatusOTGModeDevice;
+	usb.power &= vals::usb::powerMask;
+	usbReset();
+	usbCtrlState = usbTypes::ctrlState_t::idle;
+	usbDeferalFlags = 0;
+}
+
+void usbReset() noexcept
+{
+	// Reset all USB interrupts
+	usb.intEn &= vals::usb::itrEnableDeviceMask;
+	usb.txIntEn &= vals::usb::txItrEnableMask;
+	usb.rxIntEn &= vals::usb::rxItrEnableMask;
 }
 
 void irqUSB() noexcept

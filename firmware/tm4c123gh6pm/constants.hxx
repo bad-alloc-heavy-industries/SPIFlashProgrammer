@@ -223,10 +223,57 @@ namespace vals
 		constexpr static const uint32_t clockConfigPIOsc{5};
 	} // namespace ssi
 
+	namespace usb
+	{
+		// Power and signaling control register constants
+		constexpr static const uint8_t powerIsochronousUpdate{0x80U};
+		constexpr static const uint8_t powerSoftDisconnectMask{0xBFU};
+		constexpr static const uint8_t powerSoftDisconnect{0x00U};
+		constexpr static const uint8_t powerSoftConnect{0x40U};
+		constexpr static const uint8_t powerReset{0x08U};
+		constexpr static const uint8_t powerResume{0x04U};
+		constexpr static const uint8_t powerSuspend{0x02U};
+		constexpr static const uint8_t powerPowerDownPhy{0x01U};
+		constexpr static const uint8_t powerMask{0x30U};
+
+		// Transmit interrupt enable register constants
+		constexpr static const uint16_t txItrEnableMask{0xFF00U};
+		constexpr static const uint16_t txItrEnableEP0{0x0001}; // This also enables the rx interrupt for EP0
+		constexpr static const uint16_t txItrEnableEP1{0x0002};
+		constexpr static const uint16_t txItrEnableEP2{0x0004};
+		constexpr static const uint16_t txItrEnableEP3{0x0008};
+		constexpr static const uint16_t txItrEnableEP4{0x0010};
+		constexpr static const uint16_t txItrEnableEP5{0x0020};
+		constexpr static const uint16_t txItrEnableEP6{0x0040};
+		constexpr static const uint16_t txItrEnableEP7{0x0080};
+
+		// Receive interrupt enable register constants
+		constexpr static const uint16_t rxItrEnableMask{0xFF01U};
+		constexpr static const uint16_t rxItrEnableEP1{0x0002U};
+		constexpr static const uint16_t rxItrEnableEP2{0x0004U};
+		constexpr static const uint16_t rxItrEnableEP3{0x0008U};
+		constexpr static const uint16_t rxItrEnableEP4{0x0010U};
+		constexpr static const uint16_t rxItrEnableEP5{0x0020U};
+		constexpr static const uint16_t rxItrEnableEP6{0x0040U};
+		constexpr static const uint16_t rxItrEnableEP7{0x0080U};
+
+		// Interrupt enable register constants
+		constexpr static const uint8_t itrEnableHostMask{0x01};
+		constexpr static const uint8_t itrEnableDeviceMask{0xD0};
+
+		// General-Purpose Control and Status register constants
+		constexpr static const uint32_t gpCtrlStatusOTGModeHostMask{0xFFFFFFFDU};
+		constexpr static const uint32_t gpCtrlStatusOTGModeHost{0x00000000U};
+		constexpr static const uint32_t gpCtrlStatusOTGModeDevice{0x00000002U};
+		constexpr static const uint32_t gpCtrlStatusHostModeMask{0xFFFFFFFEU};
+		constexpr static const uint32_t gpCtrlStatusHostMode{0x00000000U};
+		constexpr static const uint32_t gpCtrlStatusDeviceMode{0x00000001U};
+	} // namespace usb
+
 	namespace sysCtrl
 	{
 		// Oscillator config register 1 constants
-		constexpr static const uint32_t runClockCfg1Mask{0xF021D00E};
+		constexpr static const uint32_t runClockCfg1Mask{0xF021D00EU};
 		constexpr static const uint32_t runClockCfg1ACG{0x08000000};
 		constexpr static const uint32_t runClockCfg1SysClockDivMask{0x07800000};
 		constexpr static const uint32_t runClockCfg1NoSysClkDiv{0x00000000};
