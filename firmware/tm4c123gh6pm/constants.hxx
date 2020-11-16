@@ -13,6 +13,57 @@ namespace vals
 		constexpr static const uint32_t lockLocked{0x00000001};
 		constexpr static const uint32_t lockKey{0x4C4F434B};
 
+		namespace portB
+		{
+			// PB0 alternative functions
+			constexpr static const uint32_t portCtrlPin0Mask{0x0000000F};
+			constexpr static const uint32_t portCtrlPin0USBID{0x00000000};
+			constexpr static const uint32_t portCtrlPin0UART1Rx{0x00000001};
+			constexpr static const uint32_t portCtrlPin0Timer2CCP0{0x00000007};
+
+			// PB1 alternative functions
+			constexpr static const uint32_t portCtrlPin1Mask{0x000000F0};
+			constexpr static const uint32_t portCtrlPin1USBVBus{0x00000000};
+			constexpr static const uint32_t portCtrlPin1UART1Tx{0x00000010};
+			constexpr static const uint32_t portCtrlPin1Timer2CCP1{0x00000070};
+
+			// PB2 alternative functions
+			constexpr static const uint32_t portCtrlPin2Mask{0x00000F00};
+			constexpr static const uint32_t portCtrlPin2I2C0Clk{0x00000300};
+			constexpr static const uint32_t portCtrlPin2Timer3CCP0{0x00000700};
+
+			// PB3 alternative functions
+			constexpr static const uint32_t portCtrlPin3Mask{0x0000F000};
+			constexpr static const uint32_t portCtrlPin3I2C0Data{0x00003000};
+			constexpr static const uint32_t portCtrlPin3Timer3CCP1{0x00007000};
+
+			// PB4 alternative functions
+			constexpr static const uint32_t portCtrlPin4Mask{0x000F0000};
+			constexpr static const uint32_t portCtrlPin4SSI2Clk{0x00020000};
+			constexpr static const uint32_t portCtrlPin4M0PWM2{0x00040000};
+			constexpr static const uint32_t portCtrlPin4Timer1CCP0{0x00070000};
+			constexpr static const uint32_t portCtrlPin4CAN0Rx{0x00080000};
+
+			// PB5 alternative functions
+			constexpr static const uint32_t portCtrlPin5Mask{0x00F00000};
+			constexpr static const uint32_t portCtrlPin5SSI2CS{0x00200000};
+			constexpr static const uint32_t portCtrlPin5M0PWM3{0x00400000};
+			constexpr static const uint32_t portCtrlPin5Timer1CCP1{0x00700000};
+			constexpr static const uint32_t portCtrlPin5CAN0Tx{0x00800000};
+
+			// PB6 alternative functions
+			constexpr static const uint32_t portCtrlPin6Mask{0x0F000000};
+			constexpr static const uint32_t portCtrlPin6SSI2Rx{0x02000000};
+			constexpr static const uint32_t portCtrlPin6M0PWM0{0x04000000};
+			constexpr static const uint32_t portCtrlPin6Timer0CCP0{0x07000000};
+
+			// PB7 alternative functions
+			constexpr static const uint32_t portCtrlPin7Mask{0xF0000000};
+			constexpr static const uint32_t portCtrlPin7SSI2Tx{0x20000000};
+			constexpr static const uint32_t portCtrlPin7M0PWM1{0x40000000};
+			constexpr static const uint32_t portCtrlPin7Timer0CCP1{0x70000000};
+		} // namespace portB
+
 		namespace portD
 		{
 			// PD0 alternative functions
