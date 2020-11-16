@@ -6,6 +6,9 @@
 
 namespace vals
 {
+	template<typename T> [[gnu::optimize("O0")]] inline void readDiscard(T &value) noexcept
+		{ [[maybe_unused]] T result = value; }
+
 	namespace gpio
 	{
 		// GPIO lock register constants
@@ -225,6 +228,19 @@ namespace vals
 
 	namespace usb
 	{
+		enum class endpointDir_t : uint8_t
+		{
+			controllerOut = 0x00U,
+			controllerIn = 0x80U
+		};
+
+		constexpr static const uint8_t endpointDirMask{0x7F};
+		constexpr inline uint8_t endpoint(const endpointDir_t dir, const uint8_t number) noexcept
+			{ return uint8_t(dir) | (number & endpointDirMask); }
+
+		constexpr inline uint8_t indexFor(const uint8_t endpoint) noexcept
+			{ return uint8_t(endpoint << 1) & uint8_t(endpoint >> 7); }
+
 		// Power and signaling control register constants
 		constexpr static const uint8_t powerIsochronousUpdate{0x80U};
 		constexpr static const uint8_t powerSoftDisconnectMask{0xBFU};
@@ -257,9 +273,77 @@ namespace vals
 		constexpr static const uint16_t rxItrEnableEP6{0x0040U};
 		constexpr static const uint16_t rxItrEnableEP7{0x0080U};
 
+		// Interrupt status register constants
+		constexpr static const uint8_t itrStatusSuspend{0x01U};
+		constexpr static const uint8_t itrStatusResume{0x02U};
+		constexpr static const uint8_t itrStatusHostBabble{0x04U};
+		constexpr static const uint8_t itrStatusDeviceReset{0x04U};
+		constexpr static const uint8_t itrStatusConnect{0x10U};
+		constexpr static const uint8_t itrStatusDisconnect{0x20U};
+		constexpr static const uint8_t itrStatusSessionRequest{0x40U};
+		constexpr static const uint8_t itrStatusVBusError{0x80U};
+		constexpr static const uint8_t itrStatusSOF{0x08U};
+
 		// Interrupt enable register constants
-		constexpr static const uint8_t itrEnableHostMask{0x01};
-		constexpr static const uint8_t itrEnableDeviceMask{0xD0};
+		constexpr static const uint8_t itrEnableHostMask{0x01U};
+		constexpr static const uint8_t itrEnableDeviceMask{0xD0U};
+		constexpr static const uint8_t itrEnableSuspend{0x01U};
+		constexpr static const uint8_t itrEnableResume{0x02U};
+		constexpr static const uint8_t itrEnableHostBabble{0x04U};
+		constexpr static const uint8_t itrEnableDeviceReset{0x04U};
+		constexpr static const uint8_t itrEnableSOF{0x08U};
+		constexpr static const uint8_t itrEnableConnect{0x10U};
+		constexpr static const uint8_t itrEnableDisconnect{0x20U};
+		constexpr static const uint8_t itrEnableSessionRequest{0x40U};
+		constexpr static const uint8_t itrEnableVBusError{0x80U};
+
+		// TX FIFO sizing register constants
+		constexpr static const uint8_t txFIFOSizeSingleBuffered{0x00};
+		constexpr static const uint8_t txFIFOSizeDoubleBuffered{0x10};
+		constexpr static const uint8_t txFIFOSizeMask{0x0F};
+		constexpr static const uint8_t txFIFOSize8{0x00};
+		constexpr static const uint8_t txFIFOSize16{0x01};
+		constexpr static const uint8_t txFIFOSize32{0x02};
+		constexpr static const uint8_t txFIFOSize64{0x03};
+		constexpr static const uint8_t txFIFOSize128{0x04};
+		constexpr static const uint8_t txFIFOSize256{0x05};
+		constexpr static const uint8_t txFIFOSize512{0x06};
+		constexpr static const uint8_t txFIFOSize1024{0x07};
+		constexpr static const uint8_t txFIFOSize2048{0x08};
+
+		// RX FIFO sizing register constants
+		constexpr static const uint8_t rxFIFOSizeSingleBuffered{0x00};
+		constexpr static const uint8_t rxFIFOSizeDoubleBuffered{0x10};
+		constexpr static const uint8_t rxFIFOSizeMask{0x0F};
+		constexpr static const uint8_t rxFIFOSize8{0x00};
+		constexpr static const uint8_t rxFIFOSize16{0x01};
+		constexpr static const uint8_t rxFIFOSize32{0x02};
+		constexpr static const uint8_t rxFIFOSize64{0x03};
+		constexpr static const uint8_t rxFIFOSize128{0x04};
+		constexpr static const uint8_t rxFIFOSize256{0x05};
+		constexpr static const uint8_t rxFIFOSize512{0x06};
+		constexpr static const uint8_t rxFIFOSize1024{0x07};
+		constexpr static const uint8_t rxFIFOSize2048{0x08};
+
+		// RX double bufering enable register constants
+		constexpr static const uint16_t rxPacketDoubleBuffEnableEP1{0x00000002};
+		constexpr static const uint16_t rxPacketDoubleBuffEnableEP2{0x00000004};
+		constexpr static const uint16_t rxPacketDoubleBuffEnableEP3{0x00000008};
+		constexpr static const uint16_t rxPacketDoubleBuffEnableEP4{0x00000010};
+		constexpr static const uint16_t rxPacketDoubleBuffEnableEP5{0x00000020};
+		constexpr static const uint16_t rxPacketDoubleBuffEnableEP6{0x00000040};
+		constexpr static const uint16_t rxPacketDoubleBuffEnableEP7{0x00000080};
+
+		// TX double bufering enable register constants
+		constexpr static const uint16_t txPacketDoubleBuffEnableEP1{0x00000002};
+		constexpr static const uint16_t txPacketDoubleBuffEnableEP2{0x00000004};
+		constexpr static const uint16_t txPacketDoubleBuffEnableEP3{0x00000008};
+		constexpr static const uint16_t txPacketDoubleBuffEnableEP4{0x00000010};
+		constexpr static const uint16_t txPacketDoubleBuffEnableEP5{0x00000020};
+		constexpr static const uint16_t txPacketDoubleBuffEnableEP6{0x00000040};
+		constexpr static const uint16_t txPacketDoubleBuffEnableEP7{0x00000080};
+
+		// EP0 type register constants
 
 		// General-Purpose Control and Status register constants
 		constexpr static const uint32_t gpCtrlStatusOTGModeHostMask{0xFFFFFFFDU};

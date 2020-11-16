@@ -615,12 +615,12 @@ struct usb_t final
 
 	volatile uint8_t funcAddr; // USB Device Functional Address
 	volatile uint8_t power;
-	volatile uint16_t txIntStatus; // USB Transmit Interrupt Status
-	volatile uint16_t rxIntStatus; // USB Receive Interrupt Status
-	volatile uint16_t txIntEn; // USB Transmit Interrupt Enable
-	volatile uint16_t rxIntEn; // USB Receive Interrupt Enable
-	volatile uint8_t intStatus; // USB General Interrupt Status
-	volatile uint8_t intEn; // USB Interrupt Enable
+	volatile uint16_t txIntStatus;
+	volatile uint16_t rxIntStatus;
+	volatile uint16_t txIntEnable;
+	volatile uint16_t rxIntEnable;
+	volatile uint8_t intStatus;
+	volatile uint8_t intEnable;
 	volatile uint16_t frameValue;
 	volatile uint8_t epIndex;
 	volatile uint8_t test;
@@ -680,8 +680,8 @@ struct usb_t final
 	volatile uint16_t ep7ReqPacketCount;
 	const volatile uint16_t reserved14;
 	const volatile uint32_t reserved15[8];
-	volatile uint16_t rxPacketDoubleBuffDisable;
-	volatile uint16_t txPacketDoubleBuffDisable;
+	volatile uint16_t rxPacketDoubleBuffEnable;
+	volatile uint16_t txPacketDoubleBuffEnable;
 	const volatile uint32_t reserved16[47];
 	volatile uint32_t extPwrCtrl; // USB External Power Control
 	volatile uint32_t extPwrCtrlRIS; // USB External Power Control Raw Interrupt Status

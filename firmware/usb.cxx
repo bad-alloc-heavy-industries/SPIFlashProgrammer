@@ -14,7 +14,8 @@
  * PB1 - VBus
  */
 
-//usbDeviceState_t usbState;
+usbTypes::deviceState_t usbState;
+volatile bool usbSuspended;
 usbTypes::ctrlState_t usbCtrlState;
 uint8_t usbDeferalFlags;
 
@@ -59,12 +60,84 @@ void usbInit() noexcept
 void usbReset() noexcept
 {
 	// Reset all USB interrupts
-	usb.intEn &= vals::usb::itrEnableDeviceMask;
-	usb.txIntEn &= vals::usb::txItrEnableMask;
-	usb.rxIntEn &= vals::usb::rxItrEnableMask;
+	usb.intEnable &= vals::usb::itrEnableDeviceMask;
+	usb.txIntEnable &= vals::usb::txItrEnableMask;
+	usb.rxIntEnable &= vals::usb::rxItrEnableMask;
+	// And their flags
+	vals::readDiscard(usb.intStatus);
+	vals::readDiscard(usb.txIntStatus);
+	vals::readDiscard(usb.rxIntStatus);
+
+	for (uint8_t i{}; i < (usbTypes::endpointCount + 1) >> 1; ++i)
+	{
+		usb.epIndex = i;
+		usb.txFIFOSize = vals::usb::txFIFOSize64 | vals::usb::txFIFOSizeDoubleBuffered;
+		usb.txFIFOAddr;
+		usb.rxFIFOSize = vals::usb::rxFIFOSize64 | vals::usb::rxFIFOSizeDoubleBuffered;
+		usb.rxFIFOAddr;
+	}
+	// Really enable the double-buffers as apparently this isn't done just by the above.
+	usb.txPacketDoubleBuffEnable |= vals::usb::txPacketDoubleBuffEnableEP1;
+	usb.rxPacketDoubleBuffEnable |= vals::usb::rxPacketDoubleBuffEnableEP1;
+
+	// Configure for FS USB operation
+	//usb.ep0Ctrl.type = ;
+
+	// Once we get done, idle the peripheral
+	usbState = usbTypes::deviceState_t::detached;
+}
+
+void usbDetach()
+{
+	if (usbState == usbTypes::deviceState_t::detached)
+		return;
+	usb.power &= vals::usb::powerSoftDisconnectMask;
+	usb.intEnable &= vals::usb::itrEnableDeviceMask;
+	usbState = usbTypes::deviceState_t::detached;
+}
+
+void usbWakeup()
+{
+	usbSuspended = false;
+	usb.power |= vals::usb::powerResume;
+	while ((usb.power & vals::usb::powerSuspend) == vals::usb::powerSuspend)
+		continue;
+	usb.power &= ~vals::usb::powerResume;
+	usb.intEnable &= ~vals::usb::itrEnableResume;
+	usb.intEnable |= vals::usb::itrEnableSuspend;
+}
+
+void usbSuspend()
+{
+	usb.intEnable &= ~vals::usb::itrEnableSuspend;
+	usb.intEnable |= vals::usb::itrEnableResume;
+	usb.power |= vals::usb::powerSuspend;
+	usbSuspended = true;
 }
 
 void irqUSB() noexcept
 {
-	//
+	const auto status{usb.intStatus & usb.intEnable};
+	const auto rxStatus{usb.rxIntStatus & usb.rxIntEnable};
+	const auto txStatus{usb.txIntStatus & usb.txIntEnable};
+
+	if (status & vals::usb::itrStatusDisconnect)
+		return usbDetach();
+	else if (usbState == usbTypes::deviceState_t::attached)
+		usb.intEnable |= vals::usb::itrEnableSuspend;
+
+	if (status & vals::usb::itrStatusResume)
+		usbWakeup();
+	else if (usbSuspended)
+		return;
+
+	if (status & vals::usb::itrStatusDeviceReset)
+	{
+		usbReset();
+		usbState = usbTypes::deviceState_t::waiting;
+	}
+
+	if (status & vals::usb::itrStatusSuspend)
+		usbSuspend();
+
 }

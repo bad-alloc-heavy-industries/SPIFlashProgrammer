@@ -27,6 +27,17 @@ namespace usbTypes
 		rx
 	};
 
+	enum class deviceState_t
+	{
+		detached,
+		attached,
+		powered,
+		waiting,
+		addressing,
+		addressed,
+		configured
+	};
+
 	enum class response_t
 	{
 		data,
