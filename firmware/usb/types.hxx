@@ -3,8 +3,9 @@
 #define USB_TYPES__HXX
 
 #include <cstdint>
+#include <tuple>
 
-namespace usb
+namespace usbTypes
 {
 	// Reserve space for EP0 In + Out, and EP1 In + Out.
 	constexpr static const uint8_t endpointCount{4};
@@ -18,7 +19,23 @@ namespace usb
 	constexpr static const uint8_t endpointDescriptorCount{2};
 	constexpr static const uint8_t stringCount{4};
 
-	extern bool usbHandleStandardRequest() noexcept;
-}
+	enum class ctrlState_t
+	{
+		idle,
+		wait,
+		tx,
+		rx
+	};
+
+	enum class response_t
+	{
+		data,
+		zeroLengthResponse,
+		unhandled,
+		stall
+	};
+
+	using answer_t = std::tuple<response_t, void *, std::size_t>;
+} // namespace usbTypes
 
 #endif /*USB_TYPES__HXX*/
