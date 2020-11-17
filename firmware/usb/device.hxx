@@ -18,6 +18,23 @@ namespace usbTypes
 {
 	enum class request_t : uint8_t
 	{
+		getStatus = 0,
+		clearFeature = 1,
+		setFeature = 3,
+		setAddress = 5,
+		getDescriptor = 6,
+		setDescriptor = 7,
+		getConfiguration = 8,
+		setConfiguration = 9,
+		getInterface = 10,
+		setInterface = 11,
+		syncFrame = 12
+	};
+
+	namespace setupPacket
+	{
+		enum class request_t : uint8_t
+		{
 		typeStandard = 0x00,
 		typeClass = 0x20U,
 		typeVendor = 0x40U
@@ -31,8 +48,6 @@ namespace usbTypes
 		other = 3
 	};
 
-	namespace setupPacket
-	{
 		struct requestType_t final
 		{
 		private:
@@ -103,7 +118,7 @@ namespace usbTypes
 	struct setupPacket_t final
 	{
 		setupPacket::requestType_t requestType{};
-		uint8_t request{};
+		request_t request{};
 		setupPacket::value_t value;
 		setupPacket::index_t index;
 		uint16_t length;
