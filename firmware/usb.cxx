@@ -4,6 +4,7 @@
 #include "platform.hxx"
 #include "usb.hxx"
 #include "usb/types.hxx"
+#include "usb/device.hxx"
 
 /*!
  * USB pinout:
@@ -15,7 +16,8 @@
  */
 
 usbTypes::deviceState_t usbState;
-volatile bool usbSuspended;
+usbTypes::usbEP_t usbPacket;
+bool usbSuspended;
 usbTypes::ctrlState_t usbCtrlState;
 uint8_t usbDeferalFlags;
 
@@ -68,7 +70,7 @@ void usbReset() noexcept
 	vals::readDiscard(usb.txIntStatus);
 	vals::readDiscard(usb.rxIntStatus);
 
-	for (uint8_t i{}; i < (usbTypes::endpointCount + 1) >> 1; ++i)
+	for (uint8_t i{}; i < usbTypes::endpointCount; ++i)
 	{
 		usb.epIndex = i;
 		usb.txFIFOSize = vals::usb::txFIFOSize64 | vals::usb::txFIFOSizeDoubleBuffered;
@@ -140,4 +142,30 @@ void irqUSB() noexcept
 	if (status & vals::usb::itrStatusSuspend)
 		usbSuspend();
 
+	if (usbState == usbTypes::deviceState_t::detached ||
+		usbState == usbTypes::deviceState_t::attached ||
+		usbState == usbTypes::deviceState_t::powered ||
+		(!rxStatus && !txStatus))
+		return;
+
+	for (uint8_t endpoint; endpoint < usbTypes::endpointCount; ++endpoint)
+	{
+		const uint16_t endpointMask = 1U << endpoint;
+		if (rxStatus & endpointMask || txStatus & endpointMask)
+		{
+			usbPacket.endpoint(endpoint);
+			if (rxStatus & endpointMask)
+			{
+				usbPacket.dir(usbTypes::endpointDir_t::controllerOut);
+			}
+			else
+			{
+				usbPacket.dir(usbTypes::endpointDir_t::controllerIn);
+				//
+			}
+
+			if (endpoint == 0)
+				usbServiceCtrlEP();
+		}
+	}
 }
