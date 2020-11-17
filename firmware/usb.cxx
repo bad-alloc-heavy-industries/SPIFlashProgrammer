@@ -5,6 +5,7 @@
 #include "usb.hxx"
 #include "usb/types.hxx"
 #include "usb/device.hxx"
+#include "indexedIterator.hxx"
 
 /*!
  * USB pinout:
@@ -20,6 +21,9 @@ usbTypes::usbEP_t usbPacket;
 bool usbSuspended;
 usbTypes::ctrlState_t usbCtrlState;
 uint8_t usbDeferalFlags;
+
+std::array<usbTypes::usbEPStatus_t, usbTypes::endpointCount> usbStatusInEP;
+std::array<usbTypes::usbEPStatus_t, usbTypes::endpointCount> usbStatusOutEP;
 
 void usbReset() noexcept;
 
@@ -84,6 +88,24 @@ void usbReset() noexcept
 
 	// Configure for FS USB operation
 	//usb.ep0Ctrl.type = ;
+
+	for (auto &[i, epStatus] : utility::indexedIterator_t{usbStatusInEP})
+	{
+		epStatus->resetStatus();
+		epStatus->transferCount = 0;
+		epStatus->ctrl.buffer(usbTypes::buffer_t::first);
+		epStatus->ctrl.endpoint(i);
+		epStatus->ctrl.dir(usbTypes::endpointDir_t::controllerIn);
+	}
+
+	for (auto &[i, epStatus] : utility::indexedIterator_t{usbStatusOutEP})
+	{
+		epStatus->resetStatus();
+		epStatus->transferCount = 0;
+		epStatus->ctrl.buffer(usbTypes::buffer_t::first);
+		epStatus->ctrl.endpoint(i);
+		epStatus->ctrl.dir(usbTypes::endpointDir_t::controllerOut);
+	}
 
 	// Once we get done, idle the peripheral
 	usbState = usbTypes::deviceState_t::detached;

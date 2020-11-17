@@ -5,6 +5,12 @@
 #include <cstdint>
 #include "types.hxx"
 
+extern usbTypes::usbEP_t usbPacket;
+extern usbTypes::ctrlState_t usbCtrlState;
+
+extern std::array<usbTypes::usbEPStatus_t, usbTypes::endpointCount> usbStatusInEP;
+extern std::array<usbTypes::usbEPStatus_t, usbTypes::endpointCount> usbStatusOutEP;
+
 extern void usbServiceCtrlEP() noexcept;
 extern usbTypes::answer_t usbHandleStandardRequest() noexcept;
 

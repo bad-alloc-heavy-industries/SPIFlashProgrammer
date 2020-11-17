@@ -66,8 +66,13 @@ namespace usbTypes
 	public:
 		usbEP_t() = default;
 
-		void endpoint(const uint8_t num) noexcept { value |= num & 0x0FU; }
-		uint8_t endpoint() const noexcept { return value & 0x0FU; }
+		void endpoint(const uint8_t num) noexcept
+		{
+			value &= 0xF0U;
+			value |= num & 0x0FU;
+		}
+
+		[[nodiscard]] uint8_t endpoint() const noexcept { return value & 0x0FU; }
 
 		void dir(const endpointDir_t dir) noexcept
 		{
@@ -75,7 +80,7 @@ namespace usbTypes
 			value |= uint8_t(dir);
 		}
 
-		endpointDir_t dir() const noexcept
+		[[nodiscard]] endpointDir_t dir() const noexcept
 		{
 			return value & 0x80U ?
 				endpointDir_t::controllerIn :
@@ -88,7 +93,7 @@ namespace usbTypes
 			value |= uint8_t(choise);
 		}
 
-		buffer_t buffer() const noexcept
+		[[nodiscard]] buffer_t buffer() const noexcept
 		{
 			return value & 0x40U ?
 				buffer_t::first :
@@ -96,10 +101,52 @@ namespace usbTypes
 		}
 	};
 
+	struct usbEPStatus_t final
+	{
+	private:
+		uint8_t value{};
+
+	public:
+		void *srcBuffer{nullptr};
+		uint8_t *usbBuffer{nullptr};
+		usbEP_t ctrl{};
+		uint16_t transferCount{};
+
+		usbEPStatus_t() = default;
+
+		void transferTerminated(const bool terminated) noexcept
+		{
+			value &= 0x01U;
+			value |= terminated ? 0x01U : 0x00U;
+		}
+
+		[[nodiscard]] bool transferTerminated() const noexcept { return value & 0x01U; }
+
+		void needsArming(const bool needed) noexcept
+		{
+			value &= 0x02U;
+			value |= needed ? 0x02U : 0x00U;
+		}
+
+		[[nodiscard]] bool needsArming() const noexcept { return value & 0x02U; }
+
+		void buffer(const buffer_t choise) noexcept
+		{
+			value &= 0xBF;
+			value |= uint8_t(choise);
+		}
+
+		[[nodiscard]] buffer_t buffer() const noexcept
+		{
+			return value & 0x40U ?
+				buffer_t::first :
+				buffer_t::second;
+		}
+
+		void resetStatus() noexcept { value = 0; }
+	};
+
 	using answer_t = std::tuple<response_t, void *, std::size_t>;
 } // namespace usbTypes
-
-extern usbTypes::usbEP_t usbPacket;
-extern usbTypes::ctrlState_t usbCtrlState;
 
 #endif /*USB_TYPES__HXX*/
