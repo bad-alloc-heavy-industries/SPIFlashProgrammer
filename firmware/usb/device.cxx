@@ -31,11 +31,47 @@ void usbHandleStatusCtrlEP()
 
 void usbServiceCtrlEPComplete()
 {
+	auto &ep0 = usb.ep0Ctrl;
+
+	if (!usbStatusInEP[0].needsArming())
+	{
+		if (usbStatusOutEP[0].needsArming())
+		{
+			usbCtrlState = ctrlState_t::rx;
+			//if ((usbDeferalFlags & USB_DEFER_OUT_PACKETS) == 0)
+				usbHandleDataCtrlEP();
+		}
+		else if (usbStatusInEP[0].stall())
+		{
+			ep0.statusCtrlL |= vals::usb::epStatusCtrlLStall;
+			usbCtrlState = ctrlState_t::idle;
+		}
+	}
+	else
+	{
+		const auto &packet{*reinterpret_cast<setupPacket_t *>(usbStatusOutEP[0].usbBuffer)};
+		if (packet.requestType.dir() == endpointDir_t::controllerIn)
+		{
+			usbCtrlState = ctrlState_t::tx;
+			//if ((usbDeferalFlags & USB_DEFER_IN_PACKETS) == 0)
+				usbHandleDataCtrlEP();
+			//if ((usbDeferalFlags & USB_DEFER_STATUS_PACKETS) == 0)
+				usbHandleStatusCtrlEP();
+		}
+		else
+		{
+			usbCtrlState = ctrlState_t::rx;
+
+			//if ((usbDeferalFlags & USB_DEFER_STATUS_PACKETS) == 0)
+				usbHandleStatusCtrlEP();
+		}
+	}
 }
 
 void usbHandleCtrlEPSetup()
 {
 	// Set up EP0 state for a reply of some kind
+	//usbDeferalFlags = 0;
 	usbCtrlState = ctrlState_t::wait;
 	usbStatusInEP[0].needsArming(false);
 	usbStatusInEP[0].stall(false);
