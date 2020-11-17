@@ -80,7 +80,7 @@ namespace usbTypes
 			value |= uint8_t(dir);
 		}
 
-		[[nodiscard]] endpointDir_t dir() const noexcept { return static_cast<endpointDir_t>(requestType & 0x80U); }
+		[[nodiscard]] endpointDir_t dir() const noexcept { return static_cast<endpointDir_t>(value & 0x80U); }
 
 		void buffer(const buffer_t choise) noexcept
 		{
