@@ -3,8 +3,10 @@
 MEMORY
 {
 	FLASH	(rx):	ORIGIN = 0x00000000, LENGTH = 0x00040000
-	RAM		(rwx):	ORIGIN = 0x20000000, LENGTH = 0x00008000
-	STACK	(rwx):	ORIGIN = 0x20007FFF, LENGTH = 0x00000000
+	/* This chip has 32k of RAM, so reserve 28k for the application */
+	RAM		(rwx):	ORIGIN = 0x20001000, LENGTH = 0x00008000
+	/* And reserve 4k for the stack (which grows down so is at the start of RAM) */
+	STACK	(rwx):	ORIGIN = 0x20000FFF, LENGTH = 0x00000000
 }
 
 /*
