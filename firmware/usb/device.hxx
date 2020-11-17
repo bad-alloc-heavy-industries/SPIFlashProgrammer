@@ -6,6 +6,7 @@
 #include <cstring>
 #include "types.hxx"
 
+extern usbTypes::deviceState_t usbState;
 extern usbTypes::usbEP_t usbPacket;
 extern usbTypes::ctrlState_t usbCtrlState;
 
@@ -35,18 +36,18 @@ namespace usbTypes
 	{
 		enum class request_t : uint8_t
 		{
-		typeStandard = 0x00,
-		typeClass = 0x20U,
-		typeVendor = 0x40U
-	};
+			typeStandard = 0x00,
+			typeClass = 0x20U,
+			typeVendor = 0x40U
+		};
 
-	enum class recipient_t : uint8_t
-	{
-		device = 0,
-		interface = 1,
-		endpoint = 2,
-		other = 3
-	};
+		enum class recipient_t : uint8_t
+		{
+			device = 0,
+			interface = 1,
+			endpoint = 2,
+			other = 3
+		};
 
 		struct requestType_t final
 		{

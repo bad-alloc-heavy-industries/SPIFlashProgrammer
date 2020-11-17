@@ -560,12 +560,7 @@ struct usb_t final
 	{
 		const volatile uint32_t reserved0[16];
 		const volatile uint16_t reserved1;
-
-		union
-		{
-			volatile uint8_t ctrl;
-			volatile uint8_t status;
-		};
+		volatile uint8_t statusCtrlL;
 		union
 		{
 			volatile uint8_t ctrlHigh;
@@ -613,7 +608,7 @@ struct usb_t final
 		const volatile uint16_t reserved;
 	};
 
-	volatile uint8_t funcAddr; // USB Device Functional Address
+	volatile uint8_t address; // Bus address for the device
 	volatile uint8_t power;
 	volatile uint16_t txIntStatus;
 	volatile uint16_t rxIntStatus;

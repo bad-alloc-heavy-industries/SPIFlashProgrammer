@@ -241,6 +241,10 @@ namespace vals
 		constexpr inline uint8_t indexFor(const uint8_t endpoint) noexcept
 			{ return uint8_t(endpoint << 1) & uint8_t(endpoint >> 7); }
 
+		// Functional address register constants
+		constexpr static const uint8_t addressMask{0x7FU};
+		constexpr static const uint8_t addressClrMask{0x80U};
+
 		// Power and signaling control register constants
 		constexpr static const uint8_t powerIsochronousUpdate{0x80U};
 		constexpr static const uint8_t powerSoftDisconnectMask{0xBFU};
@@ -343,7 +347,25 @@ namespace vals
 		constexpr static const uint16_t txPacketDoubleBuffEnableEP6{0x00000040};
 		constexpr static const uint16_t txPacketDoubleBuffEnableEP7{0x00000080};
 
-		// EP0 type register constants
+		// Endpoint status register constants
+		// For both modes
+		constexpr static const uint8_t epStatusCtrlLRxReady{0x01U};
+		constexpr static const uint8_t epStatusCtrlLTxReady{0x02U};
+		constexpr static const uint8_t epStatusCtrlLStalled{0x04U};
+
+		// For host mode
+		constexpr static const uint8_t epStatusCtrlLSetup{0x08U};
+		constexpr static const uint8_t epStatusCtrlLError{0x10U};
+		constexpr static const uint8_t epStatusCtrlLRequestPacket{0x20U};
+		constexpr static const uint8_t epStatusCtrlLStatus{0x40U};
+		constexpr static const uint8_t epStatusCtrlLNAKTimedOut{0x80U};
+
+		// For device mode
+		constexpr static const uint8_t epStatusCtrlLDataEnd{0x08U};
+		constexpr static const uint8_t epStatusCtrlLSetupEnd{0x10U};
+		constexpr static const uint8_t epStatusCtrlLStall{0x20U};
+		constexpr static const uint8_t epStatusCtrlLRxReadyClr{0x40U};
+		constexpr static const uint8_t epStatusCtrlLSetupEndClr{0x80U};
 
 		// General-Purpose Control and Status register constants
 		constexpr static const uint32_t gpCtrlStatusOTGModeHostMask{0xFFFFFFFDU};
