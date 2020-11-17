@@ -46,6 +46,12 @@ namespace usbTypes
 		stall
 	};
 
+	enum class endpointDir_t : uint8_t
+	{
+		controllerOut = 0x00U,
+		controllerIn = 0x80U
+	};
+
 	using answer_t = std::tuple<response_t, void *, std::size_t>;
 } // namespace usbTypes
 

@@ -3,6 +3,7 @@
 #define USB_DESCRIPTORS__HXX
 
 #include <cstdint>
+#include "types.hxx"
 
 namespace usb::descriptors
 {
@@ -116,11 +117,7 @@ namespace usb::descriptors
 		interrupt = 3
 	};
 
-	enum class usbEndpointDir_t : uint8_t
-	{
-		controllerOut = 0x00U,
-		controllerIn = 0x80U
-	};
+	using usbEndpointDir_t = usbTypes::endpointDir_t;
 
 	constexpr static const uint8_t endpointDirMask{0x7F};
 	constexpr inline uint8_t endpointAddress(const usbEndpointDir_t dir, const uint8_t number) noexcept
