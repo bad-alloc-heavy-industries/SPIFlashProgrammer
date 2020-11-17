@@ -41,7 +41,7 @@ namespace usbTypes
 	enum class response_t
 	{
 		data,
-		zeroLengthResponse,
+		zeroLength,
 		unhandled,
 		stall
 	};
@@ -80,12 +80,7 @@ namespace usbTypes
 			value |= uint8_t(dir);
 		}
 
-		[[nodiscard]] endpointDir_t dir() const noexcept
-		{
-			return value & 0x80U ?
-				endpointDir_t::controllerIn :
-				endpointDir_t::controllerOut;
-		}
+		[[nodiscard]] endpointDir_t dir() const noexcept { return static_cast<endpointDir_t>(requestType & 0x80U); }
 
 		void buffer(const buffer_t choise) noexcept
 		{
@@ -129,6 +124,14 @@ namespace usbTypes
 		}
 
 		[[nodiscard]] bool needsArming() const noexcept { return value & 0x02U; }
+
+		void stall(const bool needed) noexcept
+		{
+			value &= 0x04U;
+			value |= needed ? 0x04U : 0x00U;
+		}
+
+		[[nodiscard]] bool stall() const noexcept { return value & 0x04U; }
 
 		void buffer(const buffer_t choise) noexcept
 		{
