@@ -102,8 +102,7 @@ namespace usbTypes
 		uint8_t value{};
 
 	public:
-		void *srcBuffer{nullptr};
-		uint8_t *usbBuffer{nullptr};
+		void *memBuffer{nullptr};
 		usbEP_t ctrl{};
 		uint16_t transferCount{};
 

@@ -4,6 +4,7 @@
 
 #include <cstdint>
 #include <cstring>
+#include <type_traits>
 #include "types.hxx"
 
 extern usbTypes::deviceState_t usbState;
@@ -126,6 +127,21 @@ namespace usbTypes
 
 		setupPacket_t() = default;
 	};
+
+	template<typename T, typename = std::enable_if_t<std::is_unsigned<T>::value>>
+		void readFIFO(volatile uint32_t &fifo, void *const buffer) noexcept
+	{
+		const T value = fifo;
+		std::memcpy(buffer, &value, sizeof(T));
+	}
+
+	template<typename T, typename = std::enable_if_t<std::is_unsigned<T>::value>>
+		void writeFIFO(volatile uint32_t &fifo, const void *const buffer) noexcept
+	{
+		T value{};
+		std::memcpy(&value, buffer, sizeof(T));
+		fifo = value;
+	}
 } // namespace usb
 
 #endif /*USB_DEVICE__HXX*/

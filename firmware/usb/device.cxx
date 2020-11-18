@@ -5,10 +5,11 @@
 #include "usb/device.hxx"
 
 using namespace usbTypes;
+void usbHandleStatusCtrlEP() noexcept;
 
 answer_t usbHandleStandardRequest() noexcept
 {
-	const auto &packet{*reinterpret_cast<setupPacket_t *>(usbStatusOutEP[0].usbBuffer)};
+	const auto &packet{*static_cast<setupPacket_t *>(usbStatusOutEP[0].memBuffer)};
 	const auto &epStatus{usbStatusInEP[0]};
 
 	switch (packet.request)
@@ -21,7 +22,38 @@ answer_t usbHandleStandardRequest() noexcept
 	return {response_t::unhandled, nullptr, 0};
 }
 
-void usbHandleDataCtrlEP()
+void usbServiceCtrlEPRead() noexcept
+{
+	auto &epStatus{usbStatusOutEP[0]};
+	uint8_t *const recvBuffer = static_cast<uint8_t *>(epStatus.memBuffer);
+	auto &ep0 = usb.ep0Ctrl;
+	auto readCount = ep0.rxCount;
+	// Bounds sanity and then adjust how much is left to transfer
+	if (readCount > epStatus.transferCount)
+		readCount = epStatus.transferCount;
+	epStatus.transferCount -= readCount;
+	// Copy the received data to the user buffer
+	for (uint8_t i{}; i < readCount & 0xFCU; i += 4)
+		readFIFO<uint32_t>(usb.ep0FIFO, recvBuffer + i);
+	if (readCount & 0x02U)
+		readFIFO<uint16_t>(usb.ep0FIFO, recvBuffer + (readCount & 0xFEU) - 1);
+	if (readCount & 0x01U)
+		readFIFO<uint8_t>(usb.ep0FIFO, recvBuffer + readCount - 1);
+	// Mark the FIFO contents as done with, and store the new start of buffer
+	ep0.statusCtrlL |= vals::usb::epStatusCtrlLRxReadyClr;
+	epStatus.memBuffer = recvBuffer + readCount;
+
+	if (epStatus.transferCount > 0)
+	{
+	}
+	else
+	{
+		epStatus.needsArming(false);
+		usbHandleStatusCtrlEP();
+	}
+}
+
+void usbHandleDataCtrlEP() noexcept
 {
 }
 
@@ -49,7 +81,7 @@ void usbServiceCtrlEPComplete()
 	}
 	else
 	{
-		const auto &packet{*reinterpret_cast<setupPacket_t *>(usbStatusOutEP[0].usbBuffer)};
+		const auto &packet{*reinterpret_cast<setupPacket_t *>(usbStatusOutEP[0].memBuffer)};
 		if (packet.requestType.dir() == endpointDir_t::controllerIn)
 		{
 			usbCtrlState = ctrlState_t::tx;
@@ -84,8 +116,7 @@ void usbHandleCtrlEPSetup()
 
 	usbStatusInEP[0].stall(response == response_t::stall || response == response_t::unhandled);
 	usbStatusInEP[0].needsArming(response == response_t::data || response == response_t::zeroLength);
-	usbStatusInEP[0].srcBuffer = data;
-	usbStatusInEP[0].transferCount = size;
+	usbStatusInEP[0].memBuffer = data;
 	usbServiceCtrlEPComplete();
 }
 
@@ -99,7 +130,7 @@ void usbHandleCtrlEPIn()
 	{
 		// We just handled an addressing request, and prepared our answer. Before we get a chance
 		// to return from the interrupt that caused this chain of events, lets set the device address.
-		const auto &packet{*reinterpret_cast<setupPacket_t *>(usbStatusOutEP[0].usbBuffer)};
+		const auto &packet{*static_cast<setupPacket_t *>(usbStatusOutEP[0].memBuffer)};
 		const auto address{packet.value.asAddress()};
 
 		if (packet.requestType.type() != setupPacket::request_t::typeStandard ||
