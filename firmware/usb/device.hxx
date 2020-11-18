@@ -11,8 +11,8 @@ extern usbTypes::deviceState_t usbState;
 extern usbTypes::usbEP_t usbPacket;
 extern usbTypes::ctrlState_t usbCtrlState;
 
-extern std::array<usbTypes::usbEPStatus_t, usbTypes::endpointCount> usbStatusInEP;
-extern std::array<usbTypes::usbEPStatus_t, usbTypes::endpointCount> usbStatusOutEP;
+extern std::array<usbTypes::usbEPStatus_t, usbTypes::endpointCount> epStatusControllerIn;
+extern std::array<usbTypes::usbEPStatus_t, usbTypes::endpointCount> epStatusControllerOut;
 
 extern void usbServiceCtrlEP() noexcept;
 

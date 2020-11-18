@@ -22,8 +22,8 @@ bool usbSuspended;
 usbTypes::ctrlState_t usbCtrlState;
 uint8_t usbDeferalFlags;
 
-std::array<usbTypes::usbEPStatus_t, usbTypes::endpointCount> usbStatusInEP;
-std::array<usbTypes::usbEPStatus_t, usbTypes::endpointCount> usbStatusOutEP;
+std::array<usbTypes::usbEPStatus_t, usbTypes::endpointCount> epStatusControllerIn;
+std::array<usbTypes::usbEPStatus_t, usbTypes::endpointCount> epStatusControllerOut;
 
 void usbReset() noexcept;
 
@@ -89,7 +89,7 @@ void usbReset() noexcept
 	// Configure for FS USB operation
 	//usb.ep0Ctrl.type = ;
 
-	for (auto &[i, epStatus] : utility::indexedIterator_t{usbStatusInEP})
+	for (auto &[i, epStatus] : utility::indexedIterator_t{epStatusControllerIn})
 	{
 		epStatus->resetStatus();
 		epStatus->transferCount = 0;
@@ -98,7 +98,7 @@ void usbReset() noexcept
 		epStatus->ctrl.dir(usbTypes::endpointDir_t::controllerIn);
 	}
 
-	for (auto &[i, epStatus] : utility::indexedIterator_t{usbStatusOutEP})
+	for (auto &[i, epStatus] : utility::indexedIterator_t{epStatusControllerOut})
 	{
 		epStatus->resetStatus();
 		epStatus->transferCount = 0;
