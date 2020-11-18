@@ -117,6 +117,9 @@ void usbHandleCtrlEPSetup() noexcept
 	usbStatusInEP[0].stall(response == response_t::stall || response == response_t::unhandled);
 	usbStatusInEP[0].needsArming(response == response_t::data || response == response_t::zeroLength);
 	usbStatusInEP[0].memBuffer = data;
+	usbStatusInEP[0].transferCount = response == response_t::zeroLength ? 0 : size;
+	if (response == response_t::data && !data) // If the response is whacko, don't do the stupid thing
+		usbStatusInEP[0].needsArming(false);
 	usbServiceCtrlEPComplete();
 }
 
