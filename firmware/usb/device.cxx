@@ -57,11 +57,11 @@ void usbHandleDataCtrlEP() noexcept
 {
 }
 
-void usbHandleStatusCtrlEP()
+void usbHandleStatusCtrlEP() noexcept
 {
 }
 
-void usbServiceCtrlEPComplete()
+void usbServiceCtrlEPComplete() noexcept
 {
 	auto &ep0 = usb.ep0Ctrl;
 
@@ -100,7 +100,7 @@ void usbServiceCtrlEPComplete()
 	}
 }
 
-void usbHandleCtrlEPSetup()
+void usbHandleCtrlEPSetup() noexcept
 {
 	// Set up EP0 state for a reply of some kind
 	//usbDeferalFlags = 0;
@@ -120,11 +120,13 @@ void usbHandleCtrlEPSetup()
 	usbServiceCtrlEPComplete();
 }
 
-void usbHandleCtrlEPOut()
+void usbHandleCtrlEPOut() noexcept
 {
+	if (usbCtrlState == ctrlState_t::rx)
+		usbServiceCtrlEPRead();
 }
 
-void usbHandleCtrlEPIn()
+void usbHandleCtrlEPIn() noexcept
 {
 	if (usbState == deviceState_t::addressing)
 	{
