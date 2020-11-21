@@ -79,6 +79,12 @@ void usbServiceCtrlEPWrite() noexcept
 
 void usbHandleDataCtrlEP() noexcept
 {
+	if (usbCtrlState == ctrlState_t::tx)
+	{
+		if (epStatusControllerIn[0].transferCount > packet.length)
+			epStatusControllerIn[0].transferCount = packet.length;
+		usbServiceCtrlEPWrite();
+	}
 }
 
 void usbHandleStatusCtrlEP() noexcept
@@ -126,6 +132,13 @@ void usbServiceCtrlEPComplete() noexcept
 
 void usbHandleCtrlEPSetup() noexcept
 {
+	// Read in the new setup packet
+	static_assert(sizeof(setupPacket_t) == 8); // Setup packets must be 8 bytes.
+	epStatusControllerOut[0].memBuffer = &packet;
+	epStatusControllerOut[0].transferCount = sizeof(setupPacket_t);
+	epStatusControllerOut[0].needsArming(true);
+	usbServiceCtrlEPRead();
+
 	// Set up EP0 state for a reply of some kind
 	//usbDeferalFlags = 0;
 	usbCtrlState = ctrlState_t::wait;
@@ -151,6 +164,12 @@ void usbHandleCtrlEPOut() noexcept
 {
 	if (usbCtrlState == ctrlState_t::rx)
 		usbServiceCtrlEPRead();
+	else
+	{
+		usbCtrlState = ctrlState_t::wait;
+		auto &ep0 = usb.ep0Ctrl;
+		//
+	}
 }
 
 void usbHandleCtrlEPIn() noexcept
