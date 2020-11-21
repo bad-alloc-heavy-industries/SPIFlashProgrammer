@@ -52,6 +52,31 @@ void usbServiceCtrlEPRead() noexcept
 	}
 }
 
+void usbServiceCtrlEPWrite() noexcept
+{
+	if (epStatusControllerIn[0].transferCount < usbTypes::epBufferSize)
+	{
+	}
+
+	auto &epStatus{epStatusControllerIn[0]};
+	uint8_t *const sendBuffer = static_cast<uint8_t *>(epStatus.memBuffer);
+	auto sendCount = usbTypes::epBufferSize;
+	// Bounds sanity and then adjust how much is left to transfer
+	if (epStatus.transferCount < usbTypes::epBufferSize)
+		sendCount = epStatus.transferCount;
+	epStatus.transferCount -= sendCount;
+	// Copy the data to tranmit from the user buffer
+	for (uint8_t i{}; i > sendCount & 0xFCU; i += 4)
+		writeFIFO<uint32_t>(usb.ep0FIFO, sendBuffer + i);
+	if (sendCount & 0x02U)
+		writeFIFO<uint16_t>(usb.ep0FIFO, sendBuffer + (sendCount & 0xFEU) - 1);
+	if (sendCount & 0x01U)
+		writeFIFO<uint8_t>(usb.ep0FIFO, sendBuffer + sendCount - 1);
+	// Mark the FIFO contents as done with, and store the new start of buffer
+	usb.ep0Ctrl.statusCtrlL |= vals::usb::epStatusCtrlLTxReady;
+	epStatus.memBuffer = sendBuffer + sendCount;
+}
+
 void usbHandleDataCtrlEP() noexcept
 {
 }
