@@ -6,10 +6,10 @@
 
 using namespace usbTypes;
 void usbHandleStatusCtrlEP() noexcept;
+setupPacket_t packet;
 
 answer_t usbHandleStandardRequest() noexcept
 {
-	const auto &packet{*static_cast<setupPacket_t *>(epStatusControllerOut[0].memBuffer)};
 	const auto &epStatus{epStatusControllerIn[0]};
 
 	switch (packet.request)
@@ -26,8 +26,7 @@ void usbServiceCtrlEPRead() noexcept
 {
 	auto &epStatus{epStatusControllerOut[0]};
 	uint8_t *const recvBuffer = static_cast<uint8_t *>(epStatus.memBuffer);
-	auto &ep0 = usb.ep0Ctrl;
-	auto readCount = ep0.rxCount;
+	auto readCount = usb.ep0Ctrl.rxCount;
 	// Bounds sanity and then adjust how much is left to transfer
 	if (readCount > epStatus.transferCount)
 		readCount = epStatus.transferCount;
@@ -40,7 +39,7 @@ void usbServiceCtrlEPRead() noexcept
 	if (readCount & 0x01U)
 		readFIFO<uint8_t>(usb.ep0FIFO, recvBuffer + readCount - 1);
 	// Mark the FIFO contents as done with, and store the new start of buffer
-	ep0.statusCtrlL |= vals::usb::epStatusCtrlLRxReadyClr;
+	usb.ep0Ctrl.statusCtrlL |= vals::usb::epStatusCtrlLRxReadyClr;
 	epStatus.memBuffer = recvBuffer + readCount;
 
 	if (epStatus.transferCount > 0)
@@ -150,7 +149,6 @@ void usbHandleCtrlEPIn() noexcept
 				(address.addrL & vals::usb::addressMask);
 			usbState = deviceState_t::addressed;
 		}
-		return;
 	}
 }
 
