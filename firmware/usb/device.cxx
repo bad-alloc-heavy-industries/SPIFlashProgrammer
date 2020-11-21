@@ -95,35 +95,44 @@ void usbServiceCtrlEPComplete() noexcept
 {
 	auto &ep0 = usb.ep0Ctrl;
 
+	// If we have no response
 	if (!epStatusControllerIn[0].needsArming())
 	{
+		// But rather need more data
 		if (epStatusControllerOut[0].needsArming())
 		{
+			// <SETUP[0]><OUT[1]><OUT[0]>...<IN[1]>
 			usbCtrlState = ctrlState_t::rx;
 			//if ((usbDeferalFlags & USB_DEFER_OUT_PACKETS) == 0)
 				usbHandleDataCtrlEP();
 		}
+		// We need to stall in answer
 		else if (epStatusControllerIn[0].stall())
 		{
-			ep0.statusCtrlL |= vals::usb::epStatusCtrlLStall;
+			// <SETUP[0]><STALL>
+			ep0.statusCtrlL |= vals::usb::epStatusCtrlLStall | vals::usb::epStatusCtrlLRxReadyClr;
 			usbCtrlState = ctrlState_t::idle;
 		}
 	}
+	// We have a valid response
 	else
 	{
 		const auto &packet{*reinterpret_cast<setupPacket_t *>(epStatusControllerOut[0].memBuffer)};
+		// Is this as part of a multi-part transaction?
 		if (packet.requestType.dir() == endpointDir_t::controllerIn)
 		{
+			// <SETUP[0]><IN[1]><IN[0]>...<OUT[1]>
 			usbCtrlState = ctrlState_t::tx;
 			//if ((usbDeferalFlags & USB_DEFER_IN_PACKETS) == 0)
 				usbHandleDataCtrlEP();
 			//if ((usbDeferalFlags & USB_DEFER_STATUS_PACKETS) == 0)
 				usbHandleStatusCtrlEP();
 		}
+		// Or just a quick answer?
 		else
 		{
+			//  <SETUP[0]><IN[1]>
 			usbCtrlState = ctrlState_t::rx;
-
 			//if ((usbDeferalFlags & USB_DEFER_STATUS_PACKETS) == 0)
 				usbHandleStatusCtrlEP();
 		}
