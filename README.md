@@ -1,34 +1,32 @@
 # SPI Flash Programmer
 
-A simple but effective SPI Flash device programmer targeting 25 series devices such as the M25P16 and W25Q80BV.
+After a complete rewrite and re-hash of the original ideal having had it proove itself, a PCB and tightly integrated yet simple to use firmware is the name of the game.
 
-This project allows a Tiva C Launchpad to be made into a SPI Flash programmer capable of taking data from either an internal built-in blob (config.bin) or over the Tiva C Launchpad's debug UART on Port A.
+SPIFlashProgrammer is a small but capable board housing a Texas Instruments Tiva-C series ARM microprocessor, two Flash devices for use in a production environment to allow one board to program up to two different target devices on a production line, and USB for power and connecting to a host machine.
 
-Data programed from the UART is the so-called "USB" path as the data originates from the USB virtual serial port provided by the ICDI interface of the Launchpad board.
+When connected to a host, the USB connectivity and `flashprog` utility come together to form a sleak programming experience, allowing the tool to be used in a "set and forget" manner for test and debug of bitstreams and firmware.
 
-## firmware build
+## Flash chip support
 
-The firmware can be built in one of three modes:
-* Both USB and built-in blob enabled
-* Just USB enabled (NOCONFIG=1)
-* Just built-in blob enabled (NOUSB=1)
+The firmware targets 25 series memory devices such as the M25P16, W25Q80BV, and AT25SF641.
 
-In addition, you must tell the build system what chip to target. Current valid targets are:
-* the Tiva C found on the Tiva C Launchpad ("TivaC")
-* LPC4370
+## Build and installation
 
-The build system checks for, and errors when, NOCONFIG=1 and NOUSB=1 as this would be a pointless configuration.
-The build depends on the presence of a suitable ARM toolchain - arm-none-eabi - a flavour of GCC.
+Building requires a small number of prerequsites and dependencies:
 
-Simple build instructions to get running immediately on the Tiva C:
+* [Meson](https://meson.build)
+* [Ninja](https://ninja-build.org)
+* A modern arm-none-eabi GCC such as the [GNU ARM Embedded Toolchain](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm)
+	or any distro or custom build GCC capable of targeting ARMv7 via C++17
+
+To build the firmware and host software, run
+
 ```Bash
-cd firmware
-make NOCONFIG=1 TARGET=TivaC
+meson build --cross-file=cross-files/arm-none-eabi.meson
+ninja -C build
 ```
 
-## flashprog build
+You may then use the results in-place, or install the host software with `ninja -C build install`.
 
-The programming software depends soley on libusb-1.0 which can be installed easily from repository on most Linux distros, and from the libusb-win32 sourceforge project on Windows.
-
-Building the software is as simple as running make in the flashprog directory.
-
+Programming the firmware onto a newly minted board can be achived via any JTAG adapter that can talk TI ICDI.
+We use the awesome [Black Magic Probe](https://github.com/blacksphere/blackmagic) with the toolchain GDB.
