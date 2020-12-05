@@ -8,18 +8,21 @@ using namespace usbTypes;
 void usbHandleStatusCtrlEP() noexcept;
 setupPacket_t packet;
 
-answer_t usbHandleStandardRequest() noexcept
+namespace usbDevice
 {
-	const auto &epStatus{epStatusControllerIn[0]};
-
-	switch (packet.request)
+	answer_t handleStandardRequest() noexcept
 	{
-		case request_t::setAddress:
-			usbState = deviceState_t::addressing;
-			return {response_t::zeroLength, nullptr, 0};
-	}
+		const auto &epStatus{epStatusControllerIn[0]};
 
-	return {response_t::unhandled, nullptr, 0};
+		switch (packet.request)
+		{
+			case request_t::setAddress:
+				usbState = deviceState_t::addressing;
+				return {response_t::zeroLength, nullptr, 0};
+		}
+
+		return {response_t::unhandled, nullptr, 0};
+	}
 }
 
 bool usbServiceCtrlEPRead() noexcept
@@ -144,7 +147,7 @@ namespace usbDevice
 		epStatusControllerOut[0].stall(false);
 		epStatusControllerOut[0].transferCount = 0;
 
-		const auto &[response, data, size] = usbHandleStandardRequest();
+		const auto &[response, data, size] = handleStandardRequest();
 
 		epStatusControllerIn[0].stall(response == response_t::stall || response == response_t::unhandled);
 		epStatusControllerIn[0].needsArming(response == response_t::data || response == response_t::zeroLength);
@@ -217,4 +220,4 @@ namespace usbDevice
 		else
 			handleControllerInPacket();
 	}
-}
+} // namespace usbDevice
