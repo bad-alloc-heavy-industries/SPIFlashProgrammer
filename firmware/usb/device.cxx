@@ -22,7 +22,7 @@ answer_t usbHandleStandardRequest() noexcept
 	return {response_t::unhandled, nullptr, 0};
 }
 
-void usbServiceCtrlEPRead() noexcept
+bool usbServiceCtrlEPRead() noexcept
 {
 	auto &epStatus{epStatusControllerOut[0]};
 	uint8_t *const recvBuffer = static_cast<uint8_t *>(epStatus.memBuffer);
@@ -41,15 +41,7 @@ void usbServiceCtrlEPRead() noexcept
 	// Mark the FIFO contents as done with, and store the new start of buffer
 	usb.ep0Ctrl.statusCtrlL |= vals::usb::epStatusCtrlLRxReadyClr;
 	epStatus.memBuffer = recvBuffer + readCount;
-
-	if (epStatus.transferCount > 0)
-	{
-	}
-	else
-	{
-		epStatus.needsArming(false);
-		usbHandleStatusCtrlEP();
-	}
+	return epStatus.transferCount == 0;
 }
 
 void usbServiceCtrlEPWrite() noexcept
@@ -91,131 +83,138 @@ void usbHandleStatusCtrlEP() noexcept
 {
 }
 
-void usbServiceCtrlEPComplete() noexcept
+namespace usbDevice
 {
-	auto &ep0 = usb.ep0Ctrl;
-
-	// If we have no response
-	if (!epStatusControllerIn[0].needsArming())
+	void completeSetupPacket() noexcept
 	{
-		// But rather need more data
-		if (epStatusControllerOut[0].needsArming())
-		{
-			// <SETUP[0]><OUT[1]><OUT[0]>...<IN[1]>
-			usbCtrlState = ctrlState_t::rx;
-			//if ((usbDeferalFlags & USB_DEFER_OUT_PACKETS) == 0)
-				usbHandleDataCtrlEP();
-		}
-		// We need to stall in answer
-		else if (epStatusControllerIn[0].stall())
-		{
-			// <SETUP[0]><STALL>
-			ep0.statusCtrlL |= vals::usb::epStatusCtrlLStall | vals::usb::epStatusCtrlLRxReadyClr;
-			usbCtrlState = ctrlState_t::idle;
-		}
-	}
-	// We have a valid response
-	else
-	{
-		const auto &packet{*reinterpret_cast<setupPacket_t *>(epStatusControllerOut[0].memBuffer)};
-		// Is this as part of a multi-part transaction?
-		if (packet.requestType.dir() == endpointDir_t::controllerIn)
-		{
-			// <SETUP[0]><IN[1]><IN[0]>...<OUT[1]>
-			usbCtrlState = ctrlState_t::tx;
-			//if ((usbDeferalFlags & USB_DEFER_IN_PACKETS) == 0)
-				usbHandleDataCtrlEP();
-			//if ((usbDeferalFlags & USB_DEFER_STATUS_PACKETS) == 0)
-				usbHandleStatusCtrlEP();
-		}
-		// Or just a quick answer?
-		else
-		{
-			//  <SETUP[0]><IN[1]>
-			usbCtrlState = ctrlState_t::rx;
-			//if ((usbDeferalFlags & USB_DEFER_STATUS_PACKETS) == 0)
-				usbHandleStatusCtrlEP();
-		}
-	}
-}
-
-void usbHandleCtrlEPSetup() noexcept
-{
-	// Read in the new setup packet
-	static_assert(sizeof(setupPacket_t) == 8); // Setup packets must be 8 bytes.
-	epStatusControllerOut[0].memBuffer = &packet;
-	epStatusControllerOut[0].transferCount = sizeof(setupPacket_t);
-	epStatusControllerOut[0].needsArming(true);
-	usbServiceCtrlEPRead();
-
-	// Set up EP0 state for a reply of some kind
-	//usbDeferalFlags = 0;
-	usbCtrlState = ctrlState_t::wait;
-	epStatusControllerIn[0].needsArming(false);
-	epStatusControllerIn[0].stall(false);
-	epStatusControllerIn[0].transferCount = 0;
-	epStatusControllerOut[0].needsArming(false);
-	epStatusControllerOut[0].stall(false);
-	epStatusControllerOut[0].transferCount = 0;
-
-	const auto &[response, data, size] = usbHandleStandardRequest();
-
-	epStatusControllerIn[0].stall(response == response_t::stall || response == response_t::unhandled);
-	epStatusControllerIn[0].needsArming(response == response_t::data || response == response_t::zeroLength);
-	epStatusControllerIn[0].memBuffer = data;
-	epStatusControllerIn[0].transferCount = response == response_t::zeroLength ? 0 : size;
-	if (response == response_t::data && !data) // If the response is whacko, don't do the stupid thing
-		epStatusControllerIn[0].needsArming(false);
-	usbServiceCtrlEPComplete();
-}
-
-void usbHandleCtrlEPOut() noexcept
-{
-	if (usbCtrlState == ctrlState_t::rx)
-		usbServiceCtrlEPRead();
-	else
-	{
-		usbCtrlState = ctrlState_t::wait;
 		auto &ep0 = usb.ep0Ctrl;
-		//
-	}
-}
 
-void usbHandleCtrlEPIn() noexcept
-{
-	if (usbState == deviceState_t::addressing)
-	{
-		// We just handled an addressing request, and prepared our answer. Before we get a chance
-		// to return from the interrupt that caused this chain of events, lets set the device address.
-		const auto &packet{*static_cast<setupPacket_t *>(epStatusControllerOut[0].memBuffer)};
-		const auto address{packet.value.asAddress()};
-
-		if (packet.requestType.type() != setupPacket::request_t::typeStandard ||
-			packet.request != request_t::setAddress || address.addrH != 0)
+		// If we have no response
+		if (!epStatusControllerIn[0].needsArming())
 		{
-			usb.address &= vals::usb::addressClrMask;
-			usbState = deviceState_t::waiting;
+			// But rather need more data
+			if (epStatusControllerOut[0].needsArming())
+			{
+				// <SETUP[0]><OUT[1]><OUT[0]>...<IN[1]>
+				usbCtrlState = ctrlState_t::rx;
+			}
+			// We need to stall in answer
+			else if (epStatusControllerIn[0].stall())
+			{
+				// <SETUP[0]><STALL>
+				ep0.statusCtrlL |= vals::usb::epStatusCtrlLStall | vals::usb::epStatusCtrlLRxReadyClr;
+				usbCtrlState = ctrlState_t::idle;
+			}
+		}
+		// We have a valid response
+		else
+		{
+			// Is this as part of a multi-part transaction?
+			if (packet.requestType.dir() == endpointDir_t::controllerIn)
+				// <SETUP[0]><IN[1]><IN[0]>...<OUT[1]>
+				usbCtrlState = ctrlState_t::tx;
+			// Or just a quick answer?
+			else
+				//  <SETUP[0]><IN[1]>
+				usbCtrlState = ctrlState_t::rx;
+			usbServiceCtrlEPWrite();
+		}
+	}
+
+	void handleSetupPacket() noexcept
+	{
+		// Read in the new setup packet
+		static_assert(sizeof(setupPacket_t) == 8); // Setup packets must be 8 bytes.
+		epStatusControllerOut[0].memBuffer = &packet;
+		epStatusControllerOut[0].transferCount = sizeof(setupPacket_t);
+		if (!usbServiceCtrlEPRead())
+		{
+			// Truncated transfer.. WTF.
+			usb.ep0Ctrl.statusCtrlL |= vals::usb::epStatusCtrlLStall;
+			return;
+		}
+
+		// Set up EP0 state for a reply of some kind
+		//usbDeferalFlags = 0;
+		usbCtrlState = ctrlState_t::wait;
+		epStatusControllerIn[0].needsArming(false);
+		epStatusControllerIn[0].stall(false);
+		epStatusControllerIn[0].transferCount = 0;
+		epStatusControllerOut[0].needsArming(false);
+		epStatusControllerOut[0].stall(false);
+		epStatusControllerOut[0].transferCount = 0;
+
+		const auto &[response, data, size] = usbHandleStandardRequest();
+
+		epStatusControllerIn[0].stall(response == response_t::stall || response == response_t::unhandled);
+		epStatusControllerIn[0].needsArming(response == response_t::data || response == response_t::zeroLength);
+		epStatusControllerIn[0].memBuffer = data;
+		epStatusControllerIn[0].transferCount = response == response_t::zeroLength ? 0 : size;
+		if (response == response_t::data && !data) // If the response is whacko, don't do the stupid thing
+			epStatusControllerIn[0].needsArming(false);
+		completeSetupPacket();
+	}
+
+	void handleControllerOutPacket() noexcept
+	{
+		if (usbCtrlState == ctrlState_t::rx)
+			usbServiceCtrlEPRead();
+		else
+		{
+			usbCtrlState = ctrlState_t::wait;
+			auto &ep0 = usb.ep0Ctrl;
+			//
+		}
+	}
+
+	void handleControllerInPacket() noexcept
+	{
+		if (usbState == deviceState_t::addressing)
+		{
+			// We just handled an addressing request, and prepared our answer. Before we get a chance
+			// to return from the interrupt that caused this chain of events, lets set the device address.
+			const auto &packet{*static_cast<setupPacket_t *>(epStatusControllerOut[0].memBuffer)};
+			const auto address{packet.value.asAddress()};
+
+			if (packet.requestType.type() != setupPacket::request_t::typeStandard ||
+				packet.request != request_t::setAddress || address.addrH != 0)
+			{
+				usb.address &= vals::usb::addressClrMask;
+				usbState = deviceState_t::waiting;
+			}
+			else
+			{
+				usb.address = (usb.address & vals::usb::addressClrMask) |
+					(address.addrL & vals::usb::addressMask);
+				usbState = deviceState_t::addressed;
+			}
+		}
+
+		if (usbCtrlState == ctrlState_t::tx)
+		{
+			usbServiceCtrlEPWrite();
 		}
 		else
 		{
-			usb.address = (usb.address & vals::usb::addressClrMask) |
-				(address.addrL & vals::usb::addressMask);
-			usbState = deviceState_t::addressed;
+			if (epStatusControllerOut[0].needsArming())
+			{
+				epStatusControllerOut[0].needsArming(false);
+			}
+			usbCtrlState = ctrlState_t::wait;
 		}
 	}
-}
 
-void usbServiceCtrlEP() noexcept
-{
-	if (usbPacket.endpoint() != 0)
-		return;
-	if (usbPacket.dir() == endpointDir_t::controllerOut)
+	void handleControlPacket() noexcept
 	{
-		if (usbCtrlState == ctrlState_t::idle)
-			usbHandleCtrlEPSetup();
+		// If we received a packet..
+		if (usbPacket.dir() == endpointDir_t::controllerOut)
+		{
+			if (usbCtrlState == ctrlState_t::idle)
+				handleSetupPacket();
+			else
+				handleControllerOutPacket();
+		}
 		else
-			usbHandleCtrlEPOut();
+			handleControllerInPacket();
 	}
-	else
-		usbHandleCtrlEPIn();
 }

@@ -52,12 +52,6 @@ namespace usbTypes
 		controllerIn = 0x80U
 	};
 
-	enum class buffer_t : uint8_t
-	{
-		first = 0x00U,
-		second = 0x40U
-	};
-
 	struct usbEP_t final
 	{
 	private:
@@ -81,19 +75,6 @@ namespace usbTypes
 		}
 
 		[[nodiscard]] endpointDir_t dir() const noexcept { return static_cast<endpointDir_t>(value & 0x80U); }
-
-		void buffer(const buffer_t choise) noexcept
-		{
-			value &= 0xBF;
-			value |= uint8_t(choise);
-		}
-
-		[[nodiscard]] buffer_t buffer() const noexcept
-		{
-			return value & 0x40U ?
-				buffer_t::first :
-				buffer_t::second;
-		}
 	};
 
 	struct usbEPStatus_t final

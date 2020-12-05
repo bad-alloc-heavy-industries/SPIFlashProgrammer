@@ -176,18 +176,14 @@ void irqUSB() noexcept
 		if (rxStatus & endpointMask || txStatus & endpointMask)
 		{
 			usbPacket.endpoint(endpoint);
-			if (rxStatus & endpointMask)
-			{
+			if (rxStatus & endpointMask ||
+					(endpoint == 0 && usb.ep0Ctrl.statusCtrlL & vals::usb::epStatusCtrlLRxReady))
 				usbPacket.dir(usbTypes::endpointDir_t::controllerOut);
-			}
 			else
-			{
 				usbPacket.dir(usbTypes::endpointDir_t::controllerIn);
-				//
-			}
 
 			if (endpoint == 0)
-				usbServiceCtrlEP();
+				usbDevice::handleControlPacket();
 		}
 	}
 }
