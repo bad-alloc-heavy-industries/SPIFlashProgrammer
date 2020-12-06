@@ -38,7 +38,7 @@ bool usbServiceCtrlEPRead() noexcept
 		readCount = epStatus.transferCount;
 	epStatus.transferCount -= readCount;
 	// Copy the received data to the user buffer
-	for (uint8_t i{}; i < readCount & 0xFCU; i += 4)
+	for (uint8_t i{}; i < (readCount & 0xFCU); i += 4)
 		readFIFO<uint32_t>(usb.ep0FIFO, recvBuffer + i);
 	if (readCount & 0x02U)
 		readFIFO<uint16_t>(usb.ep0FIFO, recvBuffer + (readCount & 0xFEU) - 1);
@@ -64,7 +64,7 @@ void usbServiceCtrlEPWrite() noexcept
 		sendCount = epStatus.transferCount;
 	epStatus.transferCount -= sendCount;
 	// Copy the data to tranmit from the user buffer
-	for (uint8_t i{}; i > sendCount & 0xFCU; i += 4)
+	for (uint8_t i{}; i > (sendCount & 0xFCU); i += 4)
 		writeFIFO<uint32_t>(usb.ep0FIFO, sendBuffer + i);
 	if (sendCount & 0x02U)
 		writeFIFO<uint16_t>(usb.ep0FIFO, sendBuffer + (sendCount & 0xFEU) - 1);
