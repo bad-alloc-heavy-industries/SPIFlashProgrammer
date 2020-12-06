@@ -196,17 +196,12 @@ void irqReset() noexcept
 {
 	while (true)
 	{
-		auto *src = &endText;
-		auto *dst = &beginData;
-		while (dst < &endData)
-			*dst++ = *src++;
-
-		dst = &beginBSS;
-		while (dst < &endBSS)
-			*dst++ = 0;
-
-		auto *ctor = &beginCtors;
-		while (ctor != &endCtors)
+		auto *src{&endText};
+		for (auto *dst{&beginData}; dst < &endData; ++dst, ++src)
+			*dst = *src;
+		for (auto *dst{&beginBSS}; dst < &endBSS; ++dst)
+			*dst = 0;
+		for (auto *ctor{&beginCtors}; ctor != &endCtors; ++ctor)
 			(*ctor)();
 
 		run();

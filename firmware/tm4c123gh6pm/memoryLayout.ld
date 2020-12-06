@@ -26,6 +26,7 @@ SECTIONS
 		*(.text.* .text .gnu.linkonce.t.*)
 		*(.rodata.* .rodata .gnu.linkonce.r.*)
 
+		. = ALIGN(4);
 		PROVIDE(beginCtors = .);
 		*(.init_array.* .ctors.*)
 		KEEP(*(.init_array .ctors))
