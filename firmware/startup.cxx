@@ -21,13 +21,13 @@ extern const ctorFuncs_t beginCtors, endCtors;
 
 using irqFunction_t = void (*)();
 
-struct nvic_t final
+struct nvicTable_t final
 {
 	const void *stackTop;
 	std::array<irqFunction_t, 155> vectorTable;
 };
 
-[[gnu::section(".nvic_table"), gnu::used]] static const nvic_t nvicTable
+[[gnu::section(".nvic_table"), gnu::used]] static const nvicTable_t nvicTable
 {
 	&stackTop,
 	{
