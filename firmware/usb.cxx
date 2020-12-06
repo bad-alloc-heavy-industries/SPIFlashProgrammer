@@ -27,6 +27,29 @@ std::array<usbTypes::usbEPStatus_t, usbTypes::endpointCount> epStatusControllerO
 
 void usbReset() noexcept;
 
+/*!
+ * Transmitting packets:
+ * Write data to endpoint TXFIFO register up to 4 bytes at a time,
+ * but this must be kept consistent up to the last transfer.
+ * Write TXRDY bit for the end point once ready for arming transmit.
+ * On completion of transmission, TXRDY and FIFONE (FIFO Not Empty) get cleared.
+ * When double-buffered, TXRDY gets immediately cleared when the second buffer
+ * is also empty.
+ * When either kind of transmission complete fires, a TX interrupt is triggered.
+ *
+ * Receiving packets:
+ * Once data reception (automatic) is complete, RXRDY bit is set.
+ * If double-buffered and the second buffer is now also full or if single-buffered,
+ * endpoint FULL is set.
+ * Read data from RXFIFO up to 4 bytes at a time, but this must also be kept
+ * consistent up to the last transfer.
+ * Once complete, RXDRY must be cleared to re-arm buffer. This also generates host ACK.
+ * If single-buffered or this freed the second buffer in double-buffering,
+ * this clears the FULL bit.
+ *
+ * DATAEND is the end-of-data-phase start-of-status-phase indicator
+ */
+
 void usbInit() noexcept
 {
 	// Enable the USB peripheral
