@@ -329,6 +329,9 @@ namespace vals
 		constexpr static const uint8_t rxFIFOSize1024{0x07};
 		constexpr static const uint8_t rxFIFOSize2048{0x08};
 
+		constexpr inline static uint16_t fifoAddr(const uint16_t address) noexcept
+			{ return address >> 3; } // Divide by 8
+
 		// RX double bufering enable register constants
 		constexpr static const uint16_t rxPacketDoubleBuffEnableEP1{0x00000002};
 		constexpr static const uint16_t rxPacketDoubleBuffEnableEP2{0x00000004};
@@ -436,7 +439,7 @@ namespace vals
 		}
 
 		// Oscillator config register 2 constants
-		constexpr static const uint32_t runClockCfg2Mask{0xF021D00E};
+		constexpr static const uint32_t runClockCfg2Mask{0x20EF978FU};
 		constexpr static const uint32_t runClockCfg2UseRCC2{0x80000000};
 		constexpr static const uint32_t runClockCfg2PLLPreDivEnable{0x00000000};
 		constexpr static const uint32_t runClockCfg2PLLPreDivDisable{0x40000000};

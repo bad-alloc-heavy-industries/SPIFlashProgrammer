@@ -3,6 +3,7 @@
 #define TM4C123GH6PM_PLATFORM__HXX
 
 #include <cstdint>
+#include <array>
 
 // Interrupt number definitions
 enum class IRQn_t
@@ -796,7 +797,7 @@ struct flashCtrl_t final
 };
 
 // System Control peripheral structure
-struct sysCtrl_t
+struct sysCtrl_t final
 {
 	volatile uint32_t deviceID0;
 	volatile uint32_t deviceID1;
@@ -987,7 +988,7 @@ struct sysCtrl_t
 };
 
 // UDMA peripheral structure
-struct udma_t
+struct udma_t final
 {
 	volatile uint32_t status;
 	volatile uint32_t config;
@@ -1015,6 +1016,32 @@ struct udma_t
 	volatile uint32_t chnMapSel1; // DMA Channel Map Select 1
 	volatile uint32_t chnMapSel2; // DMA Channel Map Select 2
 	volatile uint32_t chnMapSel3; // DMA Channel Map Select 3
+};
+
+struct sysTick_t final
+{
+	volatile uint32_t ctrl;
+	volatile uint32_t load;
+	volatile uint32_t value;
+	volatile uint32_t calibration;
+};
+
+struct nvic_t final
+{
+	std::array<volatile uint32_t, 8> intrSetEnable;
+	const volatile uint32_t reserved0[24];
+	std::array<volatile uint32_t, 8> intrClrEnable;
+	const volatile uint32_t reserved1[24];
+	std::array<volatile uint32_t, 8> intrSetPending;
+	const volatile uint32_t reserved2[24];
+	std::array<volatile uint32_t, 8> intrClrPending;
+	const volatile uint32_t reserved3[24];
+	std::array<const volatile uint32_t, 8> intrActive;
+
+	constexpr void enableInterrupt(const uint32_t intrNumber) noexcept
+		{ intrSetEnable[intrNumber >> 5] = 1 << (intrNumber & 0x1FU); }
+	constexpr void disableInterrupt(const uint32_t intrNumber) noexcept
+		{ intrClrEnable[intrNumber >> 5] = 1 << (intrNumber & 0x1FU); }
 };
 
 constexpr static const uintptr_t watchdog0Base{0x40000000U};
@@ -1076,6 +1103,9 @@ constexpr static const uintptr_t flashCtrlBase{0x400FD000U};
 constexpr static const uintptr_t sysCtrlBase{0x400FE000U};
 constexpr static const uintptr_t udmaBase{0x400FF000U};
 
+constexpr static const uintptr_t sysTickBase{0xE000E010};
+constexpr static const uintptr_t nvicBase{0xE000E100};
+
 static auto &watchdog0{*reinterpret_cast<watchdog_t *>(watchdog0Base)};
 static auto &watchdog1{*reinterpret_cast<watchdog_t *>(watchdog1Base)};
 static auto &gpioAAPB{*reinterpret_cast<gpio_t *>(gpioABaseAPB)};
@@ -1134,5 +1164,8 @@ static auto &hib{*reinterpret_cast<hib_t *>(hibBase)};
 static auto &flashCtrl{*reinterpret_cast<flashCtrl_t *>(flashCtrlBase)};
 static auto &sysCtrl{*reinterpret_cast<sysCtrl_t *>(sysCtrlBase)};
 static auto &udma{*reinterpret_cast<udma_t *>(udmaBase)};
+
+static auto &sysTick{*reinterpret_cast<sysTick_t *>(sysTickBase)};
+static auto &nvic{*reinterpret_cast<nvic_t *>(nvicBase)};
 
 #endif /*TM4C123GH6PM_PLATFORM__HXX*/
