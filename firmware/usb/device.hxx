@@ -14,11 +14,6 @@ extern usbTypes::ctrlState_t usbCtrlState;
 extern std::array<usbTypes::usbEPStatus_t, usbTypes::endpointCount> epStatusControllerIn;
 extern std::array<usbTypes::usbEPStatus_t, usbTypes::endpointCount> epStatusControllerOut;
 
-namespace usbDevice
-{
-	extern void handleControlPacket() noexcept;
-}
-
 namespace usbTypes
 {
 	enum class request_t : uint8_t
@@ -146,5 +141,13 @@ namespace usbTypes
 		fifo = value;
 	}
 } // namespace usb
+
+namespace usbDevice
+{
+	extern usbTypes::setupPacket_t packet;
+
+	extern void handleControlPacket() noexcept;
+	extern usbTypes::answer_t handleGetDescriptor() noexcept;
+} // namespace usbDevice
 
 #endif /*USB_DEVICE__HXX*/

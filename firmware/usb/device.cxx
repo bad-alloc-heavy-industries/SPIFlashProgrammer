@@ -6,10 +6,11 @@
 
 using namespace usbTypes;
 void usbHandleStatusCtrlEP() noexcept;
-setupPacket_t packet;
 
 namespace usbDevice
 {
+	setupPacket_t packet;
+
 	answer_t handleStandardRequest() noexcept
 	{
 		const auto &epStatus{epStatusControllerIn[0]};
@@ -76,8 +77,8 @@ void usbHandleDataCtrlEP() noexcept
 {
 	if (usbCtrlState == ctrlState_t::tx)
 	{
-		if (epStatusControllerIn[0].transferCount > packet.length)
-			epStatusControllerIn[0].transferCount = packet.length;
+		if (epStatusControllerIn[0].transferCount > usbDevice::packet.length)
+			epStatusControllerIn[0].transferCount = usbDevice::packet.length;
 		usbServiceCtrlEPWrite();
 	}
 }

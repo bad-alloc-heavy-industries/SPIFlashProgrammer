@@ -2,7 +2,9 @@
 #include <array>
 #include "types.hxx"
 #include "descriptors.hxx"
+#include "device.hxx"
 
+using namespace usbTypes;
 using namespace usb::descriptors;
 
 static const usbDeviceDescriptor_t usbDeviceDesc
@@ -13,24 +15,24 @@ static const usbDeviceDescriptor_t usbDeviceDesc
 	usbClass_t::none,
 	uint8_t(subclasses::device_t::none),
 	uint8_t(protocols::device_t::none),
-	usbTypes::epBufferSize,
-	usbTypes::vid,
-	usbTypes::pid,
+	epBufferSize,
+	vid,
+	pid,
 	0x0001, // BCD encoded device version
 	1, // Manufacturer string index
 	2, // Product string index
 	0, // Temporarily do not support a serial number string
-	usbTypes::configDescriptorCount
+	configDescriptorCount
 };
 
-static const std::array<usbConfigDescriptor_t, usbTypes::configDescriptorCount> usbConfigDesc
+static const std::array<usbConfigDescriptor_t, configDescriptorCount> usbConfigDesc
 {{
 	{
 		sizeof(usbConfigDescriptor_t),
 		usbDescriptor_t::configuration,
 		sizeof(usbConfigDescriptor_t) + sizeof(usbInterfaceDescriptor_t) +
 			sizeof(usbEndpointDescriptor_t) + sizeof(usbEndpointDescriptor_t),
-		usbTypes::interfaceDescriptorCount,
+		interfaceDescriptorCount,
 		1, // This config
 		4, // Configuration string index
 		usbConfigAttr_t::defaults,
@@ -38,7 +40,7 @@ static const std::array<usbConfigDescriptor_t, usbTypes::configDescriptorCount> 
 	}
 }};
 
-static const std::array<usbInterfaceDescriptor_t, usbTypes::interfaceDescriptorCount> usbInterfaceDesc
+static const std::array<usbInterfaceDescriptor_t, interfaceDescriptorCount> usbInterfaceDesc
 {{
 	{
 		sizeof(usbInterfaceDescriptor_t),
@@ -53,14 +55,14 @@ static const std::array<usbInterfaceDescriptor_t, usbTypes::interfaceDescriptorC
 	}
 }};
 
-static const std::array<usbEndpointDescriptor_t, usbTypes::endpointDescriptorCount> usbEndpointDesc
+static const std::array<usbEndpointDescriptor_t, endpointDescriptorCount> usbEndpointDesc
 {{
 	{
 		sizeof(usbEndpointDescriptor_t),
 		usbDescriptor_t::endpoint,
 		endpointAddress(usbEndpointDir_t::controllerOut, 1),
 		usbEndpointType_t::bulk,
-		usbTypes::epBufferSize,
+		epBufferSize,
 		1 // Poll once per frame
 	},
 	{
@@ -68,7 +70,7 @@ static const std::array<usbEndpointDescriptor_t, usbTypes::endpointDescriptorCou
 		usbDescriptor_t::endpoint,
 		endpointAddress(usbEndpointDir_t::controllerIn, 1),
 		usbEndpointType_t::bulk,
-		usbTypes::epBufferSize,
+		epBufferSize,
 		1 // Poll once per frame
 	}
 }};
@@ -93,7 +95,7 @@ static const usbMultiPartDesc_t usbConfigSecs[]
 	}
 };
 
-static const std::array<usbStringDesc_t, usbTypes::stringCount> usbStrings
+static const std::array<usbStringDesc_t, stringCount> usbStrings
 {{
 	{
 		0,
