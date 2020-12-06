@@ -77,13 +77,13 @@ namespace usbTypes
 		[[nodiscard]] endpointDir_t dir() const noexcept { return static_cast<endpointDir_t>(value & 0x80U); }
 	};
 
-	struct usbEPStatus_t final
+	template<typename buffer_t> struct usbEPStatus_t final
 	{
 	private:
 		uint8_t value{};
 
 	public:
-		void *memBuffer{nullptr};
+		buffer_t *memBuffer{nullptr};
 		usbEP_t ctrl{};
 		uint16_t transferCount{};
 
@@ -116,7 +116,7 @@ namespace usbTypes
 		void resetStatus() noexcept { value = 0; }
 	};
 
-	using answer_t = std::tuple<response_t, void *, std::size_t>;
+	using answer_t = std::tuple<response_t, const void *, std::size_t>;
 } // namespace usbTypes
 
 #endif /*USB_TYPES__HXX*/

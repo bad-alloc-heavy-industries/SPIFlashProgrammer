@@ -6,13 +6,14 @@
 #include <cstring>
 #include <type_traits>
 #include "types.hxx"
+#include "descriptors.hxx"
 
 extern usbTypes::deviceState_t usbState;
 extern usbTypes::usbEP_t usbPacket;
 extern usbTypes::ctrlState_t usbCtrlState;
 
-extern std::array<usbTypes::usbEPStatus_t, usbTypes::endpointCount> epStatusControllerIn;
-extern std::array<usbTypes::usbEPStatus_t, usbTypes::endpointCount> epStatusControllerOut;
+extern std::array<usbTypes::usbEPStatus_t<const void>, usbTypes::endpointCount> epStatusControllerIn;
+extern std::array<usbTypes::usbEPStatus_t<void>, usbTypes::endpointCount> epStatusControllerOut;
 
 namespace usbTypes
 {
@@ -33,6 +34,8 @@ namespace usbTypes
 
 	namespace setupPacket
 	{
+		using usbDescriptors::usbDescriptor_t;
+
 		enum class request_t : uint8_t
 		{
 			typeStandard = 0x00,
@@ -67,7 +70,7 @@ namespace usbTypes
 		struct descriptor_t final
 		{
 			uint8_t index;
-			uint8_t type;
+			usbDescriptor_t type;
 		};
 
 		struct address_t final

@@ -5,7 +5,7 @@
 #include "device.hxx"
 
 using namespace usbTypes;
-using namespace usb::descriptors;
+using namespace usbDescriptors;
 
 static const usbDeviceDescriptor_t usbDeviceDesc
 {
@@ -75,8 +75,8 @@ static const std::array<usbEndpointDescriptor_t, endpointDescriptorCount> usbEnd
 	}
 }};
 
-static const usbMultiPartDesc_t usbConfigSecs[]
-{
+static const std::array<usbMultiPartDesc_t, 4> usbConfigSecs
+{{
 	{
 		sizeof(usbConfigDescriptor_t),
 		&usbConfigDesc[0]
@@ -93,7 +93,12 @@ static const usbMultiPartDesc_t usbConfigSecs[]
 		sizeof(usbEndpointDescriptor_t),
 		&usbEndpointDesc[1]
 	}
-};
+}};
+
+static const std::array<usbMultiPartTable_t, 1> usbConfigDescriptors
+{{
+	{usbConfigSecs.begin(), usbConfigSecs.end()}
+}};
 
 static const std::array<usbStringDesc_t, stringCount> usbStrings
 {{
@@ -118,3 +123,64 @@ static const std::array<usbStringDesc_t, stringCount> usbStrings
 		u"Flash access interface"
 	}
 }};
+
+using namespace usbTypes;
+
+namespace usbDevice
+{
+	answer_t handleGetDescriptor() noexcept
+	{
+		if (packet.requestType.dir() == endpointDir_t::controllerOut)
+			return {response_t::unhandled, nullptr, 0};
+		const auto descriptor = packet.value.asDescriptor();
+
+		switch (descriptor.type)
+		{
+			// Handle device descriptor requests
+			case usbDescriptor_t::device:
+				return {response_t::data, &usbDeviceDesc, usbDeviceDesc.length};
+			// Handle configuration descriptor requests
+			case usbDescriptor_t::configuration:
+			{
+				if (descriptor.index >= configDescriptorCount)
+					break;
+				const auto &configDescriptor{usbConfigDescriptors[descriptor.index]};
+				// TODO: Convert to std::accumulate() later.
+				std::size_t count{};
+				for (const auto &descriptor : configDescriptor)
+					count += descriptor.length;
+				/*epStatusControllerIn[0].multiPart(true);
+				epStatusControllerIn[0].partNumber(0);
+				epStatusControllerIn[0].partsData(configDescriptor);*/
+				return {response_t::data, nullptr, count};
+			}
+			// Handle interface descriptor requests
+			case usbDescriptor_t::interface:
+			{
+				if (descriptor.index >= interfaceDescriptorCount)
+					break;
+				const auto &interfaceDescriptor{usbInterfaceDesc[descriptor.index]};
+				return {response_t::data, &interfaceDescriptor, interfaceDescriptor.length};
+			}
+			// Handle endpoint descriptor requests
+			case usbDescriptor_t::endpoint:
+			{
+				if (descriptor.index >= endpointDescriptorCount)
+					break;
+				const auto &endpointDescriptor{usbEndpointDesc[descriptor.index]};
+				return {response_t::data, &endpointDescriptor, endpointDescriptor.length};
+			}
+			// Handle string requests
+			case usbDescriptor_t::string:
+			{
+				if (descriptor.index >= stringCount)
+					break;
+				const auto &string{usbStrings[descriptor.index]};
+				return {response_t::data, &string, string.length};
+			}
+			default:
+				break;
+		}
+		return {response_t::unhandled, nullptr, 0};
+	}
+} // namespace usbDevice

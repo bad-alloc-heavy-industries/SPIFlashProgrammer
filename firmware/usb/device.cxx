@@ -20,6 +20,8 @@ namespace usbDevice
 			case request_t::setAddress:
 				usbState = deviceState_t::addressing;
 				return {response_t::zeroLength, nullptr, 0};
+			case request_t::getDescriptor:
+				return handleGetDescriptor();
 		}
 
 		return {response_t::unhandled, nullptr, 0};
@@ -55,7 +57,7 @@ void usbServiceCtrlEPWrite() noexcept
 	}
 
 	auto &epStatus{epStatusControllerIn[0]};
-	uint8_t *const sendBuffer = static_cast<uint8_t *>(epStatus.memBuffer);
+	const uint8_t *const sendBuffer = static_cast<const uint8_t *>(epStatus.memBuffer);
 	auto sendCount = usbTypes::epBufferSize;
 	// Bounds sanity and then adjust how much is left to transfer
 	if (epStatus.transferCount < usbTypes::epBufferSize)

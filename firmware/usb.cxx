@@ -22,8 +22,8 @@ bool usbSuspended;
 usbTypes::ctrlState_t usbCtrlState;
 uint8_t usbDeferalFlags;
 
-std::array<usbTypes::usbEPStatus_t, usbTypes::endpointCount> epStatusControllerIn;
-std::array<usbTypes::usbEPStatus_t, usbTypes::endpointCount> epStatusControllerOut;
+std::array<usbTypes::usbEPStatus_t<const void>, usbTypes::endpointCount> epStatusControllerIn;
+std::array<usbTypes::usbEPStatus_t<void>, usbTypes::endpointCount> epStatusControllerOut;
 
 void usbReset() noexcept;
 

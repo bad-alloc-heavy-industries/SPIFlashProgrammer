@@ -5,7 +5,7 @@
 #include <cstdint>
 #include "types.hxx"
 
-namespace usb::descriptors
+namespace usbDescriptors
 {
 	enum class usbDescriptor_t : uint8_t
 	{
@@ -245,9 +245,16 @@ namespace usb::descriptors
 
 	struct usbMultiPartTable_t
 	{
-		uint8_t numDesc;
-		const usbMultiPartDesc_t *descriptors;
-	} usbMultiPartTable_t;
-} // namespace usb::descriptors
+	private:
+		const usbMultiPartDesc_t *_begin;
+		const usbMultiPartDesc_t *_end;
+
+	public:
+		constexpr usbMultiPartTable_t(const usbMultiPartDesc_t *const begin,
+			const usbMultiPartDesc_t *const end) noexcept: _begin{begin}, _end{end} { }
+		constexpr auto begin() const noexcept { return _begin; }
+		constexpr auto end() const noexcept { return _end; }
+	};
+} // namespace usbDescriptors
 
 #endif /*USB_DESCRIPTORS__HXX*/
