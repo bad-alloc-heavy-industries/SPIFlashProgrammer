@@ -12,5 +12,6 @@ void run() noexcept
 	spiInit();
 	usbInit();
 
-	while (true);
+	while (true)
+		continue;
 }

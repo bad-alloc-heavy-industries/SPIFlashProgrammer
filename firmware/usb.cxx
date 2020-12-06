@@ -25,8 +25,6 @@ uint8_t usbDeferalFlags;
 std::array<usbTypes::usbEPStatus_t<const void>, usbTypes::endpointCount> epStatusControllerIn;
 std::array<usbTypes::usbEPStatus_t<void>, usbTypes::endpointCount> epStatusControllerOut;
 
-void usbReset() noexcept;
-
 /*!
  * Transmitting packets:
  * Write data to endpoint TXFIFO register up to 4 bytes at a time,
@@ -75,21 +73,13 @@ void usbInit() noexcept
 	// Configure the ID and VBus pins as USB peripheral IO
 	gpioB.amSel |= 0x03U;
 	gpioB.portCtrl |= vals::gpio::portB::portCtrlPin0USBID | vals::gpio::portB::portCtrlPin1USBVBus;
-	gpioD.afSel |= 0x03U;
-	gpioD.dir &= ~0x01U;
+	gpioB.afSel |= 0x03U;
+	gpioB.dir &= ~0x01U;
 
 	// Put the controller in device mode and reset the power control register completely.
 	usb.gpCtrlStatus = vals::usb::gpCtrlStatusDeviceMode | vals::usb::gpCtrlStatusOTGModeDevice;
 	usb.power &= vals::usb::powerMask;
-	usbReset();
-	usbState = usbTypes::deviceState_t::detached;
-	usb.power |= vals::usb::powerSoftConnect;
-	usbCtrlState = usbTypes::ctrlState_t::idle;
-	usbDeferalFlags = 0;
-}
 
-void usbReset() noexcept
-{
 	// Reset all USB interrupts
 	usb.intEnable &= vals::usb::itrEnableDeviceMask;
 	usb.txIntEnable &= vals::usb::txItrEnableMask;
@@ -98,21 +88,34 @@ void usbReset() noexcept
 	vals::readDiscard(usb.intStatus);
 	vals::readDiscard(usb.txIntStatus);
 	vals::readDiscard(usb.rxIntStatus);
+	// Ensure the device address is 0
+	usb.address = 0;
 
+	// Enable the USB NVIC and reset interrupt
+	nvic.enableInterrupt(44);
+	usb.intEnable |= vals::usb::itrEnableDeviceReset;
+
+	// Initialise the state machine
+	usbState = usbTypes::deviceState_t::detached;
+	usbCtrlState = usbTypes::ctrlState_t::idle;
+	usbDeferalFlags = 0;
+	usb.power |= vals::usb::powerSoftConnect;
+}
+
+void usbReset() noexcept
+{
 	for (uint8_t i{}; i < usbTypes::endpointCount; ++i)
 	{
 		usb.epIndex = i;
-		usb.txFIFOSize = vals::usb::txFIFOSize64 | vals::usb::txFIFOSizeDoubleBuffered;
-		usb.txFIFOAddr;
-		usb.rxFIFOSize = vals::usb::rxFIFOSize64 | vals::usb::rxFIFOSizeDoubleBuffered;
-		usb.rxFIFOAddr;
+		// 128 / 2 = 64, so this gives us 64 bytes per EP.
+		usb.txFIFOSize = vals::usb::txFIFOSize128 | vals::usb::txFIFOSizeDoubleBuffered;
+		usb.txFIFOAddr = vals::usb::fifoAddr(128 * (i * 2));
+		usb.rxFIFOSize = vals::usb::rxFIFOSize128 | vals::usb::rxFIFOSizeDoubleBuffered;
+		usb.rxFIFOAddr = vals::usb::fifoAddr(128 * ((i * 2) + 1));
 	}
 	// Really enable the double-buffers as apparently this isn't done just by the above.
 	usb.txPacketDoubleBuffEnable |= vals::usb::txPacketDoubleBuffEnableEP1;
 	usb.rxPacketDoubleBuffEnable |= vals::usb::rxPacketDoubleBuffEnableEP1;
-
-	// Configure for FS USB operation
-	//usb.ep0Ctrl.type = ;
 
 	for (auto &[i, epStatus] : utility::indexedIterator_t{epStatusControllerIn})
 	{
@@ -133,6 +136,8 @@ void usbReset() noexcept
 	// Once we get done, idle the peripheral
 	usb.address = 0;
 	usbState = usbTypes::deviceState_t::attached;
+	usb.intEnable |= vals::usb::itrEnableDisconnect;
+	usb.txIntEnable |= vals::usb::txItrEnableEP0;
 }
 
 void usbDetach()
@@ -141,6 +146,8 @@ void usbDetach()
 		return;
 	usb.power &= vals::usb::powerSoftDisconnectMask;
 	usb.intEnable &= vals::usb::itrEnableDeviceMask;
+	usb.power |= vals::usb::powerSoftConnect;
+	usb.intEnable |= vals::usb::itrEnableDeviceReset;
 	usbState = usbTypes::deviceState_t::detached;
 }
 
