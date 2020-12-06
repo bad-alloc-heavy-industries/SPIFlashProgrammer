@@ -59,6 +59,8 @@ void usbInit() noexcept
 	usb.gpCtrlStatus = vals::usb::gpCtrlStatusDeviceMode | vals::usb::gpCtrlStatusOTGModeDevice;
 	usb.power &= vals::usb::powerMask;
 	usbReset();
+	usbState = usbTypes::deviceState_t::detached;
+	usb.power |= vals::usb::powerSoftConnect;
 	usbCtrlState = usbTypes::ctrlState_t::idle;
 	usbDeferalFlags = 0;
 }
@@ -93,7 +95,6 @@ void usbReset() noexcept
 	{
 		epStatus->resetStatus();
 		epStatus->transferCount = 0;
-		epStatus->ctrl.buffer(usbTypes::buffer_t::first);
 		epStatus->ctrl.endpoint(i);
 		epStatus->ctrl.dir(usbTypes::endpointDir_t::controllerIn);
 	}
@@ -102,13 +103,13 @@ void usbReset() noexcept
 	{
 		epStatus->resetStatus();
 		epStatus->transferCount = 0;
-		epStatus->ctrl.buffer(usbTypes::buffer_t::first);
 		epStatus->ctrl.endpoint(i);
 		epStatus->ctrl.dir(usbTypes::endpointDir_t::controllerOut);
 	}
 
 	// Once we get done, idle the peripheral
-	usbState = usbTypes::deviceState_t::detached;
+	usb.address = 0;
+	usbState = usbTypes::deviceState_t::attached;
 }
 
 void usbDetach()
@@ -158,7 +159,7 @@ void irqUSB() noexcept
 	if (status & vals::usb::itrStatusDeviceReset)
 	{
 		usbReset();
-		usbState = usbTypes::deviceState_t::waiting;
+		return;
 	}
 
 	if (status & vals::usb::itrStatusSuspend)

@@ -160,8 +160,15 @@ namespace usbDevice
 
 	void handleControllerOutPacket() noexcept
 	{
+		// If we're in the data phase
 		if (usbCtrlState == ctrlState_t::rx)
-			usbServiceCtrlEPRead();
+		{
+			if (usbServiceCtrlEPRead())
+			{
+				// If we now have all the data for the transaction..
+			}
+		}
+		// If we're in the status phase
 		else
 		{
 			usbCtrlState = ctrlState_t::wait;
@@ -176,14 +183,13 @@ namespace usbDevice
 		{
 			// We just handled an addressing request, and prepared our answer. Before we get a chance
 			// to return from the interrupt that caused this chain of events, lets set the device address.
-			const auto &packet{*static_cast<setupPacket_t *>(epStatusControllerOut[0].memBuffer)};
 			const auto address{packet.value.asAddress()};
 
 			if (packet.requestType.type() != setupPacket::request_t::typeStandard ||
 				packet.request != request_t::setAddress || address.addrH != 0)
 			{
 				usb.address &= vals::usb::addressClrMask;
-				usbState = deviceState_t::waiting;
+				usbState = deviceState_t::attached;
 			}
 			else
 			{
@@ -193,18 +199,14 @@ namespace usbDevice
 			}
 		}
 
+		// If we're in the data phase
 		if (usbCtrlState == ctrlState_t::tx)
 		{
 			usbServiceCtrlEPWrite();
 		}
+		// Otherwise this was a status phase TX-complete interrupt
 		else
-		{
-			if (epStatusControllerOut[0].needsArming())
-			{
-				epStatusControllerOut[0].needsArming(false);
-			}
-			usbCtrlState = ctrlState_t::wait;
-		}
+			usbCtrlState = ctrlState_t::idle;
 	}
 
 	void handleControlPacket() noexcept

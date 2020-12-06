@@ -113,19 +113,6 @@ namespace usbTypes
 
 		[[nodiscard]] bool stall() const noexcept { return value & 0x04U; }
 
-		void buffer(const buffer_t choise) noexcept
-		{
-			value &= 0xBF;
-			value |= uint8_t(choise);
-		}
-
-		[[nodiscard]] buffer_t buffer() const noexcept
-		{
-			return value & 0x40U ?
-				buffer_t::first :
-				buffer_t::second;
-		}
-
 		void resetStatus() noexcept { value = 0; }
 	};
 
