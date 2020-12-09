@@ -16,14 +16,16 @@
  * PB1 - VBus
  */
 
-usbTypes::deviceState_t usbState;
-usbTypes::usbEP_t usbPacket;
+using namespace usbTypes;
+
+deviceState_t usbState;
+usbEP_t usbPacket;
 bool usbSuspended;
-usbTypes::ctrlState_t usbCtrlState;
+ctrlState_t usbCtrlState;
 uint8_t usbDeferalFlags;
 
-std::array<usbTypes::usbEPStatus_t<const void>, usbTypes::endpointCount> epStatusControllerIn;
-std::array<usbTypes::usbEPStatus_t<void>, usbTypes::endpointCount> epStatusControllerOut;
+std::array<usbEPStatus_t<const void>, endpointCount> epStatusControllerIn;
+std::array<usbEPStatus_t<void>, endpointCount> epStatusControllerOut;
 
 /*!
  * Transmitting packets:
@@ -96,15 +98,15 @@ void usbInit() noexcept
 	usb.intEnable |= vals::usb::itrEnableDeviceReset;
 
 	// Initialise the state machine
-	usbState = usbTypes::deviceState_t::detached;
-	usbCtrlState = usbTypes::ctrlState_t::idle;
+	usbState = deviceState_t::detached;
+	usbCtrlState = ctrlState_t::idle;
 	usbDeferalFlags = 0;
 	usb.power |= vals::usb::powerSoftConnect;
 }
 
 void usbReset() noexcept
 {
-	for (uint8_t i{}; i < usbTypes::endpointCount; ++i)
+	for (uint8_t i{}; i < endpointCount; ++i)
 	{
 		usb.epIndex = i;
 		// 128 / 2 = 64, so this gives us 64 bytes per EP.
@@ -122,7 +124,7 @@ void usbReset() noexcept
 		epStatus->resetStatus();
 		epStatus->transferCount = 0;
 		epStatus->ctrl.endpoint(i);
-		epStatus->ctrl.dir(usbTypes::endpointDir_t::controllerIn);
+		epStatus->ctrl.dir(endpointDir_t::controllerIn);
 	}
 
 	for (auto &[i, epStatus] : utility::indexedIterator_t{epStatusControllerOut})
@@ -130,25 +132,25 @@ void usbReset() noexcept
 		epStatus->resetStatus();
 		epStatus->transferCount = 0;
 		epStatus->ctrl.endpoint(i);
-		epStatus->ctrl.dir(usbTypes::endpointDir_t::controllerOut);
+		epStatus->ctrl.dir(endpointDir_t::controllerOut);
 	}
 
 	// Once we get done, idle the peripheral
 	usb.address = 0;
-	usbState = usbTypes::deviceState_t::attached;
-	usb.intEnable |= vals::usb::itrEnableDisconnect;
+	usbState = deviceState_t::attached;
+	usb.intEnable |= vals::usb::itrEnableDisconnect | vals::usb::itrEnableSOF;
 	usb.txIntEnable |= vals::usb::txItrEnableEP0;
 }
 
 void usbDetach()
 {
-	if (usbState == usbTypes::deviceState_t::detached)
+	if (usbState == deviceState_t::detached)
 		return;
 	usb.power &= vals::usb::powerSoftDisconnectMask;
 	usb.intEnable &= vals::usb::itrEnableDeviceMask;
 	usb.power |= vals::usb::powerSoftConnect;
 	usb.intEnable |= vals::usb::itrEnableDeviceReset;
-	usbState = usbTypes::deviceState_t::detached;
+	usbState = deviceState_t::detached;
 }
 
 void usbWakeup()
@@ -178,8 +180,11 @@ void irqUSB() noexcept
 
 	if (status & vals::usb::itrStatusDisconnect)
 		return usbDetach();
-	else if (usbState == usbTypes::deviceState_t::attached)
+	else if (usbState == deviceState_t::attached)
+	{
 		usb.intEnable |= vals::usb::itrEnableSuspend;
+		usbState = deviceState_t::powered;
+	}
 
 	if (status & vals::usb::itrStatusResume)
 		usbWakeup();
@@ -195,23 +200,23 @@ void irqUSB() noexcept
 	if (status & vals::usb::itrStatusSuspend)
 		usbSuspend();
 
-	if (usbState == usbTypes::deviceState_t::detached ||
-		usbState == usbTypes::deviceState_t::attached ||
-		usbState == usbTypes::deviceState_t::powered ||
+	if (usbState == deviceState_t::detached ||
+		usbState == deviceState_t::attached ||
+		usbState == deviceState_t::powered ||
 		(!rxStatus && !txStatus))
 		return;
 
-	for (uint8_t endpoint; endpoint < usbTypes::endpointCount; ++endpoint)
+	for (uint8_t endpoint; endpoint < endpointCount; ++endpoint)
 	{
 		const uint16_t endpointMask = 1U << endpoint;
 		if (rxStatus & endpointMask || txStatus & endpointMask)
 		{
 			usbPacket.endpoint(endpoint);
-			if (rxStatus & endpointMask ||
-					(endpoint == 0 && usb.ep0Ctrl.statusCtrlL & vals::usb::epStatusCtrlLRxReady))
-				usbPacket.dir(usbTypes::endpointDir_t::controllerOut);
+			if (rxStatus & endpointMask || (endpoint == 0 &&
+					(usb.ep0Ctrl.statusCtrlL & vals::usb::epStatusCtrlLRxReady)))
+				usbPacket.dir(endpointDir_t::controllerOut);
 			else
-				usbPacket.dir(usbTypes::endpointDir_t::controllerIn);
+				usbPacket.dir(endpointDir_t::controllerIn);
 
 			if (endpoint == 0)
 				usbDevice::handleControlPacket();
