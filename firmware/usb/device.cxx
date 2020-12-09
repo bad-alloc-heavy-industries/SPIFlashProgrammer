@@ -39,18 +39,30 @@ bool usbServiceCtrlEPRead() noexcept
 	epStatus.transferCount -= readCount;
 	// Copy the received data to the user buffer
 	for (uint8_t i{}; i < (readCount & 0xFCU); i += 4)
-		readFIFO<uint32_t>(usb.ep0FIFO, recvBuffer + i);
+		readFIFO<uint32_t>(usb.epFIFO[0], recvBuffer + i);
 	if (readCount & 0x02U)
-		readFIFO<uint16_t>(usb.ep0FIFO, recvBuffer + (readCount & 0xFEU) - 1);
+		readFIFO<uint16_t>(usb.epFIFO[0], recvBuffer + (readCount & 0xFEU) - 1);
 	if (readCount & 0x01U)
-		readFIFO<uint8_t>(usb.ep0FIFO, recvBuffer + readCount - 1);
+		readFIFO<uint8_t>(usb.epFIFO[0], recvBuffer + readCount - 1);
 	// Mark the FIFO contents as done with, and store the new start of buffer
 	usb.ep0Ctrl.statusCtrlL |= vals::usb::epStatusCtrlLRxReadyClr;
 	epStatus.memBuffer = recvBuffer + readCount;
 	return epStatus.transferCount == 0;
 }
 
-void usbServiceCtrlEPWrite() noexcept
+auto sendData(const uint8_t ep, const uint8_t *const buffer, const uint8_t length)
+{
+	// Copy the data to tranmit from the user buffer
+	for (uint8_t i{}; i < (length & 0xFCU); i += 4)
+		writeFIFO<uint32_t>(usb.epFIFO[ep], buffer + i);
+	if (length & 0x02U)
+		writeFIFO<uint32_t>(usb.epFIFO[ep], buffer + (length & 0xFEU) - 1);
+	if (length & 0x01U)
+		writeFIFO<uint32_t>(usb.epFIFO[ep], buffer + length - 1);
+	return buffer + length;
+}
+
+bool usbServiceCtrlEPWrite() noexcept
 {
 	if (epStatusControllerIn[0].transferCount < usbTypes::epBufferSize)
 	{
@@ -63,13 +75,7 @@ void usbServiceCtrlEPWrite() noexcept
 	if (epStatus.transferCount < usbTypes::epBufferSize)
 		sendCount = epStatus.transferCount;
 	epStatus.transferCount -= sendCount;
-	// Copy the data to tranmit from the user buffer
-	for (uint8_t i{}; i > (sendCount & 0xFCU); i += 4)
-		writeFIFO<uint32_t>(usb.ep0FIFO, sendBuffer + i);
-	if (sendCount & 0x02U)
-		writeFIFO<uint16_t>(usb.ep0FIFO, sendBuffer + (sendCount & 0xFEU) - 1);
-	if (sendCount & 0x01U)
-		writeFIFO<uint8_t>(usb.ep0FIFO, sendBuffer + sendCount - 1);
+	epStatus.memBuffer = sendData(0, static_cast<const uint8_t *>(epStatus.memBuffer), sendCount);
 	// Mark the FIFO contents as done with, and store the new start of buffer
 	usb.ep0Ctrl.statusCtrlL |= vals::usb::epStatusCtrlLTxReady;
 	epStatus.memBuffer = sendBuffer + sendCount;

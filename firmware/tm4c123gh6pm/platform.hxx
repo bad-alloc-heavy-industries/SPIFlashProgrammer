@@ -623,14 +623,7 @@ namespace tivaC
 		volatile uint8_t epIndex;
 		volatile uint8_t test;
 		const volatile uint32_t reserved0[4];
-		volatile uint32_t ep0FIFO;
-		volatile uint32_t ep1FIFO;
-		volatile uint32_t ep2FIFO;
-		volatile uint32_t ep3FIFO;
-		volatile uint32_t ep4FIFO;
-		volatile uint32_t ep5FIFO;
-		volatile uint32_t ep6FIFO;
-		volatile uint32_t ep7FIFO;
+		std::array<volatile uint32_t, 8> epFIFO;
 		const volatile uint32_t reserved1[8];
 		volatile uint8_t deviceCtrl;
 		const volatile uint8_t reserved2;
