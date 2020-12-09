@@ -85,7 +85,36 @@ bool usbServiceCtrlEPWrite() noexcept
 		return usbTypes::epBufferSize;
 	}()};
 	epStatus.transferCount -= sendCount;
-	epStatus.memBuffer = sendData(0, static_cast<const uint8_t *>(epStatus.memBuffer), sendCount);
+
+	if (!epStatus.isMultiPart())
+		epStatus.memBuffer = sendData(0, static_cast<const uint8_t *>(epStatus.memBuffer), sendCount);
+	else
+	{
+		if (!epStatus.memBuffer)
+			epStatus.memBuffer = epStatus.partsData->part(0).descriptor;
+		auto sendAmount{sendCount};
+		while (sendAmount)
+		{
+			const auto &part{epStatus.partsData->part(epStatus.partNumber)};
+			auto *const begin{static_cast<const uint8_t *>(part.descriptor)};
+			const auto partAmount{[&]() -> uint8_t
+			{
+				auto *const buffer{static_cast<const uint8_t *>(epStatus.memBuffer)};
+				const auto amount{part.length - (buffer - begin)};
+				if (amount > sendAmount)
+					return sendAmount;
+				return amount;
+			}()};
+			sendAmount -= partAmount;
+			epStatus.memBuffer = sendData(0, static_cast<const uint8_t *>(epStatus.memBuffer), partAmount);
+			auto *const buffer{static_cast<const uint8_t *>(epStatus.memBuffer)};
+			if (buffer - begin == part.length &&
+					epStatus.partNumber + 1 < epStatus.partsData->count())
+				epStatus.memBuffer = epStatus.partsData->part(++epStatus.partNumber).descriptor;
+		}
+		if (!epStatus.transferCount)
+			epStatus.isMultiPart(false);
+	}
 	// Mark the FIFO contents as done with, and store the new start of buffer
 	usb.ep0Ctrl.statusCtrlL |= vals::usb::epStatusCtrlLTxReady;
 	return !epStatus.transferCount;
