@@ -77,11 +77,13 @@ bool usbServiceCtrlEPWrite() noexcept
 	}
 
 	auto &epStatus{epStatusControllerIn[0]};
-	const uint8_t *const sendBuffer = static_cast<const uint8_t *>(epStatus.memBuffer);
-	auto sendCount = usbTypes::epBufferSize;
-	// Bounds sanity and then adjust how much is left to transfer
-	if (epStatus.transferCount < usbTypes::epBufferSize)
-		sendCount = epStatus.transferCount;
+	const auto sendCount{[&]() noexcept -> uint8_t
+	{
+		// Bounds sanity and then adjust how much is left to transfer
+		if (epStatus.transferCount < usbTypes::epBufferSize)
+			return epStatus.transferCount;
+		return usbTypes::epBufferSize;
+	}()};
 	epStatus.transferCount -= sendCount;
 	epStatus.memBuffer = sendData(0, static_cast<const uint8_t *>(epStatus.memBuffer), sendCount);
 	// Mark the FIFO contents as done with, and store the new start of buffer
