@@ -139,6 +139,8 @@ void usbReset() noexcept
 	usb.address = 0;
 	usbState = deviceState_t::attached;
 	usb.intEnable |= vals::usb::itrEnableDisconnect | vals::usb::itrEnableSOF;
+	usb.txIntEnable &= vals::usb::txItrEnableMask;
+	usb.rxIntEnable &= vals::usb::rxItrEnableMask;
 	usb.txIntEnable |= vals::usb::txItrEnableEP0;
 }
 
@@ -194,6 +196,7 @@ void irqUSB() noexcept
 	if (status & vals::usb::itrStatusDeviceReset)
 	{
 		usbReset();
+		usbState = deviceState_t::waiting;
 		return;
 	}
 
