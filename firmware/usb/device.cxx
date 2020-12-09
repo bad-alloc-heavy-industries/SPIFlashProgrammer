@@ -28,6 +28,10 @@ namespace usbDevice
 	}
 }
 
+/*!
+ * @returns true when the all the data to be read has been retreived,
+ * false if there is more left to fetch.
+ */
 bool usbServiceCtrlEPRead() noexcept
 {
 	auto &epStatus{epStatusControllerOut[0]};
@@ -47,7 +51,7 @@ bool usbServiceCtrlEPRead() noexcept
 	// Mark the FIFO contents as done with, and store the new start of buffer
 	usb.ep0Ctrl.statusCtrlL |= vals::usb::epStatusCtrlLRxReadyClr;
 	epStatus.memBuffer = recvBuffer + readCount;
-	return epStatus.transferCount == 0;
+	return !epStatus.transferCount;
 }
 
 auto sendData(const uint8_t ep, const uint8_t *const buffer, const uint8_t length)
@@ -62,6 +66,10 @@ auto sendData(const uint8_t ep, const uint8_t *const buffer, const uint8_t lengt
 	return buffer + length;
 }
 
+/*!
+ * @returns true when the data to be transmitted is entirely sent,
+ * false if there is more left to send.
+ */
 bool usbServiceCtrlEPWrite() noexcept
 {
 	if (epStatusControllerIn[0].transferCount < usbTypes::epBufferSize)
@@ -78,7 +86,7 @@ bool usbServiceCtrlEPWrite() noexcept
 	epStatus.memBuffer = sendData(0, static_cast<const uint8_t *>(epStatus.memBuffer), sendCount);
 	// Mark the FIFO contents as done with, and store the new start of buffer
 	usb.ep0Ctrl.statusCtrlL |= vals::usb::epStatusCtrlLTxReady;
-	epStatus.memBuffer = sendBuffer + sendCount;
+	return !epStatus.transferCount;
 }
 
 void usbHandleDataCtrlEP() noexcept
