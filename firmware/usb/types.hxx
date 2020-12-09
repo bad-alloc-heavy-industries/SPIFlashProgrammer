@@ -5,6 +5,8 @@
 #include <cstdint>
 #include <tuple>
 
+namespace usbDescriptors { struct usbMultiPartTable_t; }
+
 namespace usbTypes
 {
 	// Reserve space for EP0 In + Out, and EP1 In + Out.
@@ -86,12 +88,15 @@ namespace usbTypes
 		buffer_t *memBuffer{nullptr};
 		usbEP_t ctrl{};
 		uint16_t transferCount{};
+		// Multi-part fields
+		uint8_t partNumber{};
+		const usbDescriptors::usbMultiPartTable_t *partsData{nullptr};
 
 		usbEPStatus_t() = default;
 
 		void transferTerminated(const bool terminated) noexcept
 		{
-			value &= 0x01U;
+			value &= 0xFEU;
 			value |= terminated ? 0x01U : 0x00U;
 		}
 
@@ -99,7 +104,7 @@ namespace usbTypes
 
 		void needsArming(const bool needed) noexcept
 		{
-			value &= 0x02U;
+			value &= 0xFDU;
 			value |= needed ? 0x02U : 0x00U;
 		}
 
@@ -107,11 +112,19 @@ namespace usbTypes
 
 		void stall(const bool needed) noexcept
 		{
-			value &= 0x04U;
+			value &= 0xFBU;
 			value |= needed ? 0x04U : 0x00U;
 		}
 
 		[[nodiscard]] bool stall() const noexcept { return value & 0x04U; }
+
+		void isMultiPart(const bool multiPart) noexcept
+		{
+			value &= 0xF7U;
+			value |= multiPart ? 0x08U : 0x00U;
+		}
+
+		bool isMultiPart() const noexcept { return value & 0x08U; }
 
 		void resetStatus() noexcept { value = 0; }
 	};
