@@ -254,6 +254,15 @@ namespace usbDescriptors
 			const usbMultiPartDesc_t *const end) noexcept: _begin{begin}, _end{end} { }
 		constexpr auto begin() const noexcept { return _begin; }
 		constexpr auto end() const noexcept { return _end; }
+		constexpr auto count() const noexcept { return _end - _begin; }
+
+		constexpr auto &part(const size_t index) const noexcept
+		{
+			if (_begin + index >= _end)
+				return *_end;
+			return _begin[index];
+		}
+		constexpr auto &operator [](const size_t index) const noexcept { return part(index); }
 	};
 } // namespace usbDescriptors
 

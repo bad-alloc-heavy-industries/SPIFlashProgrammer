@@ -149,9 +149,9 @@ namespace usbDevice
 				std::size_t count{};
 				for (const auto &descriptor : configDescriptor)
 					count += descriptor.length;
-				/*epStatusControllerIn[0].multiPart(true);
-				epStatusControllerIn[0].partNumber(0);
-				epStatusControllerIn[0].partsData(configDescriptor);*/
+				epStatusControllerIn[0].isMultiPart(true);
+				epStatusControllerIn[0].partNumber = 0;
+				epStatusControllerIn[0].partsData = &configDescriptor;
 				return {response_t::data, nullptr, count};
 			}
 			// Handle interface descriptor requests
