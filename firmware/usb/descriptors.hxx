@@ -3,6 +3,7 @@
 #define USB_DESCRIPTORS__HXX
 
 #include <cstdint>
+#include <cstddef>
 #include "types.hxx"
 
 namespace usbDescriptors
@@ -256,13 +257,22 @@ namespace usbDescriptors
 		constexpr auto end() const noexcept { return _end; }
 		constexpr auto count() const noexcept { return _end - _begin; }
 
-		constexpr auto &part(const size_t index) const noexcept
+		constexpr auto &part(const std::size_t index) const noexcept
 		{
 			if (_begin + index >= _end)
 				return *_end;
 			return _begin[index];
 		}
-		constexpr auto &operator [](const size_t index) const noexcept { return part(index); }
+		constexpr auto &operator [](const std::size_t index) const noexcept { return part(index); }
+
+		constexpr auto totalLength() const noexcept
+		{
+			// TODO: Convert to std::accumulate() later.
+			std::size_t count{};
+			for (const auto &descriptor : *this)
+				count += descriptor.length;
+			return count;
+		}
 	};
 } // namespace usbDescriptors
 

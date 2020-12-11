@@ -145,14 +145,10 @@ namespace usbDevice
 				if (descriptor.index >= configDescriptorCount)
 					break;
 				const auto &configDescriptor{usbConfigDescriptors[descriptor.index]};
-				// TODO: Convert to std::accumulate() later.
-				std::size_t count{};
-				for (const auto &descriptor : configDescriptor)
-					count += descriptor.length;
 				epStatusControllerIn[0].isMultiPart(true);
 				epStatusControllerIn[0].partNumber = 0;
 				epStatusControllerIn[0].partsData = &configDescriptor;
-				return {response_t::data, nullptr, count};
+				return {response_t::data, nullptr, configDescriptor.totalLength()};
 			}
 			// Handle interface descriptor requests
 			case usbDescriptor_t::interface:
