@@ -201,7 +201,8 @@ namespace usbDevice
 		epStatusControllerIn[0].needsArming(response == response_t::data || response == response_t::zeroLength);
 		epStatusControllerIn[0].memBuffer = data;
 		epStatusControllerIn[0].transferCount = response == response_t::zeroLength ? 0 : size;
-		if (response == response_t::data && !data) // If the response is whacko, don't do the stupid thing
+		// If the response is whacko, don't do the stupid thing
+		if (response == response_t::data && !data && !epStatusControllerIn[0].isMultiPart())
 			epStatusControllerIn[0].needsArming(false);
 		completeSetupPacket();
 	}
@@ -237,7 +238,7 @@ namespace usbDevice
 				packet.request != request_t::setAddress || address.addrH != 0)
 			{
 				usb.address &= vals::usb::addressClrMask;
-				usbState = deviceState_t::attached;
+				usbState = deviceState_t::waiting;
 			}
 			else
 			{
