@@ -611,6 +611,13 @@ namespace tivaC
 			const volatile uint16_t reserved;
 		};
 
+		union fifo_t final
+		{
+			uint32_t u32;
+			uint16_t u16;
+			uint8_t u8;
+		};
+
 		volatile uint8_t address; // Bus address for the device
 		volatile uint8_t power;
 		volatile uint16_t txIntStatus;
@@ -623,7 +630,7 @@ namespace tivaC
 		volatile uint8_t epIndex;
 		volatile uint8_t test;
 		const volatile uint32_t reserved0[4];
-		std::array<volatile uint32_t, 8> epFIFO;
+		std::array<volatile fifo_t, 8> epFIFO;
 		const volatile uint32_t reserved1[8];
 		volatile uint8_t deviceCtrl;
 		const volatile uint8_t reserved2;
@@ -1163,5 +1170,62 @@ static auto &udma{*reinterpret_cast<tivaC::udma_t *>(tivaC::udmaBase)};
 
 static auto &sysTick{*reinterpret_cast<tivaC::sysTick_t *>(tivaC::sysTickBase)};
 static auto &nvic{*reinterpret_cast<tivaC::nvic_t *>(tivaC::nvicBase)};
+
+template<typename T> struct readFIFO_t;
+template<typename T> struct writeFIFO_t;
+
+template<> struct readFIFO_t<uint8_t> final
+{
+	void operator ()(volatile const tivaC::usb_t::fifo_t &fifo, void *const buffer) noexcept
+	{
+		auto &data{*reinterpret_cast<uint8_t *>(buffer)};
+		data = fifo.u8;
+	}
+};
+
+template<> struct readFIFO_t<uint16_t> final
+{
+	void operator ()(volatile const tivaC::usb_t::fifo_t &fifo, void *const buffer) noexcept
+	{
+		auto &data{*reinterpret_cast<uint16_t *>(buffer)};
+		data = fifo.u16;
+	}
+};
+
+template<> struct readFIFO_t<uint32_t> final
+{
+	void operator ()(volatile const tivaC::usb_t::fifo_t &fifo, void *const buffer) noexcept
+	{
+		auto &data{*reinterpret_cast<uint32_t *>(buffer)};
+		data = fifo.u32;
+	}
+};
+
+template<> struct writeFIFO_t<uint8_t> final
+{
+	void operator ()(volatile tivaC::usb_t::fifo_t &fifo, const void *const buffer) noexcept
+	{
+		const auto &data{*reinterpret_cast<const uint8_t *>(buffer)};
+		fifo.u8 = data;
+	}
+};
+
+template<> struct writeFIFO_t<uint16_t> final
+{
+	void operator ()(volatile tivaC::usb_t::fifo_t &fifo, const void *const buffer) noexcept
+	{
+		const auto &data{*reinterpret_cast<const uint16_t *>(buffer)};
+		fifo.u16 = data;
+	}
+};
+
+template<> struct writeFIFO_t<uint32_t> final
+{
+	void operator ()(volatile tivaC::usb_t::fifo_t &fifo, const void *const buffer) noexcept
+	{
+		const auto &data{*reinterpret_cast<const uint32_t *>(buffer)};
+		fifo.u32 = data;
+	}
+};
 
 #endif /*TM4C123GH6PM_PLATFORM__HXX*/
