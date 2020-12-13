@@ -109,78 +109,78 @@ void usbInit() noexcept
 	usb.power |= vals::usb::powerSoftConnect;
 }
 
-void usbReset() noexcept
-{
-	for (uint8_t i{}; i < endpointCount; ++i)
-	{
-		usb.epIndex = i;
-		// 128 / 2 = 64, so this gives us 64 bytes per EP.
-		usb.txFIFOSize = vals::usb::txFIFOSize128 | vals::usb::txFIFOSizeDoubleBuffered;
-		usb.txFIFOAddr = vals::usb::fifoAddr(128 * (i * 2));
-		usb.rxFIFOSize = vals::usb::rxFIFOSize128 | vals::usb::rxFIFOSizeDoubleBuffered;
-		usb.rxFIFOAddr = vals::usb::fifoAddr(128 * ((i * 2) + 1));
-	}
-	// Really enable the double-buffers as apparently this isn't done just by the above.
-	usb.txPacketDoubleBuffEnable |= vals::usb::txPacketDoubleBuffEnableEP1;
-	usb.rxPacketDoubleBuffEnable |= vals::usb::rxPacketDoubleBuffEnableEP1;
-
-	for (auto &[i, epStatus] : utility::indexedIterator_t{epStatusControllerIn})
-	{
-		epStatus->resetStatus();
-		epStatus->transferCount = 0;
-		epStatus->ctrl.endpoint(i);
-		epStatus->ctrl.dir(endpointDir_t::controllerIn);
-	}
-
-	for (auto &[i, epStatus] : utility::indexedIterator_t{epStatusControllerOut})
-	{
-		epStatus->resetStatus();
-		epStatus->transferCount = 0;
-		epStatus->ctrl.endpoint(i);
-		epStatus->ctrl.dir(endpointDir_t::controllerOut);
-	}
-
-	// Once we get done, idle the peripheral
-	usb.address = 0;
-	usbState = deviceState_t::attached;
-	usb.intEnable |= vals::usb::itrEnableDisconnect | vals::usb::itrEnableSOF;
-	usb.txIntEnable &= vals::usb::txItrEnableMask;
-	usb.rxIntEnable &= vals::usb::rxItrEnableMask;
-	usb.txIntEnable |= vals::usb::txItrEnableEP0;
-}
-
-void usbDetach()
-{
-	if (usbState == deviceState_t::detached)
-		return;
-	usb.power &= vals::usb::powerSoftDisconnectMask;
-	usb.intEnable &= vals::usb::itrEnableDeviceMask;
-	usb.power |= vals::usb::powerSoftConnect;
-	usb.intEnable |= vals::usb::itrEnableDeviceReset;
-	usbState = deviceState_t::detached;
-}
-
-void usbWakeup()
-{
-	usbSuspended = false;
-	usb.power |= vals::usb::powerResume;
-	while ((usb.power & vals::usb::powerSuspend) == vals::usb::powerSuspend)
-		continue;
-	usb.power &= ~vals::usb::powerResume;
-	usb.intEnable &= ~vals::usb::itrEnableResume;
-	usb.intEnable |= vals::usb::itrEnableSuspend;
-}
-
-void usbSuspend()
-{
-	usb.intEnable &= ~vals::usb::itrEnableSuspend;
-	usb.intEnable |= vals::usb::itrEnableResume;
-	usb.power |= vals::usb::powerSuspend;
-	usbSuspended = true;
-}
-
 namespace usbCore
 {
+	void usbReset() noexcept
+	{
+		for (uint8_t i{}; i < endpointCount; ++i)
+		{
+			usb.epIndex = i;
+			// 128 / 2 = 64, so this gives us 64 bytes per EP.
+			usb.txFIFOSize = vals::usb::txFIFOSize128 | vals::usb::txFIFOSizeDoubleBuffered;
+			usb.txFIFOAddr = vals::usb::fifoAddr(128 * (i * 2));
+			usb.rxFIFOSize = vals::usb::rxFIFOSize128 | vals::usb::rxFIFOSizeDoubleBuffered;
+			usb.rxFIFOAddr = vals::usb::fifoAddr(128 * ((i * 2) + 1));
+		}
+		// Really enable the double-buffers as apparently this isn't done just by the above.
+		usb.txPacketDoubleBuffEnable |= vals::usb::txPacketDoubleBuffEnableEP1;
+		usb.rxPacketDoubleBuffEnable |= vals::usb::rxPacketDoubleBuffEnableEP1;
+
+		for (auto &[i, epStatus] : utility::indexedIterator_t{epStatusControllerIn})
+		{
+			epStatus->resetStatus();
+			epStatus->transferCount = 0;
+			epStatus->ctrl.endpoint(i);
+			epStatus->ctrl.dir(endpointDir_t::controllerIn);
+		}
+
+		for (auto &[i, epStatus] : utility::indexedIterator_t{epStatusControllerOut})
+		{
+			epStatus->resetStatus();
+			epStatus->transferCount = 0;
+			epStatus->ctrl.endpoint(i);
+			epStatus->ctrl.dir(endpointDir_t::controllerOut);
+		}
+
+		// Once we get done, idle the peripheral
+		usb.address = 0;
+		usbState = deviceState_t::attached;
+		usb.intEnable |= vals::usb::itrEnableDisconnect | vals::usb::itrEnableSOF;
+		usb.txIntEnable &= vals::usb::txItrEnableMask;
+		usb.rxIntEnable &= vals::usb::rxItrEnableMask;
+		usb.txIntEnable |= vals::usb::txItrEnableEP0;
+	}
+
+	void usbDetach()
+	{
+		if (usbState == deviceState_t::detached)
+			return;
+		usb.power &= vals::usb::powerSoftDisconnectMask;
+		usb.intEnable &= vals::usb::itrEnableDeviceMask;
+		usb.power |= vals::usb::powerSoftConnect;
+		usb.intEnable |= vals::usb::itrEnableDeviceReset;
+		usbState = deviceState_t::detached;
+	}
+
+	void usbWakeup()
+	{
+		usbSuspended = false;
+		usb.power |= vals::usb::powerResume;
+		while ((usb.power & vals::usb::powerSuspend) == vals::usb::powerSuspend)
+			continue;
+		usb.power &= ~vals::usb::powerResume;
+		usb.intEnable &= ~vals::usb::itrEnableResume;
+		usb.intEnable |= vals::usb::itrEnableSuspend;
+	}
+
+	void usbSuspend()
+	{
+		usb.intEnable &= ~vals::usb::itrEnableSuspend;
+		usb.intEnable |= vals::usb::itrEnableResume;
+		usb.power |= vals::usb::powerSuspend;
+		usbSuspended = true;
+	}
+
 	const uint8_t *sendData(const uint8_t ep, const uint8_t *const buffer, const uint8_t length) noexcept
 	{
 		// Copy the data to tranmit from the user buffer
