@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include <array>
-#include "types.hxx"
+#include "core.hxx"
 #include "descriptors.hxx"
 #include "device.hxx"
 
@@ -125,6 +125,7 @@ static const std::array<usbStringDesc_t, stringCount> usbStrings
 }};
 
 using namespace usbTypes;
+using namespace usbCore;
 
 namespace usbDevice
 {

@@ -8,13 +8,6 @@
 #include "types.hxx"
 #include "descriptors.hxx"
 
-extern usbTypes::deviceState_t usbState;
-extern usbTypes::usbEP_t usbPacket;
-extern usbTypes::ctrlState_t usbCtrlState;
-
-extern std::array<usbTypes::usbEPStatus_t<const void>, usbTypes::endpointCount> epStatusControllerIn;
-extern std::array<usbTypes::usbEPStatus_t<void>, usbTypes::endpointCount> epStatusControllerOut;
-
 namespace usbTypes
 {
 	enum class request_t : uint8_t

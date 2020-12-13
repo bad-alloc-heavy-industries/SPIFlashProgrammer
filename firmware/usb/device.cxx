@@ -1,10 +1,11 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "tm4c123gh6pm/platform.hxx"
 #include "tm4c123gh6pm/constants.hxx"
-#include "usb/types.hxx"
+#include "usb/core.hxx"
 #include "usb/device.hxx"
 
 using namespace usbTypes;
+using namespace usbCore;
 void usbHandleStatusCtrlEP() noexcept;
 
 namespace usbDevice
@@ -35,35 +36,15 @@ namespace usbDevice
 bool usbServiceCtrlEPRead() noexcept
 {
 	auto &epStatus{epStatusControllerOut[0]};
-	uint8_t *const recvBuffer = static_cast<uint8_t *>(epStatus.memBuffer);
 	auto readCount = usb.ep0Ctrl.rxCount;
 	// Bounds sanity and then adjust how much is left to transfer
 	if (readCount > epStatus.transferCount)
 		readCount = epStatus.transferCount;
 	epStatus.transferCount -= readCount;
-	// Copy the received data to the user buffer
-	for (uint8_t i{}; i < (readCount & 0xFCU); i += 4)
-		readFIFO_t<uint32_t>{}(usb.epFIFO[0], recvBuffer + i);
-	if (readCount & 0x02U)
-		readFIFO_t<uint16_t>{}(usb.epFIFO[0], recvBuffer + (readCount & 0xFEU) - 2);
-	if (readCount & 0x01U)
-		readFIFO_t<uint8_t>{}(usb.epFIFO[0], recvBuffer + readCount - 1);
-	// Mark the FIFO contents as done with, and store the new start of buffer
+	epStatus.memBuffer = recvData(0, static_cast<uint8_t *>(epStatus.memBuffer), readCount);
+	// Mark the FIFO contents as done with
 	usb.ep0Ctrl.statusCtrlL |= vals::usb::epStatusCtrlLRxReadyClr;
-	epStatus.memBuffer = recvBuffer + readCount;
 	return !epStatus.transferCount;
-}
-
-auto sendData(const uint8_t ep, const uint8_t *const buffer, const uint8_t length)
-{
-	// Copy the data to tranmit from the user buffer
-	for (uint8_t i{}; i < (length & 0xFCU); i += 4)
-		writeFIFO_t<uint32_t>{}(usb.epFIFO[ep], buffer + i);
-	if (length & 0x02U)
-		writeFIFO_t<uint16_t>{}(usb.epFIFO[ep], buffer + (length & 0xFEU) - 2);
-	if (length & 0x01U)
-		writeFIFO_t<uint8_t>{}(usb.epFIFO[ep], buffer + length - 1);
-	return buffer + length;
 }
 
 /*!
@@ -115,7 +96,7 @@ bool usbServiceCtrlEPWrite() noexcept
 		if (!epStatus.transferCount)
 			epStatus.isMultiPart(false);
 	}
-	// Mark the FIFO contents as done with, and store the new start of buffer
+	// Mark the FIFO contents as done with
 	usb.ep0Ctrl.statusCtrlL |= vals::usb::epStatusCtrlLTxReady;
 	return !epStatus.transferCount;
 }

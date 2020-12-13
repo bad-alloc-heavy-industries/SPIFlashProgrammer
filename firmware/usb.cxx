@@ -18,14 +18,19 @@
 
 using namespace usbTypes;
 
-deviceState_t usbState;
-usbEP_t usbPacket;
-bool usbSuspended;
-ctrlState_t usbCtrlState;
-uint8_t usbDeferalFlags;
+namespace usbCore
+{
+	deviceState_t usbState;
+	usbEP_t usbPacket;
+	bool usbSuspended;
+	ctrlState_t usbCtrlState;
+	uint8_t usbDeferalFlags;
 
-std::array<usbEPStatus_t<const void>, endpointCount> epStatusControllerIn;
-std::array<usbEPStatus_t<void>, endpointCount> epStatusControllerOut;
+	std::array<usbEPStatus_t<const void>, endpointCount> epStatusControllerIn;
+	std::array<usbEPStatus_t<void>, endpointCount> epStatusControllerOut;
+} // namespace usbCore
+
+using namespace usbCore;
 
 /*!
  * Transmitting packets:
@@ -173,6 +178,33 @@ void usbSuspend()
 	usb.power |= vals::usb::powerSuspend;
 	usbSuspended = true;
 }
+
+namespace usbCore
+{
+	const uint8_t *sendData(const uint8_t ep, const uint8_t *const buffer, const uint8_t length) noexcept
+	{
+		// Copy the data to tranmit from the user buffer
+		for (uint8_t i{}; i < (length & 0xFCU); i += 4)
+			writeFIFO_t<uint32_t>{}(usb.epFIFO[ep], buffer + i);
+		if (length & 0x02U)
+			writeFIFO_t<uint16_t>{}(usb.epFIFO[ep], buffer + (length & 0xFEU) - 2);
+		if (length & 0x01U)
+			writeFIFO_t<uint8_t>{}(usb.epFIFO[ep], buffer + length - 1);
+		return buffer + length;
+	}
+
+	uint8_t *recvData(const uint8_t ep, uint8_t *const buffer, const uint8_t length) noexcept
+	{
+		// Copy the received data to the user buffer
+		for (uint8_t i{}; i < (length & 0xFCU); i += 4)
+			readFIFO_t<uint32_t>{}(usb.epFIFO[ep], buffer + i);
+		if (length & 0x02U)
+			readFIFO_t<uint16_t>{}(usb.epFIFO[ep], buffer + (length & 0xFEU) - 2);
+		if (length & 0x01U)
+			readFIFO_t<uint8_t>{}(usb.epFIFO[ep], buffer + length - 1);
+		return buffer + length;
+	}
+} // namespace usbCore
 
 void irqUSB() noexcept
 {
