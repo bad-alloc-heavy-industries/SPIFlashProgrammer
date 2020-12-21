@@ -25,8 +25,10 @@ namespace usbTypes
 	{
 		idle,
 		wait,
-		tx,
-		rx
+		dataTX,
+		dataRX,
+		statusTX,
+		statusRX
 	};
 
 	enum class deviceState_t

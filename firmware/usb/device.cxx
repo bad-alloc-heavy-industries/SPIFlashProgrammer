@@ -43,7 +43,10 @@ bool usbServiceCtrlEPRead() noexcept
 	epStatus.transferCount -= readCount;
 	epStatus.memBuffer = recvData(0, static_cast<uint8_t *>(epStatus.memBuffer), readCount);
 	// Mark the FIFO contents as done with
+	if (epStatus.transferCount || usbCtrlState == ctrlState_t::statusRX)
 	usb.ep0Ctrl.statusCtrlL |= vals::usb::epStatusCtrlLRxReadyClr;
+	else
+		usb.ep0Ctrl.statusCtrlL |= vals::usb::epStatusCtrlLRxReadyClr | vals::usb::epStatusCtrlLDataEnd;
 	return !epStatus.transferCount;
 }
 
@@ -97,13 +100,16 @@ bool usbServiceCtrlEPWrite() noexcept
 			epStatus.isMultiPart(false);
 	}
 	// Mark the FIFO contents as done with
+	if (epStatus.transferCount || usbCtrlState == ctrlState_t::statusTX)
 	usb.ep0Ctrl.statusCtrlL |= vals::usb::epStatusCtrlLTxReady;
+	else
+		usb.ep0Ctrl.statusCtrlL |= vals::usb::epStatusCtrlLTxReady | vals::usb::epStatusCtrlLDataEnd;
 	return !epStatus.transferCount;
 }
 
 void usbHandleDataCtrlEP() noexcept
 {
-	if (usbCtrlState == ctrlState_t::tx)
+	if (usbCtrlState == ctrlState_t::dataTX)
 	{
 		if (epStatusControllerIn[0].transferCount > usbDevice::packet.length)
 			epStatusControllerIn[0].transferCount = usbDevice::packet.length;
@@ -128,13 +134,13 @@ namespace usbDevice
 			if (epStatusControllerOut[0].needsArming())
 			{
 				// <SETUP[0]><OUT[1]><OUT[0]>...<IN[1]>
-				usbCtrlState = ctrlState_t::rx;
+				usbCtrlState = ctrlState_t::dataRX;
 			}
 			// We need to stall in answer
 			else if (epStatusControllerIn[0].stall())
 			{
 				// <SETUP[0]><STALL>
-				ep0.statusCtrlL |= vals::usb::epStatusCtrlLStall | vals::usb::epStatusCtrlLRxReadyClr;
+				ep0.statusCtrlL |= vals::usb::epStatusCtrlLStall;
 				usbCtrlState = ctrlState_t::idle;
 			}
 		}
@@ -144,12 +150,18 @@ namespace usbDevice
 			// Is this as part of a multi-part transaction?
 			if (packet.requestType.dir() == endpointDir_t::controllerIn)
 				// <SETUP[0]><IN[1]><IN[0]>...<OUT[1]>
-				usbCtrlState = ctrlState_t::tx;
+				usbCtrlState = ctrlState_t::dataTX;
 			// Or just a quick answer?
 			else
 				//  <SETUP[0]><IN[1]>
-				usbCtrlState = ctrlState_t::rx;
-			usbServiceCtrlEPWrite();
+				usbCtrlState = ctrlState_t::statusTX;
+			if (usbServiceCtrlEPWrite())
+			{
+				if (usbCtrlState == ctrlState_t::dataTX)
+					usbCtrlState = ctrlState_t::statusRX;
+				else
+					usbCtrlState = ctrlState_t::idle;
+			}
 		}
 	}
 
@@ -191,20 +203,19 @@ namespace usbDevice
 	void handleControllerOutPacket() noexcept
 	{
 		// If we're in the data phase
-		if (usbCtrlState == ctrlState_t::rx)
+		if (usbCtrlState == ctrlState_t::dataRX)
 		{
 			if (usbServiceCtrlEPRead())
 			{
 				// If we now have all the data for the transaction..
+				usbCtrlState = ctrlState_t::statusTX;
+				// TODO: Handle data and generate status response.
 			}
 		}
 		// If we're in the status phase
 		else
-		{
-			usbCtrlState = ctrlState_t::wait;
-			auto &ep0 = usb.ep0Ctrl;
-			//
-		}
+			usbCtrlState = ctrlState_t::idle;
+	}
 	}
 
 	void handleControllerInPacket() noexcept
@@ -230,9 +241,14 @@ namespace usbDevice
 		}
 
 		// If we're in the data phase
-		if (usbCtrlState == ctrlState_t::tx)
+		if (usbCtrlState == ctrlState_t::dataTX)
 		{
-			usbServiceCtrlEPWrite();
+			if (usbServiceCtrlEPWrite())
+			{
+				// If we now have all the data for the transaction..
+				//usbCtrlState = ctrlState_t::statusRX;
+				usbCtrlState = ctrlState_t::idle;
+			}
 		}
 		// Otherwise this was a status phase TX-complete interrupt
 		else
