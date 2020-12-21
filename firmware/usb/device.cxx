@@ -257,6 +257,8 @@ namespace usbDevice
 
 	void handleControlPacket() noexcept
 	{
+		if (usb.ep0Ctrl.statusCtrlL & vals::usb::epStatusCtrlLSetupEnd)
+			usb.ep0Ctrl.statusCtrlL |= vals::usb::epStatusCtrlLSetupEndClr;
 		// If we received a packet..
 		if (usbPacket.dir() == endpointDir_t::controllerOut)
 		{
