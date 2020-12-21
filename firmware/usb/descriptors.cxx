@@ -11,7 +11,7 @@ static const usbDeviceDescriptor_t usbDeviceDesc
 {
 	sizeof(usbDeviceDescriptor_t),
 	usbDescriptor_t::device,
-	0x0200, // this is 2.00 in USB's BCD format
+	0x0200, // This is 2.00 in USB's BCD format
 	usbClass_t::none,
 	uint8_t(subclasses::device_t::none),
 	uint8_t(protocols::device_t::none),
@@ -23,6 +23,19 @@ static const usbDeviceDescriptor_t usbDeviceDesc
 	2, // Product string index
 	0, // Temporarily do not support a serial number string
 	configDescriptorCount
+};
+
+static const usbDeviceQualifierDescriptor_t usbDeviceQualifierDesc
+{
+	sizeof(usbDeviceQualifierDescriptor_t),
+	usbDescriptor_t::deviceQualifier,
+	0x0200, // This is 2.00 in USB's BCD format
+	usbClass_t::none,
+	uint8_t(subclasses::device_t::none),
+	uint8_t(protocols::device_t::none),
+	epBufferSize,
+	0, // No other configurations
+	0 // reserved field that must be 0.
 };
 
 static const std::array<usbConfigDescriptor_t, configDescriptorCount> usbConfigDesc
@@ -140,6 +153,8 @@ namespace usbDevice
 			// Handle device descriptor requests
 			case usbDescriptor_t::device:
 				return {response_t::data, &usbDeviceDesc, usbDeviceDesc.length};
+			case usbDescriptor_t::deviceQualifier:
+				return {response_t::data, &usbDeviceQualifierDesc, usbDeviceQualifierDesc.length};
 			// Handle configuration descriptor requests
 			case usbDescriptor_t::configuration:
 			{

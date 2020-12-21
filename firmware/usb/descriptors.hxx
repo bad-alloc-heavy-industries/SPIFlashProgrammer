@@ -76,6 +76,19 @@ namespace usbDescriptors
 		uint8_t numConfigurations;
 	};
 
+	struct usbDeviceQualifierDescriptor_t
+	{
+		uint8_t length;
+		usbDescriptor_t descriptorType;
+		uint16_t usbVersion;
+		usbClass_t deviceClass;
+		uint8_t deviceSubClass;
+		uint8_t deviceProtocol;
+		uint8_t maxPacketSize0;
+		uint8_t numOtherConfigurations;
+		uint8_t reserved;
+	};
+
 	enum class usbConfigAttr_t : uint8_t
 	{
 		defaults = 0x80U,
