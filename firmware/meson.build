@@ -14,3 +14,15 @@ firmware = executable(
 	build_by_default: true,
 	install: false
 )
+
+size = find_program('get_fw_size.py', dirs: '@0@/../scripts'.format(meson.current_source_dir()))
+run_target(
+	'size',
+	command: [
+		size,
+		'--flash-size=262144', # 256KiB of Flash
+		'--ram-size=32768', # 32KiB of RAM
+		'--size-prog=@0@'.format(find_program('size').path()),
+		firmware
+	]
+)
