@@ -4,9 +4,7 @@ MEMORY
 {
 	FLASH	(rx):	ORIGIN = 0x00000000, LENGTH = 0x00040000
 	/* This chip has 32k of RAM, so reserve 28k for the application */
-	RAM		(rwx):	ORIGIN = 0x20001000, LENGTH = 0x00008000
-	/* And reserve 4k for the stack (which grows down so is at the start of RAM) */
-	STACK	(rwx):	ORIGIN = 0x20000FFF, LENGTH = 0x00000000
+	RAM		(rwx):	ORIGIN = 0x20000000, LENGTH = 0x00008000
 }
 
 /*
@@ -21,7 +19,7 @@ SECTIONS
 {
 	.text :
 	{
-		beginText = .;
+		PROVIDE(beginText = .);
 		KEEP(*(.nvic_table))
 		*(.text.* .text .gnu.linkonce.t.*)
 		*(.rodata.* .rodata .gnu.linkonce.r.*)
@@ -31,29 +29,31 @@ SECTIONS
 		*(.init_array.* .ctors.*)
 		KEEP(*(.init_array .ctors))
 		PROVIDE(endCtors = .);
-		endText = .;
+		PROVIDE(endText = .);
 	} >FLASH
+
+	.stack :
+	{
+		/* Reserve 4k for the stack (which grows down so is at the start of RAM) */
+		. += 0x00001000;
+		PROVIDE(stackTop = .);
+	} >RAM
 
 	.data :
 	{
-		beginData = .;
+		PROVIDE(beginData = .);
 		*(.data.* .data)
 		*(vtable)
-		endData = .;
+		PROVIDE(endData = .);
 	} >RAM AT >FLASH
 
 	.bss :
 	{
-		beginBSS = .;
+		PROVIDE(beginBSS = .);
 		*(.bss.* .bss)
 		*(COMMON)
-		endBSS = .;
+		PROVIDE(endBSS = .);
 	} >RAM
-
-	.stack :
-	{
-		stackTop = .;
-	} >STACK
 
 	/* DWARF debug sections.
 	 Symbols in the DWARF debugging sections are relative to the beginning
