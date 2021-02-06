@@ -23,6 +23,11 @@ namespace usbDevice
 				return {response_t::zeroLength, nullptr, 0};
 			case request_t::getDescriptor:
 				return handleGetDescriptor();
+			case request_t::setConfiguration:
+				// TODO: build initialisation logic for bringing up the EP1 "driver" and endpoint configuration.
+				// handleSetConfiguration();
+				// Acknowledge the request.
+				return {response_t::zeroLength, nullptr, 0};
 		}
 
 		return {response_t::unhandled, nullptr, 0};
