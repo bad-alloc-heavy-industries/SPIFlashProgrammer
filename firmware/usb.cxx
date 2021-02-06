@@ -241,7 +241,7 @@ void irqUSB() noexcept
 		(!rxStatus && !txStatus))
 		return;
 
-	for (uint8_t endpoint; endpoint < endpointCount; ++endpoint)
+	for (uint8_t endpoint{}; endpoint < endpointCount; ++endpoint)
 	{
 		const uint16_t endpointMask = 1U << endpoint;
 		if (rxStatus & endpointMask || txStatus & endpointMask)

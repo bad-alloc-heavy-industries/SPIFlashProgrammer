@@ -126,12 +126,11 @@ namespace usbTypes
 			value |= multiPart ? 0x08U : 0x00U;
 		}
 
-		bool isMultiPart() const noexcept { return value & 0x08U; }
-
+		[[nodiscard]] bool isMultiPart() const noexcept { return value & 0x08U; }
 		void resetStatus() noexcept { value = 0; }
 	};
 
-	using answer_t = std::tuple<response_t, const void *, std::size_t>;
+	using answer_t = std::tuple<response_t, const void *, std::uint16_t>;
 } // namespace usbTypes
 
 #endif /*USB_TYPES__HXX*/

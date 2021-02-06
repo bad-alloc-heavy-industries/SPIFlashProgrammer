@@ -4,6 +4,7 @@
 
 #include <cstdint>
 #include <cstddef>
+#include <string_view>
 #include "types.hxx"
 
 namespace usbDescriptors
@@ -187,13 +188,6 @@ namespace usbDescriptors
 		};
 	} // namespace protocols
 
-	struct usbStringDesc_t
-	{
-		uint8_t length;
-		usbDescriptor_t descriptorType;
-		const char16_t *const string;
-	};
-
 	namespace hid
 	{
 		enum class countryCode_t : uint8_t
@@ -285,6 +279,36 @@ namespace usbDescriptors
 			for (const auto &descriptor : *this)
 				count += descriptor.length;
 			return count;
+		}
+	};
+
+	struct [[gnu::packed]] usbStringDesc_t
+	{
+		uint8_t length;
+		usbDescriptor_t descriptorType;
+		const char16_t *const string;
+
+		constexpr usbStringDesc_t(const std::u16string_view data) :
+			length{uint8_t(baseLength() + (data.length() * 2))},
+			descriptorType{usbDescriptor_t::string}, string{data.data()} { }
+
+		constexpr uint8_t baseLength() const noexcept { return sizeof(usbStringDesc_t) - sizeof(char16_t *); }
+		constexpr uint8_t stringLength() const noexcept { return length - baseLength(); }
+
+		constexpr auto asParts() const noexcept
+		{
+			const std::array<usbMultiPartDesc_t, 2> parts
+			{{
+				{
+					baseLength(),
+					this
+				},
+				{
+					stringLength(),
+					string
+				}
+			}};
+			return parts;
 		}
 	};
 } // namespace usbDescriptors

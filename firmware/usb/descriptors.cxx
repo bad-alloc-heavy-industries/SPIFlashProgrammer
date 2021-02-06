@@ -1,11 +1,13 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include <array>
+#include "tm4c123gh6pm/platform.hxx"
 #include "core.hxx"
 #include "descriptors.hxx"
 #include "device.hxx"
 
 using namespace usbTypes;
 using namespace usbDescriptors;
+using namespace std::literals::string_view_literals;
 
 static const usbDeviceDescriptor_t usbDeviceDesc
 {
@@ -60,7 +62,7 @@ static const std::array<usbInterfaceDescriptor_t, interfaceDescriptorCount> usbI
 		usbDescriptor_t::interface,
 		0, // interface index 0
 		0, // alternate 0
-		0, // one endpoint to the interface
+		2, // two endpoints to the interface
 		usbClass_t::vendor,
 		uint8_t(subclasses::vendor_t::none),
 		uint8_t(protocols::vendor_t::flashprog),
@@ -82,7 +84,7 @@ static const std::array<usbEndpointDescriptor_t, endpointDescriptorCount> usbEnd
 		sizeof(usbEndpointDescriptor_t),
 		usbDescriptor_t::endpoint,
 		endpointAddress(usbEndpointDir_t::controllerIn, 1),
-		usbEndpointType_t::bulk,
+		usbEndpointType_t::interrupt,
 		epBufferSize,
 		1 // Poll once per frame
 	}
@@ -113,28 +115,31 @@ static const std::array<usbMultiPartTable_t, 1> usbConfigDescriptors
 	{usbConfigSecs.begin(), usbConfigSecs.end()}
 }};
 
-static const std::array<usbStringDesc_t, stringCount> usbStrings
+static const std::array<usbStringDesc_t, stringCount + 1> usbStringDescs
 {{
-	{
-		0,
-		usbDescriptor_t::string,
-		u"bad_alloc Heavy Industries"
-	},
-	{
-		0,
-		usbDescriptor_t::string,
-		u"SPIFlashProgrammer rev 2"
-	},
-	{
-		0,
-		usbDescriptor_t::string,
-		u""
-	},
-	{
-		0,
-		usbDescriptor_t::string,
-		u"Flash access interface"
-	}
+	{{u"\x0904", 1}},
+	{{u"bad_alloc Heavy Industries", 27}},
+	{{u"SPIFlashProgrammer rev 2", 25}},
+	{{u"", 1}},
+	{{u"Flash access interface", 23}}
+}};
+
+static const std::array<std::array<usbMultiPartDesc_t, 2>, stringCount + 1> usbStringParts
+{{
+	usbStringDescs[0].asParts(),
+	usbStringDescs[1].asParts(),
+	usbStringDescs[2].asParts(),
+	usbStringDescs[3].asParts(),
+	usbStringDescs[4].asParts()
+}};
+
+static const std::array<usbMultiPartTable_t, stringCount + 1> usbStrings
+{{
+	{usbStringParts[0].begin(), usbStringParts[0].end()},
+	{usbStringParts[1].begin(), usbStringParts[1].end()},
+	{usbStringParts[2].begin(), usbStringParts[2].end()},
+	{usbStringParts[3].begin(), usbStringParts[3].end()},
+	{usbStringParts[4].begin(), usbStringParts[4].end()}
 }};
 
 using namespace usbTypes;
@@ -188,10 +193,14 @@ namespace usbDevice
 			// Handle string requests
 			case usbDescriptor_t::string:
 			{
-				if (descriptor.index >= stringCount)
+				if (descriptor.index > stringCount)
 					break;
+				gpioD.dataBits[4] = 4;
 				const auto &string{usbStrings[descriptor.index]};
-				return {response_t::data, &string, string.length};
+				epStatusControllerIn[0].isMultiPart(true);
+				epStatusControllerIn[0].partNumber = 0;
+				epStatusControllerIn[0].partsData = &string;
+				return {response_t::data, nullptr, string.totalLength()};
 			}
 			default:
 				break;

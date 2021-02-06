@@ -44,7 +44,7 @@ bool usbServiceCtrlEPRead() noexcept
 	epStatus.memBuffer = recvData(0, static_cast<uint8_t *>(epStatus.memBuffer), readCount);
 	// Mark the FIFO contents as done with
 	if (epStatus.transferCount || usbCtrlState == ctrlState_t::statusRX)
-	usb.ep0Ctrl.statusCtrlL |= vals::usb::epStatusCtrlLRxReadyClr;
+		usb.ep0Ctrl.statusCtrlL |= vals::usb::epStatusCtrlLRxReadyClr;
 	else
 		usb.ep0Ctrl.statusCtrlL |= vals::usb::epStatusCtrlLRxReadyClr | vals::usb::epStatusCtrlLDataEnd;
 	return !epStatus.transferCount;
@@ -255,7 +255,6 @@ namespace usbDevice
 		else
 			usbCtrlState = ctrlState_t::idle;
 	}
-	}
 
 	void handleControllerInPacket() noexcept
 	{
@@ -265,6 +264,7 @@ namespace usbDevice
 			// to return from the interrupt that caused this chain of events, lets set the device address.
 			const auto address{packet.value.asAddress()};
 
+			// Check that the last setup packet was actually a set address request
 			if (packet.requestType.type() != setupPacket::request_t::typeStandard ||
 				packet.request != request_t::setAddress || address.addrH != 0)
 			{
