@@ -26,3 +26,19 @@ run_target(
 		firmware
 	]
 )
+
+gdb = find_program('gdb')
+run_target(
+	'program',
+	command: [
+		gdb,
+		'--nx',
+		'--batch',
+		'-ex', 'tar ext /dev/ttyBmpGdb',
+		'-ex', 'mon s',
+		'-ex', 'att 1',
+		'-ex', 'load',
+		'-ex', 'kill',
+		firmware
+	]
+)

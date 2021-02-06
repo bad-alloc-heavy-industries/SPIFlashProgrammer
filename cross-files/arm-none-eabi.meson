@@ -14,6 +14,7 @@ strip = exec_prefix / 'arm-none-eabi-strip'
 objcopy = exec_prefix / 'arm-none-eabi-objcopy'
 objdump = exec_prefix / 'arm-none-eabi-objdump'
 size = exec_prefix / 'arm-none-eabi-size'
+gdb = exec_prefix / 'arm-none-eabi-gdb'
 cmake = 'false'
 
 [properties]
