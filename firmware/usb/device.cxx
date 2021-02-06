@@ -231,7 +231,8 @@ namespace usbDevice
 		epStatusControllerIn[0].stall(response == response_t::stall || response == response_t::unhandled);
 		epStatusControllerIn[0].needsArming(response == response_t::data || response == response_t::zeroLength);
 		epStatusControllerIn[0].memBuffer = data;
-		epStatusControllerIn[0].transferCount = response == response_t::zeroLength ? 0 : size;
+		const uint16_t transferCount = response == response_t::zeroLength ? 0U : size;
+		epStatusControllerIn[0].transferCount = std::min(transferCount, packet.length);
 		// If the response is whacko, don't do the stupid thing
 		if (response == response_t::data && !data && !epStatusControllerIn[0].isMultiPart())
 			epStatusControllerIn[0].needsArming(false);
