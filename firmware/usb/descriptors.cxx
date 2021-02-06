@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include <array>
-#include "tm4c123gh6pm/platform.hxx"
 #include "core.hxx"
 #include "descriptors.hxx"
 #include "device.hxx"
@@ -195,7 +194,6 @@ namespace usbDevice
 			{
 				if (descriptor.index > stringCount)
 					break;
-				gpioD.dataBits[4] = 4;
 				const auto &string{usbStrings[descriptor.index]};
 				epStatusControllerIn[0].isMultiPart(true);
 				epStatusControllerIn[0].partNumber = 0;
