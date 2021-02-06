@@ -160,6 +160,9 @@ namespace usbDevice
 			{
 				if (descriptor.index >= configDescriptorCount)
 					break;
+				static_assert(sizeof(usbConfigDescriptor_t) == 9);
+				static_assert(sizeof(usbInterfaceDescriptor_t) == 9);
+				static_assert(sizeof(usbEndpointDescriptor_t) == 7);
 				const auto &configDescriptor{usbConfigDescriptors[descriptor.index]};
 				epStatusControllerIn[0].isMultiPart(true);
 				epStatusControllerIn[0].partNumber = 0;
