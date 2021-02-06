@@ -564,11 +564,7 @@ namespace tivaC
 			const volatile uint32_t reserved0[16];
 			const volatile uint16_t reserved1;
 			volatile uint8_t statusCtrlL;
-			union
-			{
-				volatile uint8_t ctrlHigh;
-				volatile uint8_t statusHigh;
-			};
+			volatile uint8_t statusCtrlH;
 			const volatile uint32_t reserved2;
 			volatile uint8_t rxCount;
 			const volatile uint8_t reserved3;
