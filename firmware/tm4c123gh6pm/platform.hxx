@@ -576,29 +576,11 @@ namespace tivaC
 		struct epCtrl_t final
 		{
 			volatile uint16_t txDataMax;
-
-			union
-			{
-				volatile uint8_t txCtrl;
-				volatile uint8_t txStatus;
-			};
-			union
-			{
-				volatile uint8_t txCtrlHigh;
-				volatile uint8_t txStatusHigh;
-			};
+			volatile uint8_t txStatusCtrlL;
+			volatile uint8_t txStatusCtrlH;
 			volatile uint16_t rxDataMax;
-
-			union
-			{
-				volatile uint8_t rxCtrl;
-				volatile uint8_t rxStatus;
-			};
-			union
-			{
-				volatile uint8_t rxCtrlHigh;
-				volatile uint8_t rxStatusHigh;
-			};
+			volatile uint8_t rxStatusCtrlL;
+			volatile uint8_t rxStatusCtrlH;
 			volatile uint16_t rxCount;
 			volatile uint8_t txType;
 			volatile uint8_t txInterval;
