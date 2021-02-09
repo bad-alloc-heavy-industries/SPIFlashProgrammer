@@ -4,8 +4,8 @@
 #include "descriptors.hxx"
 #include "device.hxx"
 
-using namespace usbTypes;
-using namespace usbDescriptors;
+using namespace usb::types;
+using namespace usb::descriptors;
 using namespace std::literals::string_view_literals;
 
 static const usbDeviceDescriptor_t usbDeviceDesc
@@ -141,10 +141,10 @@ static const std::array<usbMultiPartTable_t, stringCount + 1> usbStrings
 	{usbStringParts[4].begin(), usbStringParts[4].end()}
 }};
 
-using namespace usbTypes;
-using namespace usbCore;
+using namespace usb::types;
+using namespace usb::core;
 
-namespace usbDevice
+namespace usb::device
 {
 	answer_t handleGetDescriptor() noexcept
 	{
@@ -205,4 +205,4 @@ namespace usbDevice
 		}
 		return {response_t::unhandled, nullptr, 0};
 	}
-} // namespace usbDevice
+} // namespace usb::device

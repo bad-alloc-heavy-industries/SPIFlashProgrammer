@@ -5,9 +5,9 @@
 #include <cstdint>
 #include <tuple>
 
-namespace usbDescriptors { struct usbMultiPartTable_t; }
+namespace usb::descriptors { struct usbMultiPartTable_t; }
 
-namespace usbTypes
+namespace usb::types
 {
 	// Reserve space for EP0 In + Out, and EP1 In + Out.
 	constexpr static const uint8_t endpointCount{2};
@@ -92,7 +92,7 @@ namespace usbTypes
 		uint16_t transferCount{};
 		// Multi-part fields
 		uint8_t partNumber{};
-		const usbDescriptors::usbMultiPartTable_t *partsData{nullptr};
+		const usb::descriptors::usbMultiPartTable_t *partsData{nullptr};
 
 		usbEPStatus_t() = default;
 
@@ -131,6 +131,6 @@ namespace usbTypes
 	};
 
 	using answer_t = std::tuple<response_t, const void *, std::uint16_t>;
-} // namespace usbTypes
+} // namespace usb::types
 
 #endif /*USB_TYPES__HXX*/

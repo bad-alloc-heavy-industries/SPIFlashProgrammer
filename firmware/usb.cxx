@@ -16,9 +16,9 @@
  * PB1 - VBus
  */
 
-using namespace usbTypes;
+using namespace usb::types;
 
-namespace usbCore
+namespace usb::core
 {
 	deviceState_t usbState;
 	usbEP_t usbPacket;
@@ -28,9 +28,9 @@ namespace usbCore
 
 	std::array<usbEPStatus_t<const void>, endpointCount> epStatusControllerIn;
 	std::array<usbEPStatus_t<void>, endpointCount> epStatusControllerOut;
-} // namespace usbCore
+} // namespace usb::core
 
-using namespace usbCore;
+using namespace usb::core;
 
 /*!
  * Transmitting packets:
@@ -109,7 +109,7 @@ void usbInit() noexcept
 	usbCtrl.power |= vals::usb::powerSoftConnect;
 }
 
-namespace usbCore
+namespace usb::core
 {
 	void usbReset() noexcept
 	{
@@ -208,7 +208,7 @@ namespace usbCore
 			readFIFO_t<uint8_t>{}(usbCtrl.epFIFO[ep], buffer + length - 1);
 		return buffer + length;
 	}
-} // namespace usbCore
+} // namespace usb::core
 
 void irqUSB() noexcept
 {
@@ -258,7 +258,7 @@ void irqUSB() noexcept
 				usbPacket.dir(endpointDir_t::controllerIn);
 
 			if (endpoint == 0)
-				usbDevice::handleControlPacket();
+				usb::device::handleControlPacket();
 		}
 	}
 }

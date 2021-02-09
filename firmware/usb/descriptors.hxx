@@ -7,7 +7,7 @@
 #include <string_view>
 #include "types.hxx"
 
-namespace usbDescriptors
+namespace usb::descriptors
 {
 	enum class usbDescriptor_t : uint8_t
 	{
@@ -132,7 +132,7 @@ namespace usbDescriptors
 		interrupt = 3
 	};
 
-	using usbEndpointDir_t = usbTypes::endpointDir_t;
+	using usbEndpointDir_t = usb::types::endpointDir_t;
 
 	constexpr static const uint8_t endpointDirMask{0x7F};
 	constexpr inline uint8_t endpointAddress(const usbEndpointDir_t dir, const uint8_t number) noexcept
@@ -311,6 +311,6 @@ namespace usbDescriptors
 			return parts;
 		}
 	};
-} // namespace usbDescriptors
+} // namespace usb::descriptors
 
 #endif /*USB_DESCRIPTORS__HXX*/

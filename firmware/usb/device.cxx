@@ -4,11 +4,11 @@
 #include "usb/core.hxx"
 #include "usb/device.hxx"
 
-using namespace usbTypes;
-using namespace usbCore;
+using namespace usb::types;
+using namespace usb::core;
 void usbHandleStatusCtrlEP() noexcept;
 
-namespace usbDevice
+namespace usb::device
 {
 	setupPacket_t packet;
 
@@ -61,7 +61,7 @@ bool usbServiceCtrlEPRead() noexcept
  */
 bool usbServiceCtrlEPWrite() noexcept
 {
-	if (epStatusControllerIn[0].transferCount < usbTypes::epBufferSize)
+	if (epStatusControllerIn[0].transferCount < usb::types::epBufferSize)
 	{
 	}
 
@@ -69,9 +69,9 @@ bool usbServiceCtrlEPWrite() noexcept
 	const auto sendCount{[&]() noexcept -> uint8_t
 	{
 		// Bounds sanity and then adjust how much is left to transfer
-		if (epStatus.transferCount < usbTypes::epBufferSize)
+		if (epStatus.transferCount < usb::types::epBufferSize)
 			return epStatus.transferCount;
-		return usbTypes::epBufferSize;
+		return usb::types::epBufferSize;
 	}()};
 	epStatus.transferCount -= sendCount;
 
@@ -154,8 +154,8 @@ void usbHandleDataCtrlEP() noexcept
 {
 	if (usbCtrlState == ctrlState_t::dataTX)
 	{
-		if (epStatusControllerIn[0].transferCount > usbDevice::packet.length)
-			epStatusControllerIn[0].transferCount = usbDevice::packet.length;
+		if (epStatusControllerIn[0].transferCount > usb::device::packet.length)
+			epStatusControllerIn[0].transferCount = usb::device::packet.length;
 		usbServiceCtrlEPWrite();
 	}
 }
@@ -164,7 +164,7 @@ void usbHandleStatusCtrlEP() noexcept
 {
 }
 
-namespace usbDevice
+namespace usb::device
 {
 	void completeSetupPacket() noexcept
 	{
@@ -314,4 +314,4 @@ namespace usbDevice
 		else
 			handleControllerInPacket();
 	}
-} // namespace usbDevice
+} // namespace usb::device

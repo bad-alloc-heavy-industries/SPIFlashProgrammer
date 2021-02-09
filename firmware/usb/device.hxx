@@ -8,7 +8,7 @@
 #include "types.hxx"
 #include "descriptors.hxx"
 
-namespace usbTypes
+namespace usb::types
 {
 	enum class request_t : uint8_t
 	{
@@ -27,7 +27,7 @@ namespace usbTypes
 
 	namespace setupPacket
 	{
-		using usbDescriptors::usbDescriptor_t;
+		using usb::descriptors::usbDescriptor_t;
 
 		enum class request_t : uint8_t
 		{
@@ -123,12 +123,12 @@ namespace usbTypes
 	};
 } // namespace usb
 
-namespace usbDevice
+namespace usb::device
 {
-	extern usbTypes::setupPacket_t packet;
+	extern usb::types::setupPacket_t packet;
 
 	extern void handleControlPacket() noexcept;
-	extern usbTypes::answer_t handleGetDescriptor() noexcept;
-} // namespace usbDevice
+	extern usb::types::answer_t handleGetDescriptor() noexcept;
+} // namespace usb::device
 
 #endif /*USB_DEVICE__HXX*/

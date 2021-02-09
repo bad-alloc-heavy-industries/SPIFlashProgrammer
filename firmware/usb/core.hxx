@@ -4,19 +4,19 @@
 
 #include "usb/types.hxx"
 
-namespace usbCore
+namespace usb::core
 {
-	extern usbTypes::deviceState_t usbState;
-	extern usbTypes::usbEP_t usbPacket;
-	extern usbTypes::ctrlState_t usbCtrlState;
+	extern usb::types::deviceState_t usbState;
+	extern usb::types::usbEP_t usbPacket;
+	extern usb::types::ctrlState_t usbCtrlState;
 
-	extern std::array<usbTypes::usbEPStatus_t<const void>, usbTypes::endpointCount> epStatusControllerIn;
-	extern std::array<usbTypes::usbEPStatus_t<void>, usbTypes::endpointCount> epStatusControllerOut;
+	extern std::array<usb::types::usbEPStatus_t<const void>, usb::types::endpointCount> epStatusControllerIn;
+	extern std::array<usb::types::usbEPStatus_t<void>, usb::types::endpointCount> epStatusControllerOut;
 
 	extern const uint8_t *sendData(const uint8_t ep, const uint8_t *const buffer, const uint8_t length) noexcept;
 	extern uint8_t *recvData(const uint8_t ep, uint8_t *const buffer, const uint8_t length) noexcept;
 
 	extern void usbResetEPs(bool includeEP0 = false) noexcept;
-} // namespace usbCore
+} // namespace usb::core
 
 #endif /*USB_CORE__HXX*/
