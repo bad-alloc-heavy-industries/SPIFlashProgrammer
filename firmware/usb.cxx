@@ -3,7 +3,7 @@
 #include "tm4c123gh6pm/constants.hxx"
 #include "platform.hxx"
 #include "usb.hxx"
-#include "usb/types.hxx"
+#include "usb/core.hxx"
 #include "usb/device.hxx"
 #include "indexedIterator.hxx"
 
