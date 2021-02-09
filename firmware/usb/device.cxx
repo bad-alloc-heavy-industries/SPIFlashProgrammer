@@ -41,7 +41,7 @@ namespace usbDevice
 bool usbServiceCtrlEPRead() noexcept
 {
 	auto &epStatus{epStatusControllerOut[0]};
-	auto readCount = usb.ep0Ctrl.rxCount;
+	auto readCount = usbCtrl.ep0Ctrl.rxCount;
 	// Bounds sanity and then adjust how much is left to transfer
 	if (readCount > epStatus.transferCount)
 		readCount = epStatus.transferCount;
@@ -49,9 +49,9 @@ bool usbServiceCtrlEPRead() noexcept
 	epStatus.memBuffer = recvData(0, static_cast<uint8_t *>(epStatus.memBuffer), readCount);
 	// Mark the FIFO contents as done with
 	if (epStatus.transferCount || usbCtrlState == ctrlState_t::statusRX)
-		usb.ep0Ctrl.statusCtrlL |= vals::usb::epStatusCtrlLRxReadyClr;
+		usbCtrl.ep0Ctrl.statusCtrlL |= vals::usb::epStatusCtrlLRxReadyClr;
 	else
-		usb.ep0Ctrl.statusCtrlL |= vals::usb::epStatusCtrlLRxReadyClr | vals::usb::epStatusCtrlLDataEnd;
+		usbCtrl.ep0Ctrl.statusCtrlL |= vals::usb::epStatusCtrlLRxReadyClr | vals::usb::epStatusCtrlLDataEnd;
 	return !epStatus.transferCount;
 }
 
@@ -144,9 +144,9 @@ bool usbServiceCtrlEPWrite() noexcept
 	}
 	// Mark the FIFO contents as done with
 	if (epStatus.transferCount || usbCtrlState == ctrlState_t::statusTX)
-		usb.ep0Ctrl.statusCtrlL |= vals::usb::epStatusCtrlLTxReady;
+		usbCtrl.ep0Ctrl.statusCtrlL |= vals::usb::epStatusCtrlLTxReady;
 	else
-		usb.ep0Ctrl.statusCtrlL |= vals::usb::epStatusCtrlLTxReady | vals::usb::epStatusCtrlLDataEnd;
+		usbCtrl.ep0Ctrl.statusCtrlL |= vals::usb::epStatusCtrlLTxReady | vals::usb::epStatusCtrlLDataEnd;
 	return !epStatus.transferCount;
 }
 
@@ -168,7 +168,7 @@ namespace usbDevice
 {
 	void completeSetupPacket() noexcept
 	{
-		auto &ep0 = usb.ep0Ctrl;
+		auto &ep0 = usbCtrl.ep0Ctrl;
 
 		// If we have no response
 		if (!epStatusControllerIn[0].needsArming())
@@ -217,7 +217,7 @@ namespace usbDevice
 		if (!usbServiceCtrlEPRead())
 		{
 			// Truncated transfer.. WTF.
-			usb.ep0Ctrl.statusCtrlL |= vals::usb::epStatusCtrlLStall;
+			usbCtrl.ep0Ctrl.statusCtrlL |= vals::usb::epStatusCtrlLStall;
 			return;
 		}
 
@@ -273,12 +273,12 @@ namespace usbDevice
 			if (packet.requestType.type() != setupPacket::request_t::typeStandard ||
 				packet.request != request_t::setAddress || address.addrH != 0)
 			{
-				usb.address &= vals::usb::addressClrMask;
+				usbCtrl.address &= vals::usb::addressClrMask;
 				usbState = deviceState_t::waiting;
 			}
 			else
 			{
-				usb.address = (usb.address & vals::usb::addressClrMask) |
+				usbCtrl.address = (usbCtrl.address & vals::usb::addressClrMask) |
 					(address.addrL & vals::usb::addressMask);
 				usbState = deviceState_t::addressed;
 			}
@@ -301,8 +301,8 @@ namespace usbDevice
 
 	void handleControlPacket() noexcept
 	{
-		if (usb.ep0Ctrl.statusCtrlL & vals::usb::epStatusCtrlLSetupEnd)
-			usb.ep0Ctrl.statusCtrlL |= vals::usb::epStatusCtrlLSetupEndClr;
+		if (usbCtrl.ep0Ctrl.statusCtrlL & vals::usb::epStatusCtrlLSetupEnd)
+			usbCtrl.ep0Ctrl.statusCtrlL |= vals::usb::epStatusCtrlLSetupEndClr;
 		// If we received a packet..
 		if (usbPacket.dir() == endpointDir_t::controllerOut)
 		{

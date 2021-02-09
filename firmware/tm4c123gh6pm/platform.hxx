@@ -1132,7 +1132,7 @@ static auto &wtimer2{*reinterpret_cast<tivaC::timer_t *>(tivaC::wtimer2Base)};
 static auto &wtimer3{*reinterpret_cast<tivaC::timer_t *>(tivaC::wtimer3Base)};
 static auto &wtimer4{*reinterpret_cast<tivaC::timer_t *>(tivaC::wtimer4Base)};
 static auto &wtimer5{*reinterpret_cast<tivaC::timer_t *>(tivaC::wtimer5Base)};
-static auto &usb{*reinterpret_cast<tivaC::usb_t *>(tivaC::usbBase)};
+static auto &usbCtrl{*reinterpret_cast<tivaC::usb_t *>(tivaC::usbBase)};
 static auto &gpioA{*reinterpret_cast<tivaC::gpio_t *>(tivaC::gpioABaseAHB)};
 static auto &gpioB{*reinterpret_cast<tivaC::gpio_t *>(tivaC::gpioBBaseAHB)};
 static auto &gpioC{*reinterpret_cast<tivaC::gpio_t *>(tivaC::gpioCBaseAHB)};
