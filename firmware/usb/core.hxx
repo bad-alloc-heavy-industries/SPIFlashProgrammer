@@ -16,7 +16,13 @@ namespace usb::core
 	extern const uint8_t *sendData(const uint8_t ep, const uint8_t *const buffer, const uint8_t length) noexcept;
 	extern uint8_t *recvData(const uint8_t ep, uint8_t *const buffer, const uint8_t length) noexcept;
 
-	extern void usbResetEPs(bool includeEP0 = false) noexcept;
+	enum class epReset_t : uint8_t
+	{
+		all,
+		user
+	};
+
+	extern void usbResetEPs(epReset_t what) noexcept;
 } // namespace usb::core
 
 #endif /*USB_CORE__HXX*/

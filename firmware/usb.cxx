@@ -125,7 +125,7 @@ namespace usb::core
 		// Really enable the double-buffers as apparently this isn't done just by the above.
 		usbCtrl.txPacketDoubleBuffEnable |= vals::usb::txPacketDoubleBuffEnableEP1;
 		usbCtrl.rxPacketDoubleBuffEnable |= vals::usb::rxPacketDoubleBuffEnableEP1;
-		usbResetEPs(true);
+		usbResetEPs(epReset_t::all);
 
 		// Once we get done, idle the peripheral
 		usbCtrl.address = 0;
@@ -136,10 +136,12 @@ namespace usb::core
 		usbCtrl.txIntEnable |= vals::usb::txItrEnableEP0;
 	}
 
-	void usbResetEPs(const bool includeEP0) noexcept
+	void usbResetEPs(const epReset_t what) noexcept
 	{
 		for (auto &[i, epStatus] : utility::indexedIterator_t{epStatusControllerIn})
 		{
+			if (what == epReset_t::user && i == 0)
+				continue;
 			epStatus->resetStatus();
 			epStatus->transferCount = 0;
 			epStatus->ctrl.endpoint(i);
@@ -148,6 +150,8 @@ namespace usb::core
 
 		for (auto &[i, epStatus] : utility::indexedIterator_t{epStatusControllerOut})
 		{
+			if (what == epReset_t::user && i == 0)
+				continue;
 			epStatus->resetStatus();
 			epStatus->transferCount = 0;
 			epStatus->ctrl.endpoint(i);

@@ -12,6 +12,12 @@ namespace usb::device
 {
 	setupPacket_t packet;
 
+	void handleSetConfiguration() noexcept
+	{
+		usb::core::usbResetEPs(epReset_t::user);
+		// TODO: build initialisation logic for bringing up the EP1 "driver" and endpoint configuration.
+	}
+
 	answer_t handleStandardRequest() noexcept
 	{
 		const auto &epStatus{epStatusControllerIn[0]};
@@ -24,8 +30,7 @@ namespace usb::device
 			case request_t::getDescriptor:
 				return handleGetDescriptor();
 			case request_t::setConfiguration:
-				// TODO: build initialisation logic for bringing up the EP1 "driver" and endpoint configuration.
-				// handleSetConfiguration();
+				handleSetConfiguration();
 				// Acknowledge the request.
 				return {response_t::zeroLength, nullptr, 0};
 		}
