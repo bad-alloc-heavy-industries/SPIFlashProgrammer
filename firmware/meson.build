@@ -15,7 +15,7 @@ firmware = executable(
 	install: false
 )
 
-size = find_program('get_fw_size.py', dirs: '@0@/../scripts'.format(meson.current_source_dir()))
+size = find_program('get_fw_size.py', dirs: '@0@/../common/scripts'.format(meson.current_source_dir()))
 run_target(
 	'size',
 	command: [
