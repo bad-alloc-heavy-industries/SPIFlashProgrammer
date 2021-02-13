@@ -1,8 +1,18 @@
 #ifndef USB_CONTEXT__HXX
 #define USB_CONTEXT__HXX
 
+// Horrible hack to make libusb conformant and not do stupid things.
+#define __STDC_VERSION__ 199901L
+
 #include <string_view>
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpedantic"
+#endif
 #include <libusb.h>
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif
 #include <substrate/console>
 
 #include "usbDeviceList.hxx"
