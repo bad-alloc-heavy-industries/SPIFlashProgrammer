@@ -6,7 +6,7 @@ substrate = dependency(
 	native: true
 )
 
-libusb = dependency('libusb-1.0', native: true)
+libusb = dependency('libusb-1.0', version: '>=1.0.21', native: true)
 
 flashprogSrc = [
 	'flashprog.cxx'
@@ -15,7 +15,7 @@ flashprogSrc = [
 executable(
 	'flashprog',
 	flashprogSrc,
-	include_directories: [include_directories('include')],
+	include_directories: [include_directories('include'), commonInclude],
 	dependencies: [libusb, substrate],
 	gnu_symbol_visibility: 'inlineshidden',
 	build_by_default: true,

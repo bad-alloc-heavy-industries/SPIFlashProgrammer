@@ -40,6 +40,16 @@ public:
 			console.error("Failed to release interface "sv, interfaceNumber, ": "sv, libusb_error_name(result));
 		return !result;
 	}
+
+	bool writeInterrupt(uint8_t endpoint, void *bufferPtr, int32_t bufferLen) const noexcept
+	{
+		const auto result{libusb_interrupt_transfer(device, endpoint, static_cast<uint8_t *>(bufferPtr),
+			bufferLen, nullptr, 0)};
+		if (result)
+			console.error("Failed to complete interrupt transfer of "sv, bufferLen,
+				" byte(s) to endpoint "sv, endpoint, ", reason:"sv, libusb_error_name(result));
+		return !result;
+	}
 };
 
 struct usbDevice_t final

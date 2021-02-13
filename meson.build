@@ -23,6 +23,7 @@ endif
 
 targetCXX = meson.get_compiler('cpp', native: false)
 hostCXX = meson.get_compiler('cpp', native: true)
+commonInclude = include_directories('common/include')
 
 subdir('firmware')
 subdir('software')
