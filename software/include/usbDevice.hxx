@@ -2,6 +2,7 @@
 #define USB_DEVICE__HXX
 
 #include <string_view>
+#include <utility>
 #include <libusb.h>
 #include <substrate/console>
 
@@ -55,8 +56,10 @@ public:
 struct usbDevice_t final
 {
 private:
-	libusb_device *device;
+	libusb_device *device{nullptr};
 	libusb_device_descriptor descriptor{};
+
+	usbDevice_t() noexcept = default;
 
 public:
 	usbDevice_t(libusb_device *const device_) noexcept : device{device_}
@@ -69,7 +72,13 @@ public:
 		}
 	}
 
-	~usbDevice_t() noexcept { libusb_unref_device(device); }
+	usbDevice_t(usbDevice_t &&other) noexcept : usbDevice_t{} { swap(other); }
+
+	~usbDevice_t() noexcept
+	{
+		if (device)
+			libusb_unref_device(device);
+	}
 
 	auto vid() const noexcept { return descriptor.idVendor; }
 	auto pid() const noexcept { return descriptor.idProduct; }
@@ -86,6 +95,12 @@ public:
 			return {};
 		}
 		return {handle};
+	}
+
+	void swap(usbDevice_t &other) noexcept
+	{
+		std::swap(device, other.device);
+		std::swap(descriptor, other.descriptor);
 	}
 };
 

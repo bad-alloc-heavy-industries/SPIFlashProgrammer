@@ -30,7 +30,7 @@ int32_t main(int, char **)
 		if (device.vid() == 0x1209 && device.pid() == 0xAB0C)
 		{
 			console.info("Found device at address "sv, device.busNumber(), ':', device.portNumber());
-			devices.push_back(device);
+			devices.emplace_back(std::move(device));
 		}
 	}
 	console.info("Found "sv, devices.size(), " devices");
