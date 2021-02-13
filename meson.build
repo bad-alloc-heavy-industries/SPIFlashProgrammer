@@ -5,6 +5,7 @@ project(
 	'cpp',
 	default_options: [
 		'cpp_std=c++17',
+		'build.cpp_std=c++17',
 		'warning_level=3',
 		'buildtype=release',
 		'strip=true',
@@ -24,3 +25,4 @@ targetCXX = meson.get_compiler('cpp', native: false)
 hostCXX = meson.get_compiler('cpp', native: true)
 
 subdir('firmware')
+subdir('software')
