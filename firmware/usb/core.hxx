@@ -23,6 +23,8 @@ namespace usb::core
 	};
 
 	extern void usbResetEPs(epReset_t what) noexcept;
+
+	extern bool readEP(const uint8_t endpoint) noexcept;
 } // namespace usb::core
 
 #endif /*USB_CORE__HXX*/

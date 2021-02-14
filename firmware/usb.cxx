@@ -215,6 +215,26 @@ namespace usb::core
 			readFIFO_t<uint8_t>{}(usbCtrl.epFIFO[ep], buffer + length - 1);
 		return buffer + length;
 	}
+
+	/*!
+	* @returns true when the all the data to be read has been retreived,
+	* false if there is more left to fetch.
+	*/
+	bool readEP(const uint8_t endpoint) noexcept
+	{
+		if (!endpoint)
+			return false;
+		auto &epStatus{epStatusControllerOut[endpoint]};
+		auto readCount{usbCtrl.epCtrls[endpoint - 1].rxCount};
+		// Bounds sanity and then adjust how much is left to transfer
+		if (readCount > epStatus.transferCount)
+			readCount = epStatus.transferCount;
+		epStatus.transferCount -= readCount;
+		epStatus.memBuffer = recvData(endpoint, static_cast<uint8_t *>(epStatus.memBuffer), readCount);
+		// Mark the FIFO contents as done with
+		usbCtrl.epCtrls[endpoint - 1].rxStatusCtrlL &= ~vals::usb::epStatusCtrlLRxReady;
+		return !epStatus.transferCount;
+	}
 } // namespace usb::core
 
 void irqUSB() noexcept
