@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "usb/core.hxx"
+#include "usbProtocol.hxx"
 
 using namespace usb::types;
 using namespace usb::core;

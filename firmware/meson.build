@@ -9,6 +9,7 @@ firmwareSrc = [
 firmware = executable(
 	'SPIFlashProgrammer',
 	firmwareSrc,
+	include_directories: [commonInclude],
 	link_args: ['-T', '@0@/tm4c123gh6pm/memoryLayout.ld'.format(meson.current_source_dir())],
 	gnu_symbol_visibility: 'inlineshidden',
 	name_suffix: 'elf',
