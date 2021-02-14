@@ -1,6 +1,19 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include <vector>
 #include "usbContext.hxx"
+#include "usbProtocol.hxx"
+
+using namespace flashProto;
+
+uint8_t requestCount(const usbDeviceHandle_t &device)
+{
+	const auto type{messages_t::deviceCount};
+	device.writeInterrupt(1, &type, 1);
+
+	deviceCount_t deviceCount{};
+	device.readInterrupt(1, &deviceCount, sizeof(deviceCount));
+	return deviceCount.count;
+}
 
 int32_t interact(const usbDevice_t &rawDevice)
 {
@@ -9,6 +22,7 @@ int32_t interact(const usbDevice_t &rawDevice)
 		!device.claimInterface(0))
 		return 1;
 
+	const auto deviceCount{requestCount(device)};
 	// Talk with device here.
 
 	if (!device.releaseInterface(0))

@@ -10,10 +10,30 @@
 using namespace std::literals::string_view_literals;
 using substrate::console;
 
+enum class endpointDir_t : uint8_t
+{
+	controllerOut = 0x00U,
+	controllerIn = 0x80U
+};
+
+constexpr static const uint8_t endpointDirMask{0x7F};
+constexpr inline uint8_t endpointAddress(const endpointDir_t dir, const uint8_t number) noexcept
+	{ return uint8_t(dir) | (number & endpointDirMask); }
+
 struct usbDeviceHandle_t final
 {
 private:
 	libusb_device_handle *device{nullptr};
+
+	bool interruptTransfer(const uint8_t endpoint, void *const bufferPtr, const int32_t bufferLen) const noexcept
+	{
+		const auto result{libusb_interrupt_transfer(device, endpoint, static_cast<uint8_t *>(bufferPtr),
+			bufferLen, nullptr, 0)};
+		if (result)
+			console.error("Failed to complete interrupt transfer of "sv, bufferLen,
+				" byte(s) to endpoint "sv, endpoint, ", reason:"sv, libusb_error_name(result));
+		return !result;
+	}
 
 public:
 	usbDeviceHandle_t() noexcept = default;
@@ -27,7 +47,7 @@ public:
 			console.warning("Automatic detach of kernel driver not supported on this platform"sv);
 	}
 
-	bool claimInterface(int32_t interfaceNumber) const noexcept
+	bool claimInterface(const int32_t interfaceNumber) const noexcept
 	{
 		const auto result{libusb_claim_interface(device, interfaceNumber)};
 		if (result)
@@ -35,7 +55,7 @@ public:
 		return !result;
 	}
 
-	bool releaseInterface(int32_t interfaceNumber) const noexcept
+	bool releaseInterface(const int32_t interfaceNumber) const noexcept
 	{
 		const auto result{libusb_release_interface(device, interfaceNumber)};
 		if (result)
@@ -43,15 +63,12 @@ public:
 		return !result;
 	}
 
-	bool writeInterrupt(uint8_t endpoint, void *bufferPtr, int32_t bufferLen) const noexcept
-	{
-		const auto result{libusb_interrupt_transfer(device, endpoint, static_cast<uint8_t *>(bufferPtr),
-			bufferLen, nullptr, 0)};
-		if (result)
-			console.error("Failed to complete interrupt transfer of "sv, bufferLen,
-				" byte(s) to endpoint "sv, endpoint, ", reason:"sv, libusb_error_name(result));
-		return !result;
-	}
+	bool writeInterrupt(const uint8_t endpoint, const void *const bufferPtr, const int32_t bufferLen) const noexcept
+		{ return interruptTransfer(endpointAddress(endpointDir_t::controllerOut, endpoint),
+			const_cast<void *>(bufferPtr), bufferLen); }
+
+	bool readInterrupt(const uint8_t endpoint, void *const bufferPtr, const int32_t bufferLen) const noexcept
+		{ return interruptTransfer(endpointAddress(endpointDir_t::controllerIn, endpoint), bufferPtr, bufferLen); }
 };
 
 struct usbDevice_t final
