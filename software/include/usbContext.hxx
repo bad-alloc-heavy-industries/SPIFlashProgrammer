@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: BSD-3-Clause
 #ifndef USB_CONTEXT__HXX
 #define USB_CONTEXT__HXX
 
