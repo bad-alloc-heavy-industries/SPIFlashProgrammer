@@ -301,33 +301,66 @@ namespace vals
 		constexpr static const uint8_t itrEnableSessionRequest{0x40U};
 		constexpr static const uint8_t itrEnableVBusError{0x80U};
 
-		// TX FIFO sizing register constants
-		constexpr static const uint8_t txFIFOSizeSingleBuffered{0x00};
-		constexpr static const uint8_t txFIFOSizeDoubleBuffered{0x10};
-		constexpr static const uint8_t txFIFOSizeMask{0x0F};
-		constexpr static const uint8_t txFIFOSize8{0x00};
-		constexpr static const uint8_t txFIFOSize16{0x01};
-		constexpr static const uint8_t txFIFOSize32{0x02};
-		constexpr static const uint8_t txFIFOSize64{0x03};
-		constexpr static const uint8_t txFIFOSize128{0x04};
-		constexpr static const uint8_t txFIFOSize256{0x05};
-		constexpr static const uint8_t txFIFOSize512{0x06};
-		constexpr static const uint8_t txFIFOSize1024{0x07};
-		constexpr static const uint8_t txFIFOSize2048{0x08};
+		// TX|RX FIFO sizing register constants
+		constexpr static const uint8_t fifoSizeSingleBuffered{0x00};
+		constexpr static const uint8_t fifoSizeDoubleBuffered{0x10};
+		constexpr static const uint8_t fifoSizeMask{0x0F};
+		constexpr static const uint8_t fifoSize8{0x00};
+		constexpr static const uint8_t fifoSize16{0x01};
+		constexpr static const uint8_t fifoSize32{0x02};
+		constexpr static const uint8_t fifoSize64{0x03};
+		constexpr static const uint8_t fifoSize128{0x04};
+		constexpr static const uint8_t fifoSize256{0x05};
+		constexpr static const uint8_t fifoSize512{0x06};
+		constexpr static const uint8_t fifoSize1024{0x07};
+		constexpr static const uint8_t fifoSize2048{0x08};
 
-		// RX FIFO sizing register constants
-		constexpr static const uint8_t rxFIFOSizeSingleBuffered{0x00};
-		constexpr static const uint8_t rxFIFOSizeDoubleBuffered{0x10};
-		constexpr static const uint8_t rxFIFOSizeMask{0x0F};
-		constexpr static const uint8_t rxFIFOSize8{0x00};
-		constexpr static const uint8_t rxFIFOSize16{0x01};
-		constexpr static const uint8_t rxFIFOSize32{0x02};
-		constexpr static const uint8_t rxFIFOSize64{0x03};
-		constexpr static const uint8_t rxFIFOSize128{0x04};
-		constexpr static const uint8_t rxFIFOSize256{0x05};
-		constexpr static const uint8_t rxFIFOSize512{0x06};
-		constexpr static const uint8_t rxFIFOSize1024{0x07};
-		constexpr static const uint8_t rxFIFOSize2048{0x08};
+		constexpr inline static uint8_t fifoMapMaxSize(const uint16_t size, const uint8_t doubleBuffered) noexcept
+		{
+			if (!doubleBuffered)
+			{
+				if (size <= 8)
+					return fifoSize8;
+				else if (size <= 16)
+					return fifoSize16;
+				else if (size <= 32)
+					return fifoSize32;
+				else if (size <= 64)
+					return fifoSize64;
+				else if (size <= 128)
+					return fifoSize128;
+				else if (size <= 256)
+					return fifoSize256;
+				else if (size <= 512)
+					return fifoSize512;
+				else if (size <= 1024)
+					return fifoSize1024;
+				else
+					return fifoSize2048;
+			}
+			else
+			{
+				return [](const uint16_t size) noexcept
+				{
+					if (size <= 8)
+						return fifoSize16;
+					else if (size <= 16)
+						return fifoSize32;
+					else if (size <= 32)
+						return fifoSize64;
+					else if (size <= 64)
+						return fifoSize128;
+					else if (size <= 128)
+						return fifoSize256;
+					else if (size <= 256)
+						return fifoSize512;
+					else if (size <= 512)
+						return fifoSize1024;
+					else
+						return fifoSize2048;
+				}(size) | fifoSizeDoubleBuffered;
+			}
+		}
 
 		constexpr inline static uint16_t fifoAddr(const uint16_t address) noexcept
 			{ return address >> 3; } // Divide by 8
@@ -369,6 +402,10 @@ namespace vals
 		constexpr static const uint8_t epStatusCtrlLStall{0x20U};
 		constexpr static const uint8_t epStatusCtrlLRxReadyClr{0x40U};
 		constexpr static const uint8_t epStatusCtrlLSetupEndClr{0x80U};
+
+		constexpr static const uint8_t epStatusCtrlHModeBulkIntr{0x40U};
+		constexpr static const uint8_t epStatusCtrlHModeIsochronous{0x00U};
+		constexpr static const uint8_t epStatusCtrlHMask{0x07U};
 
 		// General-Purpose Control and Status register constants
 		constexpr static const uint32_t gpCtrlStatusOTGModeHostMask{0xFFFFFFFDU};

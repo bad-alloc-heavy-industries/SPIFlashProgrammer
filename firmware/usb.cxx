@@ -5,6 +5,7 @@
 #include "usb.hxx"
 #include "usb/core.hxx"
 #include "usb/device.hxx"
+#include "usb/flashProto.hxx"
 #include "indexedIterator.hxx"
 
 /*!
@@ -113,13 +114,14 @@ namespace usb::core
 {
 	void usbReset() noexcept
 	{
+		// TODO: Revise this. Probably only want to set EP0 up initially.
 		for (uint8_t i{}; i < endpointCount; ++i)
 		{
 			usbCtrl.epIndex = i;
 			// 128 / 2 = 64, so this gives us 64 bytes per EP.
-			usbCtrl.txFIFOSize = vals::usb::txFIFOSize128 | vals::usb::txFIFOSizeDoubleBuffered;
+			usbCtrl.txFIFOSize = vals::usb::fifoSize128 | vals::usb::fifoSizeDoubleBuffered;
 			usbCtrl.txFIFOAddr = vals::usb::fifoAddr(128 * (i * 2));
-			usbCtrl.rxFIFOSize = vals::usb::rxFIFOSize128 | vals::usb::rxFIFOSizeDoubleBuffered;
+			usbCtrl.rxFIFOSize = vals::usb::fifoSize128 | vals::usb::fifoSizeDoubleBuffered;
 			usbCtrl.rxFIFOAddr = vals::usb::fifoAddr(128 * ((i * 2) + 1));
 		}
 		// Really enable the double-buffers as apparently this isn't done just by the above.
@@ -134,6 +136,7 @@ namespace usb::core
 		usbCtrl.txIntEnable &= vals::usb::txItrEnableMask;
 		usbCtrl.rxIntEnable &= vals::usb::rxItrEnableMask;
 		usbCtrl.txIntEnable |= vals::usb::txItrEnableEP0;
+		usb::device::activeConfig = 0;
 	}
 
 	void usbResetEPs(const epReset_t what) noexcept
@@ -263,6 +266,8 @@ void irqUSB() noexcept
 
 			if (endpoint == 0)
 				usb::device::handleControlPacket();
+			else if (usb::device::activeConfig == 1 && endpoint == 1)
+				usb::flashProto::handlePacket();
 		}
 	}
 }

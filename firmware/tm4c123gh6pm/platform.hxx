@@ -625,21 +625,9 @@ namespace tivaC
 		volatile uint8_t lowSpeedEOF; // USB Low-Speed Last Transaction to End of Frame Timing
 		const volatile uint8_t reserved6;
 		ep0Config_t ep0Config;
-		epConfig_t ep1Config;
-		epConfig_t ep2Config;
-		epConfig_t ep3Config;
-		epConfig_t ep4Config;
-		epConfig_t ep5Config;
-		epConfig_t ep6Config;
-		epConfig_t ep7Config;
+		epConfig_t epConfigs[7];
 		ep0Ctrl_t ep0Ctrl;
-		epCtrl_t ep1Ctrl;
-		epCtrl_t ep2Ctrl;
-		epCtrl_t ep3Ctrl;
-		epCtrl_t ep4Ctrl;
-		epCtrl_t ep5Ctrl;
-		epCtrl_t ep6Ctrl;
-		epCtrl_t ep7Ctrl;
+		epCtrl_t epCtrls[7];
 		const volatile uint32_t reserved7[97];
 		volatile uint16_t ep1ReqPacketCount;
 		const volatile uint16_t reserved8;

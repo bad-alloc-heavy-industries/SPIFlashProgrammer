@@ -3,24 +3,91 @@
 #include "tm4c123gh6pm/constants.hxx"
 #include "usb/core.hxx"
 #include "usb/device.hxx"
+#include "usb/flashProto.hxx"
 
 using namespace usb::types;
 using namespace usb::core;
+using usb::descriptors::usbDescriptor_t;
+using usb::descriptors::usbEndpointType_t;
+using usb::descriptors::usbEndpointDescriptor_t;
 void usbHandleStatusCtrlEP() noexcept;
 
 namespace usb::device
 {
 	setupPacket_t packet;
+	uint8_t activeConfig;
 
-	void handleSetConfiguration() noexcept
+	void setupEndpoint(const usbEndpointDescriptor_t &endpoint, uint32_t &startAddress)
+	{
+		if (endpoint.endpointType == usbEndpointType_t::control)
+			return;
+		const auto statusCtrlH{[](const usbEndpointType_t type) noexcept
+		{
+			switch (type)
+			{
+				case usbEndpointType_t::isochronous:
+					return vals::usb::epStatusCtrlHModeIsochronous;
+				default:
+					break;
+			}
+			return vals::usb::epStatusCtrlHModeBulkIntr;
+		}(endpoint.endpointType)};
+
+		auto epCtrl{usbCtrl.epCtrls};
+		const auto direction{static_cast<endpointDir_t>(endpoint.endpointAddress & ~vals::usb::endpointDirMask)};
+		const auto endpointNumber{endpoint.endpointAddress & vals::usb::endpointDirMask};
+		usbCtrl.epIndex = endpointNumber;
+		if (direction == endpointDir_t::controllerIn)
+		{
+			epCtrl->txStatusCtrlH = (epCtrl->txStatusCtrlH & vals::usb::epStatusCtrlHMask) | statusCtrlH;
+			epCtrl->txDataMax = endpoint.maxPacketSize;
+			usbCtrl.txFIFOSize = vals::usb::fifoMapMaxSize(endpoint.maxPacketSize, vals::usb::fifoSizeDoubleBuffered);
+			usbCtrl.txFIFOAddr = vals::usb::fifoAddr(startAddress);
+		}
+		else
+		{
+			epCtrl->rxStatusCtrlH = (epCtrl->rxStatusCtrlH & vals::usb::epStatusCtrlHMask) | statusCtrlH;
+			epCtrl->rxDataMax = endpoint.maxPacketSize;
+			usbCtrl.rxFIFOSize = vals::usb::fifoMapMaxSize(endpoint.maxPacketSize, vals::usb::fifoSizeDoubleBuffered);
+			usbCtrl.rxFIFOAddr = vals::usb::fifoAddr(startAddress);
+		}
+		startAddress += endpoint.maxPacketSize * 2;
+	}
+
+	bool handleSetConfiguration() noexcept
 	{
 		usb::core::usbResetEPs(epReset_t::user);
-		// TODO: build initialisation logic for bringing up the EP1 "driver" and endpoint configuration.
+
+		activeConfig = packet.value.asAddress().addrL;
+		if (activeConfig == 0)
+			usbState = deviceState_t::addressed;
+		else if (activeConfig <= usb::types::configDescriptorCount)
+		{
+			// EP0 consumes the first 256 bytes of USB RAM.
+			uint32_t startAddress{256};
+
+			const auto desciptors{usb::descriptors::usbConfigDescriptors[activeConfig - 1]};
+			for (const auto &part : desciptors)
+			{
+				const auto *const descriptor{static_cast<const std::byte *>(part.descriptor)};
+				usbDescriptor_t type{usbDescriptor_t::invalid};
+				memcpy(&type, descriptor + 1, 1);
+				if (type == usbDescriptor_t::endpoint)
+					setupEndpoint(*static_cast<const usbEndpointDescriptor_t *>(part.descriptor), startAddress);
+			}
+
+			// TODO: Make this not hard coded.
+			if (activeConfig == 1)
+				usb::flashProto::init();
+		}
+		else
+			return false;
+		return true;
 	}
 
 	answer_t handleStandardRequest() noexcept
 	{
-		const auto &epStatus{epStatusControllerIn[0]};
+		//const auto &epStatus{epStatusControllerIn[0]};
 
 		switch (packet.request)
 		{
@@ -30,9 +97,14 @@ namespace usb::device
 			case request_t::getDescriptor:
 				return handleGetDescriptor();
 			case request_t::setConfiguration:
-				handleSetConfiguration();
-				// Acknowledge the request.
-				return {response_t::zeroLength, nullptr, 0};
+				if (handleSetConfiguration())
+					// Acknowledge the request.
+					return {response_t::zeroLength, nullptr, 0};
+				else
+					// Bad request? Stall.
+					return {response_t::stall, nullptr, 0};
+			case request_t::getConfiguration:
+				return {response_t::data, &activeConfig, 1};
 		}
 
 		return {response_t::unhandled, nullptr, 0};
