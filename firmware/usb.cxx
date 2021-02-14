@@ -235,6 +235,97 @@ namespace usb::core
 		usbCtrl.epCtrls[endpoint - 1].rxStatusCtrlL &= ~vals::usb::epStatusCtrlLRxReady;
 		return !epStatus.transferCount;
 	}
+
+	/*!
+	* @returns true when the data to be transmitted is entirely sent,
+	* false if there is more left to send.
+	*/
+	bool writeEP(const uint8_t endpoint) noexcept
+	{
+		if (!endpoint)
+			return false;
+		auto &epStatus{epStatusControllerIn[endpoint]};
+		const auto sendCount{[&]() noexcept -> uint8_t
+		{
+			// Bounds sanity and then adjust how much is left to transfer
+			if (epStatus.transferCount < usb::types::epBufferSize)
+				return epStatus.transferCount;
+			return usb::types::epBufferSize;
+		}()};
+		epStatus.transferCount -= sendCount;
+
+		if (!epStatus.isMultiPart())
+			epStatus.memBuffer = sendData(endpoint, static_cast<const uint8_t *>(epStatus.memBuffer), sendCount);
+		else
+		{
+			std::array<uint8_t, 4> leftoverBytes{};
+			uint8_t leftoverCount{};
+
+			if (!epStatus.memBuffer)
+				epStatus.memBuffer = epStatus.partsData->part(0).descriptor;
+			auto sendAmount{sendCount};
+			while (sendAmount)
+			{
+				const auto &part{epStatus.partsData->part(epStatus.partNumber)};
+				auto *const begin{static_cast<const uint8_t *>(part.descriptor)};
+				const auto partAmount{[&]() -> uint8_t
+				{
+					auto *const buffer{static_cast<const uint8_t *>(epStatus.memBuffer)};
+					const auto amount{part.length - (buffer - begin)};
+					if (amount > sendAmount)
+						return sendAmount;
+					return amount;
+				}()};
+				sendAmount -= partAmount;
+				// If we have bytes left over from the previous loop
+				if (leftoverCount)
+				{
+					// How many bytes do we need to completely fill the leftovers buffer
+					const auto diffAmount{leftoverBytes.size() - leftoverCount};
+					// Copy that in and queue it from the front of the new chunk
+					memcpy(leftoverBytes.data() + leftoverCount, epStatus.memBuffer, diffAmount);
+					sendData(endpoint, leftoverBytes.data(), leftoverBytes.size());
+
+					// Now compute how many bytes will be left at the end of this new chunk
+					// in queueing only amounts divisable-by-4
+					const auto remainder{(partAmount - diffAmount) & 0x03U};
+					// Queue as much as we can
+					epStatus.memBuffer = sendData(0, static_cast<const uint8_t *>(epStatus.memBuffer) + diffAmount,
+						(partAmount - diffAmount) - remainder) + remainder;
+					// And copy any new leftovers to the leftovers buffer.
+					memcpy(leftoverBytes.data(), static_cast<const uint8_t *>(epStatus.memBuffer) - remainder, remainder);
+					leftoverCount = remainder;
+				}
+				else
+				{
+					// How many bytes will be left over by queueing only a divisible-by-4 amount
+					const auto remainder{partAmount & 0x03U};
+					// Queue as much as we can
+					epStatus.memBuffer = sendData(endpoint, static_cast<const uint8_t *>(epStatus.memBuffer),
+						partAmount - remainder) + remainder;
+					// And copy the leftovers to the leftovers buffer.
+					memcpy(leftoverBytes.data(), static_cast<const uint8_t *>(epStatus.memBuffer) - remainder, remainder);
+					leftoverCount = remainder;
+				}
+				// Get the buffer back to check if we exhausted it
+				auto *const buffer{static_cast<const uint8_t *>(epStatus.memBuffer)};
+				if (buffer - begin == part.length &&
+						epStatus.partNumber + 1 < epStatus.partsData->count())
+					// We exhausted the chunk's buffer, so grab the next chunk
+					epStatus.memBuffer = epStatus.partsData->part(++epStatus.partNumber).descriptor;
+			}
+			if (!epStatus.transferCount)
+			{
+				if (leftoverCount)
+					sendData(endpoint, leftoverBytes.data(), leftoverCount);
+				epStatus.isMultiPart(false);
+			}
+		}
+		// Mark the FIFO contents as done with
+		usbCtrl.epCtrls[endpoint - 1].txStatusCtrlL &= ~(vals::usb::epStatusCtrlLTxReady |
+			vals::usb::epStatusCtrLTxUnderRun);
+		return !epStatus.transferCount;
+	}
 } // namespace usb::core
 
 void irqUSB() noexcept

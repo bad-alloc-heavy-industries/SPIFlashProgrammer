@@ -386,8 +386,10 @@ namespace vals
 		// Endpoint status register constants
 		// For both modes
 		constexpr static const uint8_t epStatusCtrlLRxReady{0x01U};
-		constexpr static const uint8_t epStatusCtrlLTxReady{0x02U};
+		constexpr static const uint8_t ep0StatusCtrlLTxReady{0x02U};
+		constexpr static const uint8_t epStatusCtrlLTxReady{0x01U};
 		constexpr static const uint8_t epStatusCtrlLStalled{0x04U};
+		constexpr static const uint8_t epStatusCtrLTxUnderRun{0x04U};
 
 		// For host mode
 		constexpr static const uint8_t epStatusCtrlLSetup{0x08U};
