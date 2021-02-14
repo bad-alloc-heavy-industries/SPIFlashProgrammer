@@ -22,7 +22,7 @@ F 1 "AT25SF641-MHB-T" H 3550 3150 50  0000 L CNN
 F 2 "rhais_package-qfn:UDFN-8-1EP_6x5mm_P1.27mm_EP3.4x4mm" H 3500 3200 50  0001 C CNN
 F 3 "https://www.dialog-semiconductor.com/sites/default/files/at25sf641_111.pdf" H 3500 3200 50  0001 C CNN
 F 4 "Adesto Technologies" H 3500 3500 50  0001 C CNN "MFR"
-F 5 "	AT25SF641-MHB-T" H 3500 3500 50  0001 C CNN "MPN"
+F 5 "AT25SF641-MHB-T" H 3500 3500 50  0001 C CNN "MPN"
 F 6 "2988544" H 3500 3500 50  0001 C CNN "OC_FARNELL"
 F 7 "https://uk.farnell.com/adesto-technologies/at25sf641-mhb-t/flash-memory-64mbit-40-to-85deg/dp/2988544" H 3500 3500 50  0001 C CNN "URL_FARNELL"
 	1    3500 3500
@@ -37,7 +37,7 @@ F 1 "AT25SF641-MHB-T" H 7550 3150 50  0000 L CNN
 F 2 "rhais_package-qfn:UDFN-8-1EP_6x5mm_P1.27mm_EP3.4x4mm" H 7500 3200 50  0001 C CNN
 F 3 "https://www.dialog-semiconductor.com/sites/default/files/at25sf641_111.pdf" H 7500 3200 50  0001 C CNN
 F 4 "Adesto Technologies" H 7500 3500 50  0001 C CNN "MFR"
-F 5 "	AT25SF641-MHB-T" H 7500 3500 50  0001 C CNN "MPN"
+F 5 "AT25SF641-MHB-T" H 7500 3500 50  0001 C CNN "MPN"
 F 6 "2988544" H 7500 3500 50  0001 C CNN "OC_FARNELL"
 F 7 "https://uk.farnell.com/adesto-technologies/at25sf641-mhb-t/flash-memory-64mbit-40-to-85deg/dp/2988544" H 7500 3500 50  0001 C CNN "URL_FARNELL"
 	1    7500 3500
