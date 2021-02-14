@@ -55,7 +55,7 @@ namespace usb::device
 
 	bool handleSetConfiguration() noexcept
 	{
-		usb::core::usbResetEPs(epReset_t::user);
+		usb::core::resetEPs(epReset_t::user);
 
 		activeConfig = packet.value.asAddress().addrL;
 		if (activeConfig == 0)

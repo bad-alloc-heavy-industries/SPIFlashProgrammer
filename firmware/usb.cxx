@@ -112,7 +112,7 @@ void usbInit() noexcept
 
 namespace usb::core
 {
-	void usbReset() noexcept
+	void reset() noexcept
 	{
 		// TODO: Revise this. Probably only want to set EP0 up initially.
 		for (uint8_t i{}; i < endpointCount; ++i)
@@ -127,7 +127,7 @@ namespace usb::core
 		// Really enable the double-buffers as apparently this isn't done just by the above.
 		usbCtrl.txPacketDoubleBuffEnable |= vals::usb::txPacketDoubleBuffEnableEP1;
 		usbCtrl.rxPacketDoubleBuffEnable |= vals::usb::rxPacketDoubleBuffEnableEP1;
-		usbResetEPs(epReset_t::all);
+		resetEPs(epReset_t::all);
 
 		// Once we get done, idle the peripheral
 		usbCtrl.address = 0;
@@ -139,7 +139,7 @@ namespace usb::core
 		usb::device::activeConfig = 0;
 	}
 
-	void usbResetEPs(const epReset_t what) noexcept
+	void resetEPs(const epReset_t what) noexcept
 	{
 		for (auto &[i, epStatus] : utility::indexedIterator_t{epStatusControllerIn})
 		{
@@ -162,7 +162,7 @@ namespace usb::core
 		}
 	}
 
-	void usbDetach()
+	void detach() noexcept
 	{
 		if (usbState == deviceState_t::detached)
 			return;
@@ -173,7 +173,7 @@ namespace usb::core
 		usbState = deviceState_t::detached;
 	}
 
-	void usbWakeup()
+	void wakeup() noexcept
 	{
 		usbSuspended = false;
 		usbCtrl.power |= vals::usb::powerResume;
@@ -184,7 +184,7 @@ namespace usb::core
 		usbCtrl.intEnable |= vals::usb::itrEnableSuspend;
 	}
 
-	void usbSuspend()
+	void suspend() noexcept
 	{
 		usbCtrl.intEnable &= ~vals::usb::itrEnableSuspend;
 		usbCtrl.intEnable |= vals::usb::itrEnableResume;
@@ -335,7 +335,7 @@ void irqUSB() noexcept
 	const auto txStatus{usbCtrl.txIntStatus & usbCtrl.txIntEnable};
 
 	if (status & vals::usb::itrStatusDisconnect)
-		return usbDetach();
+		return detach();
 	else if (usbState == deviceState_t::attached)
 	{
 		usbCtrl.intEnable |= vals::usb::itrEnableSuspend;
@@ -343,19 +343,19 @@ void irqUSB() noexcept
 	}
 
 	if (status & vals::usb::itrStatusResume)
-		usbWakeup();
+		wakeup();
 	else if (usbSuspended)
 		return;
 
 	if (status & vals::usb::itrStatusDeviceReset)
 	{
-		usbReset();
+		reset();
 		usbState = deviceState_t::waiting;
 		return;
 	}
 
 	if (status & vals::usb::itrStatusSuspend)
-		usbSuspend();
+		suspend();
 
 	if (usbState == deviceState_t::detached ||
 		usbState == deviceState_t::attached ||

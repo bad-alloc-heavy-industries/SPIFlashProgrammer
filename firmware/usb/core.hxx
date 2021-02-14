@@ -22,7 +22,7 @@ namespace usb::core
 		user
 	};
 
-	extern void usbResetEPs(epReset_t what) noexcept;
+	extern void resetEPs(epReset_t what) noexcept;
 
 	extern bool readEP(const uint8_t endpoint) noexcept;
 	extern bool writeEP(const uint8_t endpoint) noexcept;
