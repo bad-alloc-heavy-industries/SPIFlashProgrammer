@@ -112,27 +112,6 @@ namespace usb::device
 }
 
 /*!
- * @returns true when the all the data to be read has been retreived,
- * false if there is more left to fetch.
- */
-bool usbServiceCtrlEPRead() noexcept
-{
-	auto &epStatus{epStatusControllerOut[0]};
-	auto readCount = usbCtrl.ep0Ctrl.rxCount;
-	// Bounds sanity and then adjust how much is left to transfer
-	if (readCount > epStatus.transferCount)
-		readCount = epStatus.transferCount;
-	epStatus.transferCount -= readCount;
-	epStatus.memBuffer = recvData(0, static_cast<uint8_t *>(epStatus.memBuffer), readCount);
-	// Mark the FIFO contents as done with
-	if (epStatus.transferCount || usbCtrlState == ctrlState_t::statusRX)
-		usbCtrl.ep0Ctrl.statusCtrlL |= vals::usb::epStatusCtrlLRxReadyClr;
-	else
-		usbCtrl.ep0Ctrl.statusCtrlL |= vals::usb::epStatusCtrlLRxReadyClr | vals::usb::epStatusCtrlLDataEnd;
-	return !epStatus.transferCount;
-}
-
-/*!
  * @returns true when the data to be transmitted is entirely sent,
  * false if there is more left to send.
  */
@@ -243,6 +222,27 @@ void usbHandleStatusCtrlEP() noexcept
 
 namespace usb::device
 {
+	/*!
+	* @returns true when the all the data to be read has been retreived,
+	* false if there is more left to fetch.
+	*/
+	bool readCtrlEP() noexcept
+	{
+		auto &epStatus{epStatusControllerOut[0]};
+		auto readCount{usbCtrl.ep0Ctrl.rxCount};
+		// Bounds sanity and then adjust how much is left to transfer
+		if (readCount > epStatus.transferCount)
+			readCount = epStatus.transferCount;
+		epStatus.transferCount -= readCount;
+		epStatus.memBuffer = recvData(0, static_cast<uint8_t *>(epStatus.memBuffer), readCount);
+		// Mark the FIFO contents as done with
+		if (epStatus.transferCount || usbCtrlState == ctrlState_t::statusRX)
+			usbCtrl.ep0Ctrl.statusCtrlL |= vals::usb::epStatusCtrlLRxReadyClr;
+		else
+			usbCtrl.ep0Ctrl.statusCtrlL |= vals::usb::epStatusCtrlLRxReadyClr | vals::usb::epStatusCtrlLDataEnd;
+		return !epStatus.transferCount;
+	}
+
 	void completeSetupPacket() noexcept
 	{
 		auto &ep0 = usbCtrl.ep0Ctrl;
@@ -291,7 +291,7 @@ namespace usb::device
 		static_assert(sizeof(setupPacket_t) == 8); // Setup packets must be 8 bytes.
 		epStatusControllerOut[0].memBuffer = &packet;
 		epStatusControllerOut[0].transferCount = sizeof(setupPacket_t);
-		if (!usbServiceCtrlEPRead())
+		if (!readCtrlEP())
 		{
 			// Truncated transfer.. WTF.
 			usbCtrl.ep0Ctrl.statusCtrlL |= vals::usb::epStatusCtrlLStall;
@@ -326,7 +326,7 @@ namespace usb::device
 		// If we're in the data phase
 		if (usbCtrlState == ctrlState_t::dataRX)
 		{
-			if (usbServiceCtrlEPRead())
+			if (readCtrlEP())
 			{
 				// If we now have all the data for the transaction..
 				usbCtrlState = ctrlState_t::statusTX;
