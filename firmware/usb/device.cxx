@@ -136,10 +136,6 @@ namespace usb::device
 	*/
 	bool writeCtrlEP() noexcept
 	{
-		if (epStatusControllerIn[0].transferCount < usb::types::epBufferSize)
-		{
-		}
-
 		auto &epStatus{epStatusControllerIn[0]};
 		const auto sendCount{[&]() noexcept -> uint8_t
 		{
