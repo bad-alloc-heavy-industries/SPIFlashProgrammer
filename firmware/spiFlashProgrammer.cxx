@@ -13,5 +13,5 @@ void run() noexcept
 	usbInit();
 
 	while (true)
-		continue;
+		__asm__("wfi");
 }
