@@ -17,18 +17,6 @@ firmware = executable(
 	install: false
 )
 
-size = find_program('get_fw_size.py', dirs: '@0@/../common/scripts'.format(meson.current_source_dir()))
-run_target(
-	'size',
-	command: [
-		size,
-		'--flash-size=262144', # 256KiB of Flash
-		'--ram-size=32768', # 32KiB of RAM
-		'--size-prog=@0@'.format(find_program('size').path()),
-		firmware
-	]
-)
-
 gdb = find_program('gdb')
 run_target(
 	'program',
@@ -41,6 +29,18 @@ run_target(
 		'-ex', 'att 1',
 		'-ex', 'load',
 		'-ex', 'kill',
+		firmware
+	]
+)
+
+size = find_program('get_fw_size.py', dirs: '@0@/../common/scripts'.format(meson.current_source_dir()))
+run_target(
+	'size',
+	command: [
+		size,
+		'--flash-size=262144', # 256KiB of Flash
+		'--ram-size=32768', # 32KiB of RAM
+		'--size-prog=@0@'.format(find_program('size').path()),
 		firmware
 	]
 )
