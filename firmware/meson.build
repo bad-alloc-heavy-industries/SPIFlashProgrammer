@@ -33,6 +33,12 @@ run_target(
 	]
 )
 
+objdump = find_program('objdump')
+run_target(
+	'disasm',
+	command: [objdump, '-dC', firmware]
+)
+
 size = find_program('get_fw_size.py', dirs: '@0@/../common/scripts'.format(meson.current_source_dir()))
 run_target(
 	'size',
