@@ -5,14 +5,14 @@
 
 using namespace flashProto;
 
-uint8_t requestCount(const usbDeviceHandle_t &device)
+auto requestCount(const usbDeviceHandle_t &device)
 {
 	const auto type{messages_t::deviceCount};
 	device.writeInterrupt(1, &type, 1);
 
-	deviceCount_t deviceCount{};
+	responses::deviceCount_t deviceCount{};
 	device.readInterrupt(1, &deviceCount, sizeof(deviceCount));
-	return deviceCount.count;
+	return std::make_tuple(deviceCount.internalCount, deviceCount.externalCount);
 }
 
 int32_t interact(const usbDevice_t &rawDevice)
@@ -22,13 +22,26 @@ int32_t interact(const usbDevice_t &rawDevice)
 		!device.claimInterface(0))
 		return 1;
 
-	const auto deviceCount{requestCount(device)};
+	const auto &[internalDeviceCount, externalDeviceCount] = requestCount(device);
 	// Talk with device here.
 
 	if (!device.releaseInterface(0))
 		return 1;
 	return 0;
 }
+
+/*!
+ * flashprog usage:
+ *
+ * <no command> - List the available SPIFlashProgrammer v2's
+ * listDevices - List the available SPIFlashProgrammer v2's
+ * --device N - Selects which SPIFlashProgrammer to use
+ * list - List the available flash on a given device
+ * read N file - Reads the contents of the given device into the given file
+ * write N file - Writes the contents of the given file into the selected device
+ * verifiedWrite N file - writes the contents of the given file into the
+ *     selected device, verifying the writes as it does.
+ */
 
 int32_t main(int, char **)
 {

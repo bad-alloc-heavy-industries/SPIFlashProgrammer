@@ -20,8 +20,9 @@ namespace usb::flashProto
 
 	void handleDeviceCount() noexcept
 	{
-		deviceCount_t deviceCount{};
-		deviceCount.count = 2;
+		responses::deviceCount_t deviceCount{};
+		deviceCount.internalCount = 2;
+		deviceCount.externalCount = 0;
 
 		auto &epStatus{epStatusControllerIn[1]};
 		epStatus.transferCount = sizeof(deviceCount);
