@@ -1,0 +1,28 @@
+// SPDX-License-Identifier: BSD-3-Clause
+// version.hxx - program version information
+@AUTOGEN_HEADER@
+#ifndef VERSION__HXX
+#define VERSION__HXX
+
+#include <string_view>
+#include <substrate/console>
+
+using namespace std::literals::string_view_literals;
+
+namespace flashprog::versionInfo
+{
+	constexpr static auto version{"@VERSION@"sv};
+	constexpr static auto compiler{"@COMPILER@"sv};
+	constexpr static auto compilerVersion{"@COMPILER_VERSION@"sv};
+	constexpr static auto system{"@TARGET_SYS@"sv};
+	constexpr static auto arch{"@TARGET_ARCH@"sv};
+
+	inline int32_t printVersion() noexcept
+	{
+		substrate::console.info("flashprog "sv, version, " ("sv, compiler, ' ',
+			compilerVersion, ' ', system, '-', arch, ')');
+		return 0;
+	}
+}
+
+#endif /*VERSION__HXX*/

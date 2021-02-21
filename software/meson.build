@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: BSD-3-Clause
+
 substrate = dependency(
 	'substrate',
 	required: true,
@@ -7,6 +9,8 @@ substrate = dependency(
 )
 
 libusb = dependency('libusb-1.0', version: '>=1.0.21', native: true)
+
+subdir('include')
 
 flashprogSrc = [
 	'flashprog.cxx'
