@@ -9,14 +9,43 @@ using namespace flashprog::args;
 using namespace flashprog::args::tokenizer;
 using namespace std::literals::string_view_literals;
 
+// NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables)
 std::unique_ptr<argsTree_t> args{};
 
-// TODO: These are actually backwards, it's per-device then per-flash and the
-// per-flash parser descends into the per-device one first.
+template<typename node_t> auto parsePerDeviceCommand(tokenizer_t &lexer)
+{
+	auto node{substrate::make_unique<node_t>()};
+	const auto &token{lexer.token()};
+	if (token.type() == tokenType_t::unknown)
+	{
+		console.error(node_t::name(), " command was given but no SPI Flash chip number was specified"sv);
+		throw std::exception{};
+	}
+	lexer.next();
+	if (token.value() == "--device"sv)
+	{
+		lexer.next();
+		lexer.next();
+		auto device = substrate::make_unique<argDevice_t>(token.value());
+		if (!device->valid())
+		{
+			console.error("Device number must be given as a positive integer between 0 and 65534"sv);
+			throw std::exception{};
+		}
+		//console.debug("Using device "sv, device->deviceNumber());
+		lexer.next();
+		if (!node->add(std::move(device)))
+		{
+			console.error("Could not add argument to the parsed arguments tree"sv);
+			throw std::exception{};
+		}
+	}
+	return node;
+}
 
 template<typename node_t> auto parsePerFlashCommand(tokenizer_t &lexer)
 {
-	auto node{substrate::make_unique<node_t>()};
+	auto node{parsePerDeviceCommand<node_t>(lexer)};
 	const auto &token{lexer.token()};
 	if (token.type() == tokenType_t::unknown)
 	{
@@ -32,25 +61,6 @@ template<typename node_t> auto parsePerFlashCommand(tokenizer_t &lexer)
 	lexer.next();
 	console.debug("Using file "sv, file);
 	return node;
-}
-
-template<typename node_t> auto parsePerDeviceCommand(tokenizer_t &lexer)
-{
-	const auto &token{lexer.token()};
-	if (token.type() == tokenType_t::unknown)
-	{
-		console.error(node_t::name(), " command was given but no SPI Flash chip number was specified"sv);
-		throw std::exception{};
-	}
-	lexer.next();
-	if (token.value() == "--device"sv)
-	{
-		lexer.next();
-		lexer.next();
-		const auto device{token.value()};
-		lexer.next();
-	}
-	return parsePerFlashCommand<node_t>(lexer);
 }
 
 std::unique_ptr<argNode_t> makeNode(tokenizer_t &lexer, const option_t &option)

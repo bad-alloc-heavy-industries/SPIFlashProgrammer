@@ -5,6 +5,7 @@
 #include <array>
 #include <memory>
 #include <string_view>
+#include <limits>
 #include "utils/span.hxx"
 
 using namespace std::literals::string_view_literals;
@@ -23,6 +24,7 @@ namespace flashprog::args
 		write,
 		verifiedWrite,
 		device,
+		chip,
 		file
 	};
 
@@ -137,6 +139,19 @@ namespace flashprog::args
 	public:
 		argVerifiedWrite_t() noexcept : argsTree_t{argType_t::verifiedWrite} { }
 		constexpr static auto name() noexcept { return "verifiedWrite"sv; }
+	};
+
+	struct argDevice_t final : argNode_t
+	{
+	private:
+		uint16_t deviceNumber_{};
+
+	public:
+		argDevice_t(const std::string_view device) noexcept;
+		[[nodiscard]] auto valid() const noexcept { return deviceNumber_ != invalidDevice; }
+		[[nodiscard]] auto deviceNumber() const noexcept { return deviceNumber_; }
+
+		constexpr static auto invalidDevice = std::numeric_limits<uint16_t>::max();
 	};
 
 	template<argType_t argType> struct argOfType_t final : argNode_t

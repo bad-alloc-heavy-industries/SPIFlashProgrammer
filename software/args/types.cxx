@@ -20,4 +20,12 @@ namespace flashprog::args
 		{ return bool{children_.emplace_back(std::move(node))}; }
 	catch (std::bad_alloc &)
 		{ return false; }
+
+	argDevice_t::argDevice_t(const std::string_view device) noexcept :
+		argNode_t{argType_t::device}, deviceNumber_{invalidDevice}
+	{
+		toInt_t<uint16_t> number{device.data(), device.size()};
+		if (number.isDec())
+			deviceNumber_ = number.fromDec();
+	}
 } // namespace flashprog::args
