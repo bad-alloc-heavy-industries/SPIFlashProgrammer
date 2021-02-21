@@ -35,6 +35,6 @@ Options for read, write and verifiedWrite:
 This utility is licensed under BSD-3-Clase
 Report bugs using https://github.com/bad-alloc-heavy-industries/flashprog/issues)"sv
 	};
-}
+} // namespace flashprog
 
 #endif /*HELP__HXX*/

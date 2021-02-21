@@ -1,9 +1,38 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include <vector>
+#include <substrate/utility>
+#include <substrate/console>
+#include <version.hxx>
+#include "args.hxx"
+#include "help.hxx"
 #include "usbContext.hxx"
 #include "usbProtocol.hxx"
 
+// TODO: Add ChaiScript support for the flashing algorithms.
+
+namespace flashprog
+{
+	constexpr static auto options{substrate::make_array<args::option_t>(
+	{
+		{"--version"sv, argType_t::version},
+		{"--help"sv, argType_t::help},
+		{"-h"sv, argType_t::help},
+		{"listDevices"sv, argType_t::listDevices},
+		{"list"sv, argType_t::list},
+		{"read"sv, argType_t::read},
+		{"write"sv, argType_t::write},
+		{"verifiedWrite"sv, argType_t::verifiedWrite},
+	})};
+
+	inline int32_t printHelp() noexcept
+	{
+		console.info(helpString);
+		return 0;
+	}
+} // namespace flashprog
+
 using namespace flashProto;
+using flashprog::args::ensure_t;
 
 auto requestCount(const usbDeviceHandle_t &device)
 {
@@ -22,7 +51,7 @@ int32_t interact(const usbDevice_t &rawDevice)
 		!device.claimInterface(0))
 		return 1;
 
-	const auto &[internalDeviceCount, externalDeviceCount] = requestCount(device);
+	[[maybe_unused]] const auto &[internalDeviceCount, externalDeviceCount] = requestCount(device);
 	// Talk with device here.
 
 	if (!device.releaseInterface(0))
@@ -43,9 +72,36 @@ int32_t interact(const usbDevice_t &rawDevice)
  *     selected device, verifying the writes as it does.
  */
 
-int32_t main(int, char **)
+int32_t main(int argCount, char **argList)
 {
 	console = {stdout, stderr};
+	if (!parseArguments(argCount, argList, flashprog::options))
+	{
+		console.error("Failed to parse arguments"sv);
+		return 1;
+	}
+	else if (args->find(argType_t::version) && args->find(argType_t::help))
+	{
+		console.error("Can only specify one of --help and --version, not both."sv);
+		return 1;
+	}
+	else if (args->find(argType_t::version))
+		return flashprog::versionInfo::printVersion();
+	else if (args->find(argType_t::help))
+		return flashprog::printHelp();
+	else if (args->maybeEnsureOneOf(argType_t::listDevices, argType_t::list,
+		argType_t::read, argType_t::write, argType_t::verifiedWrite) == ensure_t::many)
+	{
+		console.error("Multiple operations specified, please specify only one of "
+			"listDevices, list, read, write, and verifiedWrite only"sv);
+		return 1;
+	}
+
+	argType_t operation{argType_t::unrecognised};
+	if (!args->findAny(argType_t::listDevices, argType_t::list,
+		argType_t::read, argType_t::write, argType_t::verifiedWrite))
+		operation = argType_t::listDevices;
+
 	usbContext_t context{};
 
 	if (!context.valid())

@@ -23,6 +23,6 @@ namespace flashprog::versionInfo
 			compilerVersion, ' ', system, '-', arch, ')');
 		return 0;
 	}
-}
+} // namespace flashprog::versionInfo
 
 #endif /*VERSION__HXX*/
