@@ -120,10 +120,10 @@ namespace usb::descriptors
 static const std::array<usbStringDesc_t, stringCount + 1> usbStringDescs
 {{
 	{{u"\x0904", 1}},
-	{{u"bad_alloc Heavy Industries", 27}},
-	{{u"SPIFlashProgrammer rev 2", 25}},
-	{{u"", 1}},
-	{{u"Flash access interface", 23}}
+	{{u"bad_alloc Heavy Industries", 26}},
+	{{u"SPIFlashProgrammer rev 2", 24}},
+	{{u"", 0}},
+	{{u"Flash access interface", 22}}
 }};
 
 static const std::array<std::array<usbMultiPartDesc_t, 2>, stringCount + 1> usbStringParts
