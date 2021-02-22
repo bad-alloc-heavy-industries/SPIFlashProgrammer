@@ -13,8 +13,9 @@ using usb::descriptors::usbEndpointDescriptor_t;
 
 namespace usb::device
 {
-	setupPacket_t packet;
-	uint8_t activeConfig;
+	setupPacket_t packet{};
+	uint8_t activeConfig{};
+	std::array<uint8_t, 2> statusResponse{};
 
 	void setupEndpoint(const usbEndpointDescriptor_t &endpoint, uint32_t &startAddress)
 	{
@@ -84,6 +85,27 @@ namespace usb::device
 		return true;
 	}
 
+	answer_t handleGetStatus() noexcept
+	{
+		switch (packet.requestType.recipient())
+		{
+		case setupPacket::recipient_t::device:
+			statusResponse[0] = 0; // We are bus-powered and don't support remote wakeup
+			statusResponse[1] = 0;
+			return {response_t::data, statusResponse.data(), statusResponse.size()};
+		case setupPacket::recipient_t::interface:
+			// Interface requests are required to answer with all 0's
+			statusResponse[0] = 0;
+			statusResponse[1] = 0;
+			return {response_t::data, statusResponse.data(), statusResponse.size()};
+		case setupPacket::recipient_t::endpoint:
+			// TODO: Figure out how to signal stalled/halted endpoints.
+		default:
+			// Bad request? Stall.
+			return {response_t::stall, nullptr, 0};
+		}
+	}
+
 	answer_t handleStandardRequest() noexcept
 	{
 		//const auto &epStatus{epStatusControllerIn[0]};
@@ -104,6 +126,8 @@ namespace usb::device
 					return {response_t::stall, nullptr, 0};
 			case request_t::getConfiguration:
 				return {response_t::data, &activeConfig, 1};
+			case request_t::getStatus:
+				return handleGetStatus();
 		}
 
 		return {response_t::unhandled, nullptr, 0};
