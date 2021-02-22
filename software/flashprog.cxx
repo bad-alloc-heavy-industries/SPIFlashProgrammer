@@ -72,6 +72,8 @@ int32_t interact(const usbDevice_t &rawDevice)
  *     selected device, verifying the writes as it does.
  */
 
+const flashprog::args::argListDevices_t defaultOperation{};
+
 int32_t main(int argCount, char **argList)
 {
 	console = {stdout, stderr};
@@ -80,7 +82,7 @@ int32_t main(int argCount, char **argList)
 		console.error("Failed to parse arguments"sv);
 		return 1;
 	}
-	else if (args->find(argType_t::version) && args->find(argType_t::help))
+	else if (args->ensureMaybeOneOf(argType_t::version, argType_t::help) == ensure_t::many)
 	{
 		console.error("Can only specify one of --help and --version, not both."sv);
 		return 1;
@@ -89,7 +91,7 @@ int32_t main(int argCount, char **argList)
 		return flashprog::versionInfo::printVersion();
 	else if (args->find(argType_t::help))
 		return flashprog::printHelp();
-	else if (args->maybeEnsureOneOf(argType_t::listDevices, argType_t::list,
+	else if (args->ensureMaybeOneOf(argType_t::listDevices, argType_t::list,
 		argType_t::read, argType_t::write, argType_t::verifiedWrite) == ensure_t::many)
 	{
 		console.error("Multiple operations specified, please specify only one of "
@@ -97,10 +99,10 @@ int32_t main(int argCount, char **argList)
 		return 1;
 	}
 
-	argType_t operation{argType_t::unrecognised};
-	if (!args->findAny(argType_t::listDevices, argType_t::list,
-		argType_t::read, argType_t::write, argType_t::verifiedWrite))
-		operation = argType_t::listDevices;
+	const auto *operation{args->findAny(argType_t::listDevices, argType_t::list, argType_t::read,
+		argType_t::write, argType_t::verifiedWrite)};
+	if (!operation)
+		operation = &defaultOperation;
 
 	usbContext_t context{};
 

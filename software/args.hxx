@@ -75,7 +75,7 @@ namespace flashprog::args
 		}
 
 		template<typename... types_t>
-			[[nodiscard]] ensure_t maybeEnsureOneOf(argType_t type, types_t ...types) const noexcept
+			[[nodiscard]] ensure_t ensureMaybeOneOf(argType_t type, types_t ...types) const noexcept
 		{
 			if constexpr (sizeof...(types))
 			{
