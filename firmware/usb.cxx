@@ -114,16 +114,13 @@ namespace usb::core
 {
 	void reset() noexcept
 	{
-		// TODO: Revise this. Probably only want to set EP0 up initially.
-		for (uint8_t i{}; i < endpointCount; ++i)
-		{
-			usbCtrl.epIndex = i;
-			// 128 / 2 = 64, so this gives us 64 bytes per EP.
-			usbCtrl.txFIFOSize = vals::usb::fifoSize128 | vals::usb::fifoSizeDoubleBuffered;
-			usbCtrl.txFIFOAddr = vals::usb::fifoAddr(128 * (i * 2));
-			usbCtrl.rxFIFOSize = vals::usb::fifoSize128 | vals::usb::fifoSizeDoubleBuffered;
-			usbCtrl.rxFIFOAddr = vals::usb::fifoAddr(128 * ((i * 2) + 1));
-		}
+		// Set up only EP0.
+		usbCtrl.epIndex = 0;
+		// 128 / 2 = 64, so this gives us 64 bytes per EP.
+		usbCtrl.txFIFOSize = vals::usb::fifoSize128 | vals::usb::fifoSizeDoubleBuffered;
+		usbCtrl.txFIFOAddr = vals::usb::fifoAddr(0);
+		usbCtrl.rxFIFOSize = vals::usb::fifoSize128 | vals::usb::fifoSizeDoubleBuffered;
+		usbCtrl.rxFIFOAddr = vals::usb::fifoAddr(128);
 		// Really enable the double-buffers as apparently this isn't done just by the above.
 		usbCtrl.txPacketDoubleBuffEnable |= vals::usb::txPacketDoubleBuffEnableEP1;
 		usbCtrl.rxPacketDoubleBuffEnable |= vals::usb::rxPacketDoubleBuffEnableEP1;
