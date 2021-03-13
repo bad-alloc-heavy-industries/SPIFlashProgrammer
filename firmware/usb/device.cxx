@@ -68,9 +68,12 @@ namespace usb::device
 		{
 			// EP0 consumes the first 256 bytes of USB RAM.
 			uint32_t startAddress{256};
+			usbCtrl.txIntEnable &= vals::usb::txItrEnableMask;
+			usbCtrl.rxIntEnable &= vals::usb::rxItrEnableMask;
+			usbCtrl.txIntEnable |= vals::usb::txItrEnableEP0;
 
-			const auto desciptors{usb::descriptors::usbConfigDescriptors[activeConfig - 1]};
-			for (const auto &part : desciptors)
+			const auto descriptors{usb::descriptors::usbConfigDescriptors[activeConfig - 1]};
+			for (const auto &part : descriptors)
 			{
 				const auto *const descriptor{static_cast<const std::byte *>(part.descriptor)};
 				usbDescriptor_t type{usbDescriptor_t::invalid};
