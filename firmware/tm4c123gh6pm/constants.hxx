@@ -388,7 +388,8 @@ namespace vals
 		constexpr static const uint8_t epStatusCtrlLRxReady{0x01U};
 		constexpr static const uint8_t ep0StatusCtrlLTxReady{0x02U};
 		constexpr static const uint8_t epStatusCtrlLTxReady{0x01U};
-		constexpr static const uint8_t epStatusCtrlLStalled{0x04U};
+		constexpr static const uint8_t ep0StatusCtrlLStalled{0x04U};
+		constexpr static const uint8_t epStatusCtrlLStalled{0x20U};
 		constexpr static const uint8_t epStatusCtrLTxUnderRun{0x04U};
 
 		// For host mode
@@ -405,9 +406,12 @@ namespace vals
 		constexpr static const uint8_t epStatusCtrlLRxReadyClr{0x40U};
 		constexpr static const uint8_t epStatusCtrlLSetupEndClr{0x80U};
 
-		constexpr static const uint8_t epStatusCtrlHModeBulkIntr{0x40U};
-		constexpr static const uint8_t epStatusCtrlHModeIsochronous{0x00U};
-		constexpr static const uint8_t epStatusCtrlHMask{0x07U};
+		constexpr static const uint8_t epTxStatusCtrlHModeBulkIntr{0x00U};
+		constexpr static const uint8_t epTxStatusCtrlHModeIsochronous{0x40U};
+		constexpr static const uint8_t epTxStatusCtrlHMask{0x03U};
+
+		constexpr static const uint8_t epRxStatusCtrlHMask{0x01U};
+		constexpr static const uint8_t epRxStatusCtrlHDTSWriteEn{0x04U};
 
 		// General-Purpose Control and Status register constants
 		constexpr static const uint32_t gpCtrlStatusOTGModeHostMask{0xFFFFFFFDU};

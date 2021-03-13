@@ -21,35 +21,38 @@ namespace usb::device
 	{
 		if (endpoint.endpointType == usbEndpointType_t::control)
 			return;
-		const auto statusCtrlH{[](const usbEndpointType_t type) noexcept
-		{
-			switch (type)
-			{
-				case usbEndpointType_t::isochronous:
-					return vals::usb::epStatusCtrlHModeIsochronous;
-				default:
-					break;
-			}
-			return vals::usb::epStatusCtrlHModeBulkIntr;
-		}(endpoint.endpointType)};
 
 		const auto direction{static_cast<endpointDir_t>(endpoint.endpointAddress & ~vals::usb::endpointDirMask)};
 		const auto endpointNumber{endpoint.endpointAddress & vals::usb::endpointDirMask};
 		usbCtrl.epIndex = endpointNumber;
-		auto epCtrl{usbCtrl.epCtrls[endpointNumber - 1]};
+		auto &epCtrl{usbCtrl.epCtrls[endpointNumber - 1]};
 		if (direction == endpointDir_t::controllerIn)
 		{
-			epCtrl.txStatusCtrlH = (epCtrl.txStatusCtrlH & vals::usb::epStatusCtrlHMask) | statusCtrlH;
+			const auto statusCtrlH{[](const usbEndpointType_t type) noexcept
+			{
+				switch (type)
+				{
+					case usbEndpointType_t::isochronous:
+						return vals::usb::epTxStatusCtrlHModeIsochronous;
+					default:
+						break;
+				}
+				return vals::usb::epTxStatusCtrlHModeBulkIntr;
+			}(endpoint.endpointType)};
+			epCtrl.txStatusCtrlH = (epCtrl.txStatusCtrlH & vals::usb::epTxStatusCtrlHMask) | statusCtrlH;
 			epCtrl.txDataMax = endpoint.maxPacketSize;
 			usbCtrl.txFIFOSize = vals::usb::fifoMapMaxSize(endpoint.maxPacketSize, vals::usb::fifoSizeDoubleBuffered);
 			usbCtrl.txFIFOAddr = vals::usb::fifoAddr(startAddress);
+			usbCtrl.txIntEnable |= 1 << endpointNumber;
 		}
 		else
 		{
-			epCtrl.rxStatusCtrlH = (epCtrl.rxStatusCtrlH & vals::usb::epStatusCtrlHMask) | statusCtrlH;
+			epCtrl.rxStatusCtrlH |= vals::usb::epRxStatusCtrlHDTSWriteEn;
+			epCtrl.rxStatusCtrlH = (epCtrl.rxStatusCtrlH & vals::usb::epRxStatusCtrlHMask);
 			epCtrl.rxDataMax = endpoint.maxPacketSize;
 			usbCtrl.rxFIFOSize = vals::usb::fifoMapMaxSize(endpoint.maxPacketSize, vals::usb::fifoSizeDoubleBuffered);
 			usbCtrl.rxFIFOAddr = vals::usb::fifoAddr(startAddress);
+			usbCtrl.rxIntEnable |= 1 << endpointNumber;
 		}
 		startAddress += endpoint.maxPacketSize * 2;
 	}
