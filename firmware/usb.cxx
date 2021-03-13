@@ -229,7 +229,8 @@ namespace usb::core
 		epStatus.transferCount -= readCount;
 		epStatus.memBuffer = recvData(endpoint, static_cast<uint8_t *>(epStatus.memBuffer), readCount);
 		// Mark the FIFO contents as done with
-		usbCtrl.epCtrls[endpoint - 1].rxStatusCtrlL &= ~vals::usb::epStatusCtrlLRxReady;
+		usbCtrl.epCtrls[endpoint - 1].rxStatusCtrlL &= ~(vals::usb::epStatusCtrlLRxReady |
+			vals::usb::epStatusCtrlLStalled);
 		return !epStatus.transferCount;
 	}
 
@@ -319,8 +320,9 @@ namespace usb::core
 			}
 		}
 		// Mark the FIFO contents as done with
-		usbCtrl.epCtrls[endpoint - 1].txStatusCtrlL &= ~(vals::usb::epStatusCtrlLTxReady |
-			vals::usb::epStatusCtrLTxUnderRun);
+		usbCtrl.epCtrls[endpoint - 1].txStatusCtrlL &= ~(vals::usb::epStatusCtrLTxUnderRun |
+			vals::usb::epStatusCtrlLStalled);
+		usbCtrl.epCtrls[endpoint - 1].txStatusCtrlL |= vals::usb::epStatusCtrlLTxReady;
 		return !epStatus.transferCount;
 	}
 } // namespace usb::core
