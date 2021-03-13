@@ -16,6 +16,9 @@ namespace usb::flashProto
 
 	void init() noexcept
 	{
+		epStatusControllerIn[1].isMultiPart(false);
+		epStatusControllerIn[1].needsArming(false);
+		epStatusControllerIn[1].stall(false);
 	}
 
 	void handleDeviceCount() noexcept
@@ -33,13 +36,14 @@ namespace usb::flashProto
 	void handleRequest() noexcept
 	{
 		epStatusControllerOut[1].memBuffer = request.data();
+		epStatusControllerOut[1].transferCount = usbCtrl.epCtrls[0].rxCount;
 		if (!readEP(1))
 		{
 			usbCtrl.epCtrls[0].rxStatusCtrlL |= vals::usb::epStatusCtrlLStall;
 			return;
 		}
 
-		epStatusControllerIn[1].memBuffer = request.data();
+		epStatusControllerIn[1].memBuffer = response.data();
 		// We have now have valid data in the request buffer above. Needs reinterpreting according to the
 		// usbProtocol header structures.
 		auto type{messages_t(request[0])};
