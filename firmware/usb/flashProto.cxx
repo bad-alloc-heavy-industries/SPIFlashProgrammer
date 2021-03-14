@@ -38,6 +38,34 @@ namespace usb::flashProto
 		sendResponse(deviceCount);
 	}
 
+	[[nodiscard]] constexpr size_t power2(const size_t power) noexcept
+		{ return power ? power2(power - 1) * 2 : 1; }
+
+	void handleListDevice() noexcept
+	{
+		requests::listDevice_t listRequest{};
+		memcpy(&listRequest, request.data(), sizeof(listRequest));
+		responses::listDevice_t device{};
+		const auto deviceNumber{listRequest.deviceNumber};
+
+		if (listRequest.deviceType == deviceType_t::internal)
+		{
+			if (deviceNumber <= spi::internalChips)
+			{
+				device.manufacturer = spi::localMFR[deviceNumber];
+				device.deviceType = spi::localType[deviceNumber];
+				device.deviceSize = power2(spi::localCapacity[deviceNumber]);
+				device.eraseSize = 64_KiB;
+				device.pageSize = 256;
+			}
+		}
+		else
+		{
+		}
+
+		sendResponse(device);
+	}
+
 	void handleRequest() noexcept
 	{
 		epStatusControllerOut[1].memBuffer = request.data();
@@ -56,6 +84,8 @@ namespace usb::flashProto
 		{
 			case messages_t::deviceCount:
 				return handleDeviceCount();
+			case messages_t::listDevice:
+				return handleListDevice();
 		}
 	}
 
