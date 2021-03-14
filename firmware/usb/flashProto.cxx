@@ -1,10 +1,14 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include <cstring>
+#include <cstdint>
+#include <substrate/units>
 #include "tm4c123gh6pm/platform.hxx"
 #include "tm4c123gh6pm/constants.hxx"
 #include "usb/core.hxx"
 #include "usbProtocol.hxx"
+#include "spi.hxx"
 
+using namespace substrate;
 using namespace usb::types;
 using namespace usb::core;
 using namespace flashProto;
@@ -13,6 +17,7 @@ namespace usb::flashProto
 {
 	std::array<std::byte, epBufferSize> request{};
 	std::array<std::byte, epBufferSize> response{};
+	spiChip_t targetDevice{spiChip_t::none};
 
 	void init() noexcept
 	{
@@ -89,6 +94,56 @@ namespace usb::flashProto
 		sendResponse(messages_t::targetDevice);
 	}
 
+	bool isBusy() noexcept
+	{
+		spiSelect(targetDevice);
+		spiIntWrite(spiOpcodes::statusRead);
+		const auto status{spiIntRead()};
+		spiSelect(spiChip_t::none);
+		return (status & 1);
+	}
+
+	void handleErase() noexcept
+	{
+		requests::erase_t eraseRequest{};
+		memcpy(&eraseRequest, request.data(), sizeof(eraseRequest));
+		bool complete{false};
+		responses::erase_t response{};
+		response.currentPage = 0xFFFFFFFFU;
+
+		if (targetDevice == spiChip_t::none)
+		{
+			response.complete = 2;
+			sendResponse(response);
+			return;
+		}
+
+		switch (eraseRequest.operation)
+		{
+			case eraseOperation_t::all:
+			{
+				spiSelect(targetDevice);
+				spiIntWrite(spiOpcodes::writeEnable);
+				spiSelect(spiChip_t::none);
+				spiSelect(targetDevice);
+				spiIntWrite(spiOpcodes::chipErase);
+				spiSelect(spiChip_t::none);
+				complete = !isBusy();
+				break;
+			}
+			case eraseOperation_t::page:
+				break;
+			case eraseOperation_t::pageRange:
+				break;
+			case eraseOperation_t::status:
+				complete = !isBusy();
+				break;
+		}
+
+		response.complete = complete ? 1 : 0;
+		sendResponse(response);
+	}
+
 	void handleRequest() noexcept
 	{
 		epStatusControllerOut[1].memBuffer = request.data();
@@ -111,6 +166,8 @@ namespace usb::flashProto
 				return handleListDevice();
 			case messages_t::targetDevice:
 				return handleTargetDevice();
+			case messages_t::erase:
+				return handleErase();
 		}
 	}
 
