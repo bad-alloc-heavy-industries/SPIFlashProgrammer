@@ -154,6 +154,19 @@ namespace flashprog::args
 		constexpr static auto invalidDevice = std::numeric_limits<uint16_t>::max();
 	};
 
+	struct argChip_t final : argNode_t
+	{
+	private:
+		uint32_t chipNumber_{};
+
+	public:
+		argChip_t(const std::string_view chip) noexcept;
+		[[nodiscard]] auto valid() const noexcept { return chipNumber_ != invalidChip; }
+		[[nodiscard]] auto chipNumber() const noexcept { return chipNumber_; }
+
+		constexpr static auto invalidChip = std::numeric_limits<uint32_t>::max();
+	};
+
 	template<argType_t argType> struct argOfType_t final : argNode_t
 	{
 	public:
