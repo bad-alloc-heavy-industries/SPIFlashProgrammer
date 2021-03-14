@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include <vector>
+#include <thread>
+#include <chrono>
 #include <substrate/utility>
 #include <substrate/console>
 #include <version.hxx>
@@ -34,6 +36,8 @@ namespace flashprog
 
 using namespace flashProto;
 using flashprog::args::ensure_t;
+using namespace std::literals::chrono_literals;
+using flashprog::args::argsTree_t;
 
 auto requestCount(const usbDeviceHandle_t &device) noexcept
 {
@@ -84,6 +88,74 @@ int32_t listDevices(const usbDevice_t &rawDevice)
 	return 0;
 }
 
+void targetDevice(const usbDeviceHandle_t &device, const deviceType_t deviceType, const uint8_t deviceNumber)
+{
+	requests::targetDevice_t request{};
+	request.deviceType = deviceType;
+	request.deviceNumber = deviceNumber;
+	device.writeInterrupt(1, &request, sizeof(request));
+
+	responses::targetDevice_t response{};
+	device.readInterrupt(1, &response, sizeof(response));
+	if (response.type != messages_t::targetDevice)
+	{
+		console.error("Failed to set the target SPI Flash device");
+		throw std::exception{};
+	}
+}
+
+int32_t eraseDevice(const usbDevice_t &rawDevice, const argsTree_t *const eraseArgs)
+{
+	const auto *const chip{dynamic_cast<flashprog::args::argChip_t *>(eraseArgs->find(argType_t::chip))};
+
+	const auto device{rawDevice.open()};
+	if (!device.valid() ||
+		!device.claimInterface(0))
+		return 1;
+
+	try
+	{
+		targetDevice(device, deviceType_t::internal, chip ? chip->chipNumber() : 0U);
+	}
+	catch (const std::exception &)
+	{
+		if (!device.releaseInterface(0))
+			return 2;
+		return 1;
+	}
+
+	console.info("Erasing chip "sv, nullptr);
+	const auto startTime{std::chrono::steady_clock::now()};
+
+	requests::erase_t request{};
+	request.operation = eraseOperation_t::all;
+	device.writeInterrupt(1, &request, sizeof(request));
+
+	responses::erase_t response{};
+	device.readInterrupt(1, &response, sizeof(response));
+
+	request.operation = eraseOperation_t::status;
+	while (!response.complete)
+	{
+		std::this_thread::sleep_for(1s);
+		device.writeInterrupt(1, &request, sizeof(request));
+		device.readInterrupt(1, &response, sizeof(response));
+		console.writeln('.', nullptr);
+	}
+	console.writeln();
+	const auto endTime{std::chrono::steady_clock::now()};
+
+	console.info("Complete");
+	const auto elapsedSeconds{std::chrono::duration_cast<std::chrono::seconds>(endTime - startTime)};
+	console.info("Total time elapsed: ", substrate::asTime_t{elapsedSeconds.count()});
+
+	if (!device.releaseInterface(0))
+		return 1;
+	// As complete is non-0 at this point, if it has the value 1, it was a good completion
+	// otherwise, the programmer said we asked it to do something insane, so error out.
+	return response.complete == 1 ? 0 : 1;
+}
+
 /*!
  * flashprog usage:
  *
@@ -91,6 +163,7 @@ int32_t listDevices(const usbDevice_t &rawDevice)
  * listDevices - List the available SPIFlashProgrammer v2's
  * --device N - Selects which SPIFlashProgrammer to use
  * list - List the available flash on a given device
+ * erase N - Erases the contents of the given device
  * read N file - Reads the contents of the given device into the given file
  * write N file - Writes the contents of the given file into the selected device
  * verifiedWrite N file - writes the contents of the given file into the
@@ -150,6 +223,8 @@ int32_t main(int argCount, char **argList)
 	{
 		if (operation->type() == argType_t::listDevices)
 			return listDevices(devices[0]);
+		else if (operation->type() == argType_t::erase)
+			return eraseDevice(devices[0], dynamic_cast<const argsTree_t *>(operation));
 	}
 
 	return 0;
