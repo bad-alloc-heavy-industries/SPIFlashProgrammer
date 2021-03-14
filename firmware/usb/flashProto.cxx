@@ -21,16 +21,21 @@ namespace usb::flashProto
 		epStatusControllerIn[1].stall(false);
 	}
 
+	template<typename T> void sendResponse(const T &data)
+	{
+		auto &epStatus{epStatusControllerIn[1]};
+		epStatus.transferCount = sizeof(T);
+		memcpy(response.data(), &data, sizeof(T));
+		writeEP(1);
+	}
+
 	void handleDeviceCount() noexcept
 	{
 		responses::deviceCount_t deviceCount{};
 		deviceCount.internalCount = 2;
 		deviceCount.externalCount = 0;
 
-		auto &epStatus{epStatusControllerIn[1]};
-		epStatus.transferCount = sizeof(deviceCount);
-		memcpy(response.data(), &deviceCount, epStatus.transferCount);
-		writeEP(1);
+		sendResponse(deviceCount);
 	}
 
 	void handleRequest() noexcept
