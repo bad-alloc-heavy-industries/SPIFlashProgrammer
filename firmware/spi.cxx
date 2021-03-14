@@ -24,10 +24,15 @@
  * FIFOs equally fed and consumed.
  */
 
-// These store what the local flash that's installed's manufacturer, type and capacity read as.
-uint8_t localMFR[2]{};
-uint8_t localType[2]{};
-uint8_t localCapacity[2]{};
+namespace spi
+{
+	// These store what the local flash that's installed's manufacturer, type and capacity read as.
+	std::array<uint8_t, internalChips> localMFR{};
+	std::array<uint8_t, internalChips> localType{};
+	std::array<uint8_t, internalChips> localCapacity{};
+}
+
+using namespace spi;
 
 bool checkDeviceID(uint8_t index) noexcept;
 
@@ -140,7 +145,7 @@ void spiIntResync() noexcept
 
 uint8_t spiIntRead() noexcept
 {
-	//spiIntResync();
+	spiIntResync();
 	ssi1.data = 0;
 	// Wait for the dummy data to be shifted out and the reply read in
 	while (!(ssi1.status & vals::ssi::statusRxFIFONotEmpty))
