@@ -35,7 +35,7 @@ namespace flashprog
 using namespace flashProto;
 using flashprog::args::ensure_t;
 
-auto requestCount(const usbDeviceHandle_t &device)
+auto requestCount(const usbDeviceHandle_t &device) noexcept
 {
 	const auto type{messages_t::deviceCount};
 	device.writeInterrupt(1, &type, 1);
@@ -45,7 +45,23 @@ auto requestCount(const usbDeviceHandle_t &device)
 	return std::make_tuple(deviceCount.internalCount, deviceCount.externalCount);
 }
 
-int32_t interact(const usbDevice_t &rawDevice)
+bool listDevice(const usbDeviceHandle_t &device, const deviceType_t deviceType, const uint8_t deviceNumber) noexcept
+{
+	requests::listDevice_t request{};
+	request.deviceType = deviceType;
+	request.deviceNumber = deviceNumber;
+	device.writeInterrupt(1, &request, sizeof(request));
+
+	responses::listDevice_t response{};
+	device.readInterrupt(1, &response, sizeof(response));
+
+	console.info('\t', deviceNumber, ": Manufacturer - "sv, response.manufacturer,
+		", Capacity - ", response.deviceSize, ", Page size - ", uint32_t{response.pageSize},
+		", Erase page size - "sv, uint32_t{response.eraseSize});
+	return true;
+}
+
+int32_t listDevices(const usbDevice_t &rawDevice)
 {
 	const auto device{rawDevice.open()};
 	if (!device.valid() ||
@@ -53,7 +69,15 @@ int32_t interact(const usbDevice_t &rawDevice)
 		return 1;
 
 	[[maybe_unused]] const auto &[internalDeviceCount, externalDeviceCount] = requestCount(device);
-	// Talk with device here.
+
+	console.info("Programmer has "sv, internalDeviceCount, " internal Flash chips, and "sv, externalDeviceCount,
+		" external Flash chips"sv);
+	console.info("Internal devices:"sv);
+	for (uint8_t interalDevice{0}; interalDevice < internalDeviceCount; ++interalDevice)
+		listDevice(device, deviceType_t::internal, interalDevice);
+	console.info("External devices:"sv);
+	for (uint8_t externalDevice{0}; externalDevice < externalDeviceCount; ++externalDevice)
+		listDevice(device, deviceType_t::external, externalDevice);
 
 	if (!device.releaseInterface(0))
 		return 1;
@@ -116,13 +140,17 @@ int32_t main(int argCount, char **argList)
 	{
 		if (device.vid() == 0x1209 && device.pid() == 0xAB0C)
 		{
-			console.info("Found device at address "sv, device.busNumber(), ':', device.portNumber());
+			console.info("Found programmer at address "sv, device.busNumber(), ':', device.portNumber());
 			devices.emplace_back(std::move(device));
 		}
 	}
-	console.info("Found "sv, devices.size(), " devices");
+	console.info("Found "sv, devices.size(), " programmers");
+
 	if (devices.size() == 1)
-		return interact(devices[0]);
+	{
+		if (operation->type() == argType_t::listDevices)
+			return listDevices(devices[0]);
+	}
 
 	return 0;
 }
