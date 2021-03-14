@@ -20,6 +20,7 @@ namespace flashprog::args
 		version,
 		listDevices,
 		list,
+		erase,
 		read,
 		write,
 		verifiedWrite,
@@ -118,6 +119,13 @@ namespace flashprog::args
 	public:
 		argList_t() noexcept : argsTree_t{argType_t::list} { }
 		constexpr static auto name() noexcept { return "list"sv; }
+	};
+
+	struct argErase_t final : argsTree_t
+	{
+	public:
+		argErase_t() noexcept : argsTree_t{argType_t::erase} { }
+		constexpr static auto name() noexcept { return "erase"sv; }
 	};
 
 	struct argRead_t final : argsTree_t

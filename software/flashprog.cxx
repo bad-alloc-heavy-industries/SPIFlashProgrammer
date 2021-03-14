@@ -19,6 +19,7 @@ namespace flashprog
 		{"-h"sv, argType_t::help},
 		{"listDevices"sv, argType_t::listDevices},
 		{"list"sv, argType_t::list},
+		{"erase"sv, argType_t::erase},
 		{"read"sv, argType_t::read},
 		{"write"sv, argType_t::write},
 		{"verifiedWrite"sv, argType_t::verifiedWrite},
@@ -91,16 +92,16 @@ int32_t main(int argCount, char **argList)
 		return flashprog::versionInfo::printVersion();
 	else if (args->find(argType_t::help))
 		return flashprog::printHelp();
-	else if (args->ensureMaybeOneOf(argType_t::listDevices, argType_t::list,
+	else if (args->ensureMaybeOneOf(argType_t::listDevices, argType_t::list, argType_t::erase,
 		argType_t::read, argType_t::write, argType_t::verifiedWrite) == ensure_t::many)
 	{
 		console.error("Multiple operations specified, please specify only one of "
-			"listDevices, list, read, write, and verifiedWrite only"sv);
+			"listDevices, list, erase, read, write, and verifiedWrite only"sv);
 		return 1;
 	}
 
-	const auto *operation{args->findAny(argType_t::listDevices, argType_t::list, argType_t::read,
-		argType_t::write, argType_t::verifiedWrite)};
+	const auto *operation{args->findAny(argType_t::listDevices, argType_t::list, argType_t::erase,
+		argType_t::read, argType_t::write, argType_t::verifiedWrite)};
 	if (!operation)
 		operation = &defaultOperation;
 

@@ -56,10 +56,13 @@ template<typename node_t> auto parsePerFlashCommand(tokenizer_t &lexer)
 	const auto flashChip{token.value()};
 	lexer.next();
 	console.debug("Using flash chip "sv, flashChip);
+	if constexpr (!std::is_same_v<node_t, argErase_t>)
+	{
 	lexer.next();
 	const auto file{token.value()};
 	lexer.next();
 	console.debug("Using file "sv, file);
+	}
 	return node;
 }
 
@@ -76,6 +79,8 @@ std::unique_ptr<argNode_t> makeNode(tokenizer_t &lexer, const option_t &option)
 			return substrate::make_unique<argListDevices_t>();
 		case argType_t::list:
 			return parsePerFlashCommand<argList_t>(lexer);
+		case argType_t::erase:
+			return parsePerDeviceCommand<argErase_t>(lexer);
 		case argType_t::read:
 			return parsePerDeviceCommand<argRead_t>(lexer);
 		case argType_t::write:
