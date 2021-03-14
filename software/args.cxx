@@ -26,7 +26,7 @@ template<typename node_t> auto parsePerDeviceCommand(tokenizer_t &lexer)
 	{
 		lexer.next();
 		lexer.next();
-		auto device = substrate::make_unique<argDevice_t>(token.value());
+		auto device{substrate::make_unique<argDevice_t>(token.value())};
 		if (!device->valid())
 		{
 			console.error("Device number must be given as a positive integer between 0 and 65534"sv);
@@ -53,15 +53,25 @@ template<typename node_t> auto parsePerFlashCommand(tokenizer_t &lexer)
 		throw std::exception{};
 	}
 	lexer.next();
-	const auto flashChip{token.value()};
+	auto flashChip{substrate::make_unique<argChip_t>(token.value())};
+	if (!flashChip->valid())
+	{
+		console.error("Chip number for operation must be given as a positive integer between 0 and 65535"sv);
+		throw std::exception{};
+	}
 	lexer.next();
-	console.debug("Using flash chip "sv, flashChip);
+	console.debug("Using flash chip "sv, flashChip->chipNumber());
+	if (!node->add(std::move(flashChip)))
+	{
+		console.error("Could not add argument to the parsed arguments tree"sv);
+		throw std::exception{};
+	}
 	if constexpr (!std::is_same_v<node_t, argErase_t>)
 	{
-	lexer.next();
-	const auto file{token.value()};
-	lexer.next();
-	console.debug("Using file "sv, file);
+		lexer.next();
+		const auto file{token.value()};
+		lexer.next();
+		console.debug("Using file "sv, file);
 	}
 	return node;
 }
