@@ -66,6 +66,29 @@ namespace usb::flashProto
 		sendResponse(device);
 	}
 
+	void handleTargetDevice() noexcept
+	{
+		requests::targetDevice_t targetRequest{};
+		memcpy(&targetRequest, request.data(), sizeof(targetRequest));
+		const auto deviceNumber{targetRequest.deviceNumber};
+
+		if (targetRequest.deviceType == deviceType_t::internal)
+		{
+			if (deviceNumber == 0)
+				targetDevice = spiChip_t::local1;
+			else if (deviceNumber == 1)
+				targetDevice = spiChip_t::local2;
+			else
+				targetDevice = spiChip_t::none;
+		}
+		else
+		{
+			targetDevice = spiChip_t::none;
+		}
+
+		sendResponse(messages_t::targetDevice);
+	}
+
 	void handleRequest() noexcept
 	{
 		epStatusControllerOut[1].memBuffer = request.data();
@@ -86,6 +109,8 @@ namespace usb::flashProto
 				return handleDeviceCount();
 			case messages_t::listDevice:
 				return handleListDevice();
+			case messages_t::targetDevice:
+				return handleTargetDevice();
 		}
 	}
 
