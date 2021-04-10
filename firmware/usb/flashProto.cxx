@@ -48,8 +48,7 @@ namespace usb::flashProto
 
 	void handleListDevice() noexcept
 	{
-		requests::listDevice_t listRequest{};
-		memcpy(&listRequest, request.data(), sizeof(listRequest));
+		requests::listDevice_t listRequest{request};
 		responses::listDevice_t device{};
 		const auto deviceNumber{listRequest.deviceNumber};
 
@@ -73,8 +72,7 @@ namespace usb::flashProto
 
 	void handleTargetDevice() noexcept
 	{
-		requests::targetDevice_t targetRequest{};
-		memcpy(&targetRequest, request.data(), sizeof(targetRequest));
+		requests::targetDevice_t targetRequest{request};
 		const auto deviceNumber{targetRequest.deviceNumber};
 
 		if (targetRequest.deviceType == deviceType_t::internal)
@@ -105,8 +103,7 @@ namespace usb::flashProto
 
 	void handleErase() noexcept
 	{
-		requests::erase_t eraseRequest{};
-		memcpy(&eraseRequest, request.data(), sizeof(eraseRequest));
+		requests::erase_t eraseRequest{request};
 		bool complete{false};
 		responses::erase_t response{};
 		response.currentPage = 0xFFFFFFFFU;

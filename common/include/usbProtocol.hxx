@@ -6,6 +6,8 @@
 #include <array>
 
 #ifdef __arm__
+#include <cstring>
+#include <type_traits>
 #else
 #include <exception>
 #include "usbContext.hxx"
@@ -28,7 +30,8 @@ namespace flashProto
 	enum class deviceType_t : uint8_t
 	{
 		internal,
-		external
+		external,
+		none
 	};
 
 	enum class eraseOperation_t : uint8_t
@@ -78,9 +81,14 @@ namespace flashProto
 		{
 			messages_t type{messages_t::deviceCount};
 
+			constexpr deviceCount_t() noexcept = default;
+
 #ifdef __arm__
-			/*bool read(uint8_t endpoint)
-				{  }*/
+			template<size_t N> deviceCount_t(const std::array<std::byte, N> &data) noexcept : deviceCount_t{}
+			{
+				static_assert(N >= sizeof(deviceCount_t));
+				std::memcpy(&type, data.data(), sizeof(deviceCount_t));
+			}
 #else
 			[[nodiscard]] bool write(const usbDeviceHandle_t &device, uint8_t endpoint) const noexcept
 				{ return device.writeInterrupt(endpoint, &type, sizeof(deviceCount_t)); }
@@ -91,11 +99,16 @@ namespace flashProto
 		{
 			messages_t type{messages_t::listDevice};
 			uint8_t deviceNumber{0};
-			deviceType_t deviceType;
+			deviceType_t deviceType{deviceType_t::none};
+
+			constexpr listDevice_t() noexcept = default;
 
 #ifdef __arm__
-			/*bool read(uint8_t endpoint)
-				{  }*/
+			template<size_t N> listDevice_t(const std::array<std::byte, N> &data) noexcept : listDevice_t{}
+			{
+				static_assert(N >= sizeof(listDevice_t));
+				std::memcpy(&type, data.data(), sizeof(listDevice_t));
+			}
 #else
 			[[nodiscard]] bool write(const usbDeviceHandle_t &device, uint8_t endpoint) const noexcept
 				{ return device.writeInterrupt(endpoint, &type, sizeof(listDevice_t)); }
@@ -106,11 +119,16 @@ namespace flashProto
 		{
 			messages_t type{messages_t::targetDevice};
 			uint8_t deviceNumber{0};
-			deviceType_t deviceType;
+			deviceType_t deviceType{deviceType_t::none};
+
+			constexpr targetDevice_t() noexcept = default;
 
 #ifdef __arm__
-			/*bool read(uint8_t endpoint)
-				{  }*/
+			template<size_t N> targetDevice_t(const std::array<std::byte, N> &data) noexcept : targetDevice_t{}
+			{
+				static_assert(N >= sizeof(targetDevice_t));
+				std::memcpy(&type, data.data(), sizeof(targetDevice_t));
+			}
 #else
 			[[nodiscard]] bool write(const usbDeviceHandle_t &device, uint8_t endpoint) const noexcept
 				{ return device.writeInterrupt(endpoint, &type, sizeof(targetDevice_t)); }
@@ -126,9 +144,14 @@ namespace flashProto
 			// Only valid for eraseOperation_t::pageRange
 			page_t endPage{};
 
+			constexpr erase_t() noexcept = default;
+
 #ifdef __arm__
-			/*bool read(uint8_t endpoint)
-				{  }*/
+			template<size_t N> erase_t(const std::array<std::byte, N> &data) noexcept : erase_t{}
+			{
+				static_assert(N >= sizeof(erase_t));
+				std::memcpy(&type, data.data(), sizeof(erase_t));
+			}
 #else
 			[[nodiscard]] bool write(const usbDeviceHandle_t &device, uint8_t endpoint) const noexcept
 				{ return device.writeInterrupt(endpoint, &type, sizeof(erase_t)); }
