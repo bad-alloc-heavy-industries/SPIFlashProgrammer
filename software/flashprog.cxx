@@ -71,7 +71,7 @@ int32_t listDevices(const usbDevice_t &rawDevice)
 
 	try
 	{
-		[[maybe_unused]] const auto &[internalDeviceCount, externalDeviceCount] = requestCount(device);
+		const auto &[internalDeviceCount, externalDeviceCount] = requestCount(device);
 
 		console.info("Programmer has "sv, internalDeviceCount, " internal Flash chips, and "sv,
 			externalDeviceCount, " external Flash chips"sv);
