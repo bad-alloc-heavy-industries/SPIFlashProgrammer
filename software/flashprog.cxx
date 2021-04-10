@@ -39,13 +39,11 @@ using flashprog::args::ensure_t;
 using namespace std::literals::chrono_literals;
 using flashprog::args::argsTree_t;
 
-auto requestCount(const usbDeviceHandle_t &device) noexcept
+auto requestCount(const usbDeviceHandle_t &device)
 {
-	const auto type{messages_t::deviceCount};
-	device.writeInterrupt(1, &type, 1);
-
-	responses::deviceCount_t deviceCount{};
-	device.readInterrupt(1, &deviceCount, sizeof(deviceCount));
+	if (!requests::deviceCount_t{}.write(device, 1))
+		throw requests::usbError_t{};
+	responses::deviceCount_t deviceCount{device, 1};
 	return std::make_tuple(deviceCount.internalCount, deviceCount.externalCount);
 }
 
@@ -54,11 +52,10 @@ bool listDevice(const usbDeviceHandle_t &device, const deviceType_t deviceType, 
 	requests::listDevice_t request{};
 	request.deviceType = deviceType;
 	request.deviceNumber = deviceNumber;
-	device.writeInterrupt(1, &request, sizeof(request));
+	if (!request.write(device, 1))
+		return false;
 
-	responses::listDevice_t response{};
-	device.readInterrupt(1, &response, sizeof(response));
-
+	responses::listDevice_t response{device, 1};
 	console.info('\t', deviceNumber, ": Manufacturer - "sv, response.manufacturer,
 		", Capacity - ", response.deviceSize, ", Page size - ", uint32_t{response.pageSize},
 		", Erase page size - "sv, uint32_t{response.eraseSize});
@@ -72,36 +69,46 @@ int32_t listDevices(const usbDevice_t &rawDevice)
 		!device.claimInterface(0))
 		return 1;
 
-	[[maybe_unused]] const auto &[internalDeviceCount, externalDeviceCount] = requestCount(device);
+	try
+	{
+		[[maybe_unused]] const auto &[internalDeviceCount, externalDeviceCount] = requestCount(device);
 
 	console.info("Programmer has "sv, internalDeviceCount, " internal Flash chips, and "sv, externalDeviceCount,
 		" external Flash chips"sv);
-	console.info("Internal devices:"sv);
-	for (uint8_t interalDevice{0}; interalDevice < internalDeviceCount; ++interalDevice)
-		listDevice(device, deviceType_t::internal, interalDevice);
-	console.info("External devices:"sv);
-	for (uint8_t externalDevice{0}; externalDevice < externalDeviceCount; ++externalDevice)
-		listDevice(device, deviceType_t::external, externalDevice);
+		console.info("Internal devices:"sv);
+		for (uint8_t interalDevice{0}; interalDevice < internalDeviceCount; ++interalDevice)
+			listDevice(device, deviceType_t::internal, interalDevice);
+		console.info("External devices:"sv);
+		for (uint8_t externalDevice{0}; externalDevice < externalDeviceCount; ++externalDevice)
+			listDevice(device, deviceType_t::external, externalDevice);
+	}
+	catch (const requests::usbError_t &error)
+	{
+		console.error("Failure while listing devices: "sv, error.what());
+		[[maybe_unused]] const auto _{device.releaseInterface(0)};
+		return 1;
+	}
 
 	if (!device.releaseInterface(0))
 		return 1;
 	return 0;
 }
 
-void targetDevice(const usbDeviceHandle_t &device, const deviceType_t deviceType, const uint8_t deviceNumber)
+bool targetDevice(const usbDeviceHandle_t &device, const deviceType_t deviceType, const uint8_t deviceNumber) noexcept
 {
 	requests::targetDevice_t request{};
 	request.deviceType = deviceType;
 	request.deviceNumber = deviceNumber;
-	device.writeInterrupt(1, &request, sizeof(request));
+	if (!request.write(device, 1))
+		return false;
 
-	responses::targetDevice_t response{};
-	device.readInterrupt(1, &response, sizeof(response));
+	responses::targetDevice_t response{device, 1};
 	if (response.type != messages_t::targetDevice)
 	{
-		console.error("Failed to set the target SPI Flash device");
-		throw std::exception{};
+		console.error("Failed to set the target SPI Flash device"sv);
+		return false;
 	}
+	return true;
 }
 
 int32_t eraseDevice(const usbDevice_t &rawDevice, const argsTree_t *const eraseArgs)
@@ -113,11 +120,7 @@ int32_t eraseDevice(const usbDevice_t &rawDevice, const argsTree_t *const eraseA
 		!device.claimInterface(0))
 		return 1;
 
-	try
-	{
-		targetDevice(device, deviceType_t::internal, chip ? chip->chipNumber() : 0U);
-	}
-	catch (const std::exception &)
+	if (!targetDevice(device, deviceType_t::internal, chip ? chip->chipNumber() : 0U))
 	{
 		if (!device.releaseInterface(0))
 			return 2;
@@ -129,11 +132,14 @@ int32_t eraseDevice(const usbDevice_t &rawDevice, const argsTree_t *const eraseA
 
 	requests::erase_t request{};
 	request.operation = eraseOperation_t::all;
-	device.writeInterrupt(1, &request, sizeof(request));
+	if (!request.write(device, 1))
+	{
+		if (!device.releaseInterface(0))
+			return 2;
+		return 1;
+	}
 
-	responses::erase_t response{};
-	device.readInterrupt(1, &response, sizeof(response));
-
+	responses::erase_t response{device, 1};
 	request.operation = eraseOperation_t::status;
 	while (!response.complete)
 	{
