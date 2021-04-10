@@ -57,7 +57,7 @@ bool listDevice(const usbDeviceHandle_t &device, const deviceType_t deviceType, 
 
 	responses::listDevice_t response{device, 1};
 	console.info('\t', deviceNumber, ": Manufacturer - "sv, response.manufacturer,
-		", Capacity - ", response.deviceSize, ", Page size - ", uint32_t{response.pageSize},
+		", Capacity - "sv, response.deviceSize, ", Page size - "sv, uint32_t{response.pageSize},
 		", Erase page size - "sv, uint32_t{response.eraseSize});
 	return true;
 }
@@ -73,8 +73,8 @@ int32_t listDevices(const usbDevice_t &rawDevice)
 	{
 		[[maybe_unused]] const auto &[internalDeviceCount, externalDeviceCount] = requestCount(device);
 
-	console.info("Programmer has "sv, internalDeviceCount, " internal Flash chips, and "sv, externalDeviceCount,
-		" external Flash chips"sv);
+		console.info("Programmer has "sv, internalDeviceCount, " internal Flash chips, and "sv,
+			externalDeviceCount, " external Flash chips"sv);
 		console.info("Internal devices:"sv);
 		for (uint8_t interalDevice{0}; interalDevice < internalDeviceCount; ++interalDevice)
 			listDevice(device, deviceType_t::internal, interalDevice);
@@ -151,9 +151,9 @@ int32_t eraseDevice(const usbDevice_t &rawDevice, const argsTree_t *const eraseA
 	console.writeln();
 	const auto endTime{std::chrono::steady_clock::now()};
 
-	console.info("Complete");
+	console.info("Complete"sv);
 	const auto elapsedSeconds{std::chrono::duration_cast<std::chrono::seconds>(endTime - startTime)};
-	console.info("Total time elapsed: ", substrate::asTime_t{elapsedSeconds.count()});
+	console.info("Total time elapsed: "sv, substrate::asTime_t{uint64_t(elapsedSeconds.count())});
 
 	if (!device.releaseInterface(0))
 		return 1;
@@ -223,7 +223,7 @@ int32_t main(int argCount, char **argList)
 			devices.emplace_back(std::move(device));
 		}
 	}
-	console.info("Found "sv, devices.size(), " programmers");
+	console.info("Found "sv, devices.size(), " programmers"sv);
 
 	if (devices.size() == 1)
 	{
