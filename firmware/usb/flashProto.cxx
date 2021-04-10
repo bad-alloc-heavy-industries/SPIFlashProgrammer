@@ -30,7 +30,7 @@ namespace usb::flashProto
 	{
 		auto &epStatus{epStatusControllerIn[1]};
 		epStatus.transferCount = sizeof(T);
-		memcpy(response.data(), &data, sizeof(T));
+		memcpy(response.data(), &data.type, sizeof(T));
 		writeEP(1);
 	}
 
@@ -89,7 +89,7 @@ namespace usb::flashProto
 			targetDevice = spiChip_t::none;
 		}
 
-		sendResponse(messages_t::targetDevice);
+		sendResponse(responses::targetDevice_t{});
 	}
 
 	bool isBusy() noexcept

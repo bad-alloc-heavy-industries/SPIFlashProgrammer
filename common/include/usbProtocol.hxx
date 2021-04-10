@@ -207,10 +207,7 @@ namespace flashProto
 
 			constexpr deviceCount_t() noexcept = default;
 
-#ifdef __arm__
-			/*bool write(uint8_t endpoint)
-				{  }*/
-#else
+#ifndef __arm__
 			deviceCount_t(const usbDeviceHandle_t &device, uint8_t endpoint) : deviceCount_t{}
 			{
 				if (!read(device, endpoint))
@@ -233,10 +230,7 @@ namespace flashProto
 
 			constexpr listDevice_t() noexcept = default;
 
-#ifdef __arm__
-			/*bool write(uint8_t endpoint)
-				{  }*/
-#else
+#ifndef __arm__
 			listDevice_t(const usbDeviceHandle_t &device, uint8_t endpoint) : listDevice_t{}
 			{
 				if (!read(device, endpoint))
@@ -254,10 +248,7 @@ namespace flashProto
 
 			constexpr targetDevice_t() noexcept = default;
 
-#ifdef __arm__
-			/*bool write(uint8_t endpoint)
-				{  }*/
-#else
+#ifndef __arm__
 			targetDevice_t(const usbDeviceHandle_t &device, uint8_t endpoint) : targetDevice_t{}
 			{
 				if (!read(device, endpoint))
@@ -277,10 +268,7 @@ namespace flashProto
 
 			constexpr erase_t() noexcept = default;
 
-#ifdef __arm__
-			/*bool write(uint8_t endpoint)
-				{  }*/
-#else
+#ifndef __arm__
 			erase_t(const usbDeviceHandle_t &device, uint8_t endpoint) : erase_t{}
 			{
 				if (!read(device, endpoint))
