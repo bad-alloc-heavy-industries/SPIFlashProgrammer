@@ -102,10 +102,18 @@ bool targetDevice(const usbDeviceHandle_t &device, const deviceType_t deviceType
 	if (!request.write(device, 1))
 		return false;
 
-	responses::targetDevice_t response{device, 1};
-	if (response.type != messages_t::targetDevice)
+	try
 	{
-		console.error("Failed to set the target SPI Flash device"sv);
+		responses::targetDevice_t response{device, 1};
+		if (response.type != messages_t::targetDevice)
+		{
+			console.error("Failed to set the target SPI Flash device"sv);
+			return false;
+		}
+	}
+	catch (const responses::usbError_t &error)
+	{
+		console.error("Failed to set the target SPI Flash device: "sv, error.what());
 		return false;
 	}
 	return true;
