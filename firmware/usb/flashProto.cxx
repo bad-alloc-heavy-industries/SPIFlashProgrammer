@@ -31,6 +31,8 @@ namespace usb::flashProto
 		auto &epStatus{epStatusControllerIn[1]};
 		epStatus.transferCount = sizeof(T);
 		memcpy(response.data(), &data.type, sizeof(T));
+		while (writeEPBusy(1))
+			continue;
 		writeEP(1);
 	}
 
@@ -122,6 +124,7 @@ namespace usb::flashProto
 				spiSelect(targetDevice);
 				spiIntWrite(spiOpcodes::writeEnable);
 				spiSelect(spiChip_t::none);
+
 				spiSelect(targetDevice);
 				spiIntWrite(spiOpcodes::chipErase);
 				spiSelect(spiChip_t::none);
@@ -139,6 +142,40 @@ namespace usb::flashProto
 
 		response.complete = complete ? 1 : 0;
 		sendResponse(response);
+	}
+
+	void handleRead() noexcept
+	{
+		requests::read_t readRequest{request};
+
+		if (targetDevice == spiChip_t::none)
+		{
+			// TODO: Handle..
+			return;
+		}
+
+		sendResponse(responses::read_t{});
+		const uint32_t page{readRequest.page};
+		auto &epStatus{epStatusControllerIn[1]};
+
+		spiSelect(targetDevice);
+		spiIntWrite(spiOpcodes::pageRead);
+		// Translate the page number into a byte address
+		spiIntWrite(uint8_t(page >> 8U));
+		spiIntWrite(uint8_t(page));
+		spiIntWrite(0);
+
+		for (uint16_t byteCount{}; byteCount < 256; byteCount += uint16_t(response.size()))
+		{
+			for (auto &byte : response)
+				byte = std::byte{spiIntRead()};
+			epStatus.transferCount = response.size();
+			while (writeEPBusy(1))
+				continue;
+			writeEP(1);
+		}
+
+		spiSelect(spiChip_t::none);
 	}
 
 	void handleRequest() noexcept
@@ -165,6 +202,8 @@ namespace usb::flashProto
 				return handleTargetDevice();
 			case messages_t::erase:
 				return handleErase();
+			case messages_t::read:
+				return handleRead();
 		}
 	}
 

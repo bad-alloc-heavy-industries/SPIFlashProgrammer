@@ -4,6 +4,7 @@
 #include <chrono>
 #include <substrate/utility>
 #include <substrate/console>
+#include <substrate/fd>
 #include <version.hxx>
 #include "args.hxx"
 #include "help.hxx"
@@ -170,6 +171,98 @@ int32_t eraseDevice(const usbDevice_t &rawDevice, const argsTree_t *const eraseA
 	return response.complete == 1 ? 0 : 1;
 }
 
+int32_t readDevice(const usbDevice_t &rawDevice, const argsTree_t *const readArgs)
+{
+	const auto *const chip{dynamic_cast<flashprog::args::argChip_t *>(readArgs->find(argType_t::chip))};
+	const auto *const file{dynamic_cast<flashprog::args::argFile_t *>(readArgs->find(argType_t::file))};
+	const auto chipNumber{chip ? chip->chipNumber() : 0U};
+
+	const auto device{rawDevice.open()};
+	if (!device.valid() ||
+		!device.claimInterface(0))
+		return 1;
+
+	substrate::fd_t fd{file->fileName().data(), O_CREAT | O_WRONLY | O_NOCTTY, substrate::normalMode};
+	if (!fd.valid())
+	{
+		console.error("Failed to open output file '"sv, file->fileName(), "'"sv);
+		if (!device.releaseInterface(0))
+			return 2;
+		return 1;
+	}
+
+	responses::listDevice_t chipInfo{};
+	try
+	{
+		requests::listDevice_t request{};
+		request.deviceType = deviceType_t::internal;
+		request.deviceNumber = chipNumber;
+		if (!request.write(device, 1))
+			throw requests::usbError_t{};
+		chipInfo = responses::listDevice_t{device, 1};
+	}
+	catch (const responses::usbError_t &error)
+	{
+		console.error("Error getting target device information: "sv, error.what());
+		if (!device.releaseInterface(0))
+			return 2;
+		return 1;
+	}
+
+	if (!targetDevice(device, deviceType_t::internal, chipNumber))
+	{
+		if (!device.releaseInterface(0))
+			return 2;
+		return 1;
+	}
+
+	console.info("Reading chip "sv, nullptr);
+	const auto startTime{std::chrono::steady_clock::now()};
+
+	const uint32_t pageSize{chipInfo.pageSize};
+	const uint32_t pageCount{chipInfo.deviceSize / pageSize};
+	for (uint32_t page{}; page < pageCount; ++page)
+	{
+		requests::read_t request{};
+		request.page = page;
+		if (!request.write(device, 1))
+		{
+			if (!device.releaseInterface(0))
+				return 2;
+			return 1;
+		}
+
+		try
+			{ responses::read_t response{device, 1}; }
+		catch (const responses::usbError_t &error)
+		{
+			console.error("Error reading page data: "sv, error.what());
+			if (!device.releaseInterface(0))
+				return 2;
+			return 1;
+		}
+
+		std::array<std::byte, 64> data{};
+		for (uint32_t offset{}; offset < pageSize;)
+		{
+			device.readInterrupt(1, data.data(), data.size());
+			fd.write(data);
+			offset += data.size();
+		}
+		console.writeln('.', nullptr);
+	}
+	console.writeln();
+	const auto endTime{std::chrono::steady_clock::now()};
+
+	console.info("Complete"sv);
+	const auto elapsedSeconds{std::chrono::duration_cast<std::chrono::seconds>(endTime - startTime)};
+	console.info("Total time elapsed: "sv, substrate::asTime_t{uint64_t(elapsedSeconds.count())});
+
+	if (!device.releaseInterface(0))
+		return 1;
+	return 0;
+}
+
 /*!
  * flashprog usage:
  *
@@ -239,6 +332,8 @@ int32_t main(int argCount, char **argList)
 			return listDevices(devices[0]);
 		else if (operation->type() == argType_t::erase)
 			return eraseDevice(devices[0], dynamic_cast<const argsTree_t *>(operation));
+		else if (operation->type() == argType_t::read)
+			return readDevice(devices[0], dynamic_cast<const argsTree_t *>(operation));
 	}
 
 	return 0;
