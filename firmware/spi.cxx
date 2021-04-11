@@ -101,7 +101,7 @@ void spiInit() noexcept
 	localCapacity[1] = spiIntRead();
 
 	spiSelect(spiChip_t::none);
-	if (!checkDeviceID(0) || !checkDeviceID(0))
+	if (!checkDeviceID(0) || !checkDeviceID(1))
 		ledSetColour(true, false, false);
 	else
 		ledSetColour(false, true, false);
