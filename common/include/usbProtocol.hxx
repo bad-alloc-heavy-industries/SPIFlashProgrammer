@@ -162,6 +162,19 @@ namespace flashProto
 		{
 			messages_t type{messages_t::read};
 			page_t page{};
+
+			constexpr read_t() noexcept = default;
+
+#ifdef __arm__
+			template<size_t N> read_t(const std::array<std::byte, N> &data) noexcept : read_t{}
+			{
+				static_assert(N >= sizeof(read_t));
+				std::memcpy(&type, data.data(), sizeof(read_t));
+			}
+#else
+			[[nodiscard]] bool write(const usbDeviceHandle_t &device, uint8_t endpoint) const noexcept
+				{ return device.writeInterrupt(endpoint, &type, sizeof(read_t)); }
+#endif
 		};
 
 		// This write_t is then followed by 64-byte blocks of data
@@ -187,6 +200,7 @@ namespace flashProto
 		static_assert(sizeof(listDevice_t) == 3);
 		static_assert(sizeof(targetDevice_t) == 3);
 		static_assert(sizeof(erase_t) == 8);
+		static_assert(sizeof(read_t) == 4);
 	} // namespace requests
 
 	namespace responses
@@ -286,6 +300,19 @@ namespace flashProto
 		struct read_t final
 		{
 			messages_t type{messages_t::targetDevice};
+
+			constexpr read_t() noexcept = default;
+
+#ifndef __arm__
+			read_t(const usbDeviceHandle_t &device, uint8_t endpoint) : read_t{}
+			{
+				if (!read(device, endpoint))
+					throw usbError_t{};
+			}
+
+			[[nodiscard]] bool read(const usbDeviceHandle_t &device, uint8_t endpoint) noexcept
+				{ return device.readInterrupt(endpoint, &type, sizeof(read_t)); }
+#endif
 		};
 
 		struct write_t final
@@ -303,6 +330,7 @@ namespace flashProto
 		static_assert(sizeof(listDevice_t) == 16);
 		static_assert(sizeof(targetDevice_t) == 1);
 		static_assert(sizeof(erase_t) == 5);
+		static_assert(sizeof(read_t) == 1);
 	} // namespace responses
 } // namespace flashProto
 
