@@ -32,7 +32,7 @@ template<typename node_t> auto parsePerDeviceCommand(tokenizer_t &lexer)
 			console.error("Device number must be given as a positive integer between 0 and 65534"sv);
 			throw std::exception{};
 		}
-		//console.debug("Using device "sv, device->deviceNumber());
+		lexer.next();
 		lexer.next();
 		if (!node->add(std::move(device)))
 		{
@@ -52,7 +52,6 @@ template<typename node_t> auto parsePerFlashCommand(tokenizer_t &lexer)
 		console.error(node_t::name(), " command was given but no SPI Flash chip number was specified"sv);
 		throw std::exception{};
 	}
-	lexer.next();
 	auto flashChip{substrate::make_unique<argChip_t>(token.value())};
 	if (!flashChip->valid())
 	{
@@ -60,7 +59,6 @@ template<typename node_t> auto parsePerFlashCommand(tokenizer_t &lexer)
 		throw std::exception{};
 	}
 	lexer.next();
-	console.debug("Using flash chip "sv, flashChip->chipNumber());
 	if (!node->add(std::move(flashChip)))
 	{
 		console.error("Could not add argument to the parsed arguments tree"sv);
@@ -69,9 +67,18 @@ template<typename node_t> auto parsePerFlashCommand(tokenizer_t &lexer)
 	if constexpr (!std::is_same_v<node_t, argErase_t>)
 	{
 		lexer.next();
-		const auto file{token.value()};
+		auto file{substrate::make_unique<argFile_t>(token.value())};
+		if (!file->valid())
+		{
+			console.error("File name must be a valid path to a file to read/write"sv);
+			throw std::exception{};
+		}
 		lexer.next();
-		console.debug("Using file "sv, file);
+		if (!node->add(std::move(file)))
+		{
+			console.error("Could not add argument to the parsed arguments tree"sv);
+			throw std::exception{};
+		}
 	}
 	return node;
 }
@@ -88,15 +95,15 @@ std::unique_ptr<argNode_t> makeNode(tokenizer_t &lexer, const option_t &option)
 		case argType_t::listDevices:
 			return substrate::make_unique<argListDevices_t>();
 		case argType_t::list:
-			return parsePerFlashCommand<argList_t>(lexer);
+			return parsePerDeviceCommand<argList_t>(lexer);
 		case argType_t::erase:
-			return parsePerDeviceCommand<argErase_t>(lexer);
+			return parsePerFlashCommand<argErase_t>(lexer);
 		case argType_t::read:
-			return parsePerDeviceCommand<argRead_t>(lexer);
+			return parsePerFlashCommand<argRead_t>(lexer);
 		case argType_t::write:
-			return parsePerDeviceCommand<argWrite_t>(lexer);
+			return parsePerFlashCommand<argWrite_t>(lexer);
 		case argType_t::verifiedWrite:
-			return parsePerDeviceCommand<argVerifiedWrite_t>(lexer);
+			return parsePerFlashCommand<argVerifiedWrite_t>(lexer);
 		default:
 			throw std::exception{};
 	}

@@ -155,7 +155,7 @@ namespace flashprog::args
 		uint16_t deviceNumber_{};
 
 	public:
-		argDevice_t(const std::string_view device) noexcept;
+		argDevice_t(std::string_view device) noexcept;
 		[[nodiscard]] auto valid() const noexcept { return deviceNumber_ != invalidDevice; }
 		[[nodiscard]] auto deviceNumber() const noexcept { return deviceNumber_; }
 
@@ -168,11 +168,22 @@ namespace flashprog::args
 		uint32_t chipNumber_{};
 
 	public:
-		argChip_t(const std::string_view chip) noexcept;
+		argChip_t(std::string_view chip) noexcept;
 		[[nodiscard]] auto valid() const noexcept { return chipNumber_ != invalidChip; }
 		[[nodiscard]] auto chipNumber() const noexcept { return chipNumber_; }
 
 		constexpr static auto invalidChip = std::numeric_limits<uint32_t>::max();
+	};
+
+	struct argFile_t final : argNode_t
+	{
+	private:
+		std::string_view fileName_{};
+
+	public:
+		argFile_t(const std::string_view fileName) noexcept : argNode_t{argType_t::file}, fileName_{fileName} { }
+		[[nodiscard]] auto valid() const noexcept { return !fileName_.empty(); }
+		[[nodiscard]] auto fileName() const noexcept { return fileName_; }
 	};
 
 	template<argType_t argType> struct argOfType_t final : argNode_t
