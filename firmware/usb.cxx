@@ -144,7 +144,7 @@ namespace usb::core
 				continue;
 			epStatus->resetStatus();
 			epStatus->transferCount = 0;
-			epStatus->ctrl.endpoint(i);
+			epStatus->ctrl.endpoint(uint8_t(i));
 			epStatus->ctrl.dir(endpointDir_t::controllerIn);
 		}
 
@@ -154,7 +154,7 @@ namespace usb::core
 				continue;
 			epStatus->resetStatus();
 			epStatus->transferCount = 0;
-			epStatus->ctrl.endpoint(i);
+			epStatus->ctrl.endpoint(uint8_t(i));
 			epStatus->ctrl.dir(endpointDir_t::controllerOut);
 		}
 	}
@@ -176,14 +176,14 @@ namespace usb::core
 		usbCtrl.power |= vals::usb::powerResume;
 		while ((usbCtrl.power & vals::usb::powerSuspend) == vals::usb::powerSuspend)
 			continue;
-		usbCtrl.power &= ~vals::usb::powerResume;
-		usbCtrl.intEnable &= ~vals::usb::itrEnableResume;
+		usbCtrl.power &= uint8_t(~vals::usb::powerResume);
+		usbCtrl.intEnable &= uint8_t(~vals::usb::itrEnableResume);
 		usbCtrl.intEnable |= vals::usb::itrEnableSuspend;
 	}
 
 	void suspend() noexcept
 	{
-		usbCtrl.intEnable &= ~vals::usb::itrEnableSuspend;
+		usbCtrl.intEnable &= uint8_t(~vals::usb::itrEnableSuspend);
 		usbCtrl.intEnable |= vals::usb::itrEnableResume;
 		usbCtrl.power |= vals::usb::powerSuspend;
 		usbSuspended = true;
@@ -227,10 +227,10 @@ namespace usb::core
 		if (readCount > epStatus.transferCount)
 			readCount = epStatus.transferCount;
 		epStatus.transferCount -= readCount;
-		epStatus.memBuffer = recvData(endpoint, static_cast<uint8_t *>(epStatus.memBuffer), readCount);
+		epStatus.memBuffer = recvData(endpoint, static_cast<uint8_t *>(epStatus.memBuffer), uint8_t(readCount));
 		// Mark the FIFO contents as done with
-		usbCtrl.epCtrls[endpoint - 1].rxStatusCtrlL &= ~(vals::usb::epStatusCtrlLRxReady |
-			vals::usb::epStatusCtrlLStalled);
+		usbCtrl.epCtrls[endpoint - 1].rxStatusCtrlL &= uint8_t(~(vals::usb::epStatusCtrlLRxReady |
+			vals::usb::epStatusCtrlLStalled));
 		return !epStatus.transferCount;
 	}
 
@@ -247,7 +247,7 @@ namespace usb::core
 		{
 			// Bounds sanity and then adjust how much is left to transfer
 			if (epStatus.transferCount < usb::types::epBufferSize)
-				return epStatus.transferCount;
+				return uint8_t(epStatus.transferCount);
 			return usb::types::epBufferSize;
 		}()};
 		epStatus.transferCount -= sendCount;
@@ -269,27 +269,27 @@ namespace usb::core
 				const auto partAmount{[&]() -> uint8_t
 				{
 					auto *const buffer{static_cast<const uint8_t *>(epStatus.memBuffer)};
-					const auto amount{part.length - (buffer - begin)};
+					const auto amount{part.length - uint16_t(buffer - begin)};
 					if (amount > sendAmount)
 						return sendAmount;
-					return amount;
+					return uint8_t(amount);
 				}()};
 				sendAmount -= partAmount;
 				// If we have bytes left over from the previous loop
 				if (leftoverCount)
 				{
 					// How many bytes do we need to completely fill the leftovers buffer
-					const auto diffAmount{leftoverBytes.size() - leftoverCount};
+					const auto diffAmount{uint8_t(leftoverBytes.size() - leftoverCount)};
 					// Copy that in and queue it from the front of the new chunk
 					memcpy(leftoverBytes.data() + leftoverCount, epStatus.memBuffer, diffAmount);
 					sendData(endpoint, leftoverBytes.data(), leftoverBytes.size());
 
 					// Now compute how many bytes will be left at the end of this new chunk
 					// in queueing only amounts divisable-by-4
-					const auto remainder{(partAmount - diffAmount) & 0x03U};
+					const auto remainder{uint8_t((partAmount - diffAmount) & 0x03U)};
 					// Queue as much as we can
 					epStatus.memBuffer = sendData(0, static_cast<const uint8_t *>(epStatus.memBuffer) + diffAmount,
-						(partAmount - diffAmount) - remainder) + remainder;
+						uint8_t((partAmount - diffAmount) - remainder)) + remainder;
 					// And copy any new leftovers to the leftovers buffer.
 					memcpy(leftoverBytes.data(), static_cast<const uint8_t *>(epStatus.memBuffer) - remainder, remainder);
 					leftoverCount = remainder;
@@ -297,7 +297,7 @@ namespace usb::core
 				else
 				{
 					// How many bytes will be left over by queueing only a divisible-by-4 amount
-					const auto remainder{partAmount & 0x03U};
+					const auto remainder{uint8_t(partAmount & 0x03U)};
 					// Queue as much as we can
 					epStatus.memBuffer = sendData(endpoint, static_cast<const uint8_t *>(epStatus.memBuffer),
 						partAmount - remainder) + remainder;
@@ -320,8 +320,8 @@ namespace usb::core
 			}
 		}
 		// Mark the FIFO contents as done with
-		usbCtrl.epCtrls[endpoint - 1].txStatusCtrlL &= ~(vals::usb::epStatusCtrLTxUnderRun |
-			vals::usb::epStatusCtrlLStalled);
+		usbCtrl.epCtrls[endpoint - 1].txStatusCtrlL &= uint8_t(~(vals::usb::epStatusCtrLTxUnderRun |
+			vals::usb::epStatusCtrlLStalled));
 		usbCtrl.epCtrls[endpoint - 1].txStatusCtrlL |= vals::usb::epStatusCtrlLTxReady;
 		return !epStatus.transferCount;
 	}

@@ -104,7 +104,7 @@ namespace usb::types
 
 		public:
 			index_t() = default;
-			[[nodiscard]] operator uint16_t() const noexcept { return (uint16_t{valueH} << 8) | valueL; }
+			[[nodiscard]] operator uint16_t() const noexcept { return uint16_t((valueH << 8U) | valueL); }
 
 			[[nodiscard]] endpointDir_t dir() const noexcept { return static_cast<endpointDir_t>(valueL & 0x80U); }
 			[[nodiscard]] uint8_t endpoint() const noexcept { return valueL & 0x0FU; }

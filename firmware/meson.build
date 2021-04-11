@@ -1,15 +1,25 @@
 # SPDX-License-Identifier: BSD-3-Clause
 
+substrate = include_directories('../deps/substrate')
+
 firmwareSrc = [
 	'startup.cxx', 'spiFlashProgrammer.cxx', 'led.cxx', 'spi.cxx',
 	'osc.cxx', 'usb.cxx', 'usb/descriptors.cxx', 'usb/device.cxx',
 	'usb/flashProto.cxx'
 ]
 
+firmwareArgs = targetCXX.get_supported_arguments(
+	'-Wvla',
+	'-Wimplicit-fallthrough',
+	'-Wconversion',
+	'-Wstack-usage=4096'
+)
+
 firmware = executable(
 	'SPIFlashProgrammer',
 	firmwareSrc,
-	include_directories: [commonInclude],
+	include_directories: [commonInclude, substrate],
+	cpp_args: firmwareArgs,
 	link_args: ['-T', '@0@/tm4c123gh6pm/memoryLayout.ld'.format(meson.current_source_dir())],
 	gnu_symbol_visibility: 'inlineshidden',
 	name_suffix: 'elf',

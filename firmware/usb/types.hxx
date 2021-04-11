@@ -67,7 +67,7 @@ namespace usb::types
 		void endpoint(const uint8_t num) noexcept
 		{
 			value &= 0xF0U;
-			value |= num & 0x0FU;
+			value |= uint8_t(num & 0x0FU);
 		}
 
 		[[nodiscard]] uint8_t endpoint() const noexcept { return value & 0x0FU; }
@@ -107,7 +107,7 @@ namespace usb::types
 		void needsArming(const bool needed) noexcept
 		{
 			value &= 0xFDU;
-			value |= needed ? 0x02U : 0x00U;
+			value |= uint8_t(needed ? 0x02U : 0x00U);
 		}
 
 		[[nodiscard]] bool needsArming() const noexcept { return value & 0x02U; }
@@ -115,7 +115,7 @@ namespace usb::types
 		void stall(const bool needed) noexcept
 		{
 			value &= 0xFBU;
-			value |= needed ? 0x04U : 0x00U;
+			value |= uint8_t(needed ? 0x04U : 0x00U);
 		}
 
 		[[nodiscard]] bool stall() const noexcept { return value & 0x04U; }
@@ -123,7 +123,7 @@ namespace usb::types
 		void isMultiPart(const bool multiPart) noexcept
 		{
 			value &= 0xF7U;
-			value |= multiPart ? 0x08U : 0x00U;
+			value |= uint8_t(multiPart ? 0x08U : 0x00U);
 		}
 
 		[[nodiscard]] bool isMultiPart() const noexcept { return value & 0x08U; }

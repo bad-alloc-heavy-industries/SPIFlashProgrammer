@@ -17,13 +17,13 @@ namespace usb::device
 	uint8_t activeConfig{};
 	std::array<uint8_t, 2> statusResponse{};
 
-	void setupEndpoint(const usbEndpointDescriptor_t &endpoint, uint32_t &startAddress)
+	void setupEndpoint(const usbEndpointDescriptor_t &endpoint, uint16_t &startAddress)
 	{
 		if (endpoint.endpointType == usbEndpointType_t::control)
 			return;
 
 		const auto direction{static_cast<endpointDir_t>(endpoint.endpointAddress & ~vals::usb::endpointDirMask)};
-		const auto endpointNumber{endpoint.endpointAddress & vals::usb::endpointDirMask};
+		const auto endpointNumber{uint8_t(endpoint.endpointAddress & vals::usb::endpointDirMask)};
 		usbCtrl.epIndex = endpointNumber;
 		auto &epCtrl{usbCtrl.epCtrls[endpointNumber - 1]};
 		if (direction == endpointDir_t::controllerIn)
@@ -43,7 +43,7 @@ namespace usb::device
 			epCtrl.txDataMax = endpoint.maxPacketSize;
 			usbCtrl.txFIFOSize = vals::usb::fifoMapMaxSize(endpoint.maxPacketSize, vals::usb::fifoSizeDoubleBuffered);
 			usbCtrl.txFIFOAddr = vals::usb::fifoAddr(startAddress);
-			usbCtrl.txIntEnable |= 1 << endpointNumber;
+			usbCtrl.txIntEnable |= uint16_t(1U << endpointNumber);
 		}
 		else
 		{
@@ -52,9 +52,9 @@ namespace usb::device
 			epCtrl.rxDataMax = endpoint.maxPacketSize;
 			usbCtrl.rxFIFOSize = vals::usb::fifoMapMaxSize(endpoint.maxPacketSize, vals::usb::fifoSizeDoubleBuffered);
 			usbCtrl.rxFIFOAddr = vals::usb::fifoAddr(startAddress);
-			usbCtrl.rxIntEnable |= 1 << endpointNumber;
+			usbCtrl.rxIntEnable |= uint16_t(1U << endpointNumber);
 		}
-		startAddress += endpoint.maxPacketSize * 2;
+		startAddress += uint16_t(endpoint.maxPacketSize * 2U);
 	}
 
 	bool handleSetConfiguration() noexcept
@@ -67,7 +67,7 @@ namespace usb::device
 		else if (activeConfig <= usb::types::configDescriptorCount)
 		{
 			// EP0 consumes the first 256 bytes of USB RAM.
-			uint32_t startAddress{256};
+			uint16_t startAddress{256};
 			usbCtrl.txIntEnable &= vals::usb::txItrEnableMask;
 			usbCtrl.rxIntEnable &= vals::usb::rxItrEnableMask;
 			usbCtrl.txIntEnable |= vals::usb::txItrEnableEP0;
@@ -149,7 +149,7 @@ namespace usb::device
 		auto readCount{usbCtrl.ep0Ctrl.rxCount};
 		// Bounds sanity and then adjust how much is left to transfer
 		if (readCount > epStatus.transferCount)
-			readCount = epStatus.transferCount;
+			readCount = uint8_t(epStatus.transferCount);
 		epStatus.transferCount -= readCount;
 		epStatus.memBuffer = recvData(0, static_cast<uint8_t *>(epStatus.memBuffer), readCount);
 		// Mark the FIFO contents as done with
@@ -171,7 +171,7 @@ namespace usb::device
 		{
 			// Bounds sanity and then adjust how much is left to transfer
 			if (epStatus.transferCount < usb::types::epBufferSize)
-				return epStatus.transferCount;
+				return uint8_t(epStatus.transferCount);
 			return usb::types::epBufferSize;
 		}()};
 		epStatus.transferCount -= sendCount;
@@ -193,27 +193,27 @@ namespace usb::device
 				const auto partAmount{[&]() -> uint8_t
 				{
 					auto *const buffer{static_cast<const uint8_t *>(epStatus.memBuffer)};
-					const auto amount{part.length - (buffer - begin)};
+					const auto amount{part.length - uint16_t(buffer - begin)};
 					if (amount > sendAmount)
 						return sendAmount;
-					return amount;
+					return uint8_t(amount);
 				}()};
 				sendAmount -= partAmount;
 				// If we have bytes left over from the previous loop
 				if (leftoverCount)
 				{
 					// How many bytes do we need to completely fill the leftovers buffer
-					const auto diffAmount{leftoverBytes.size() - leftoverCount};
+					const auto diffAmount{uint8_t(leftoverBytes.size() - leftoverCount)};
 					// Copy that in and queue it from the front of the new chunk
 					memcpy(leftoverBytes.data() + leftoverCount, epStatus.memBuffer, diffAmount);
 					sendData(0, leftoverBytes.data(), leftoverBytes.size());
 
 					// Now compute how many bytes will be left at the end of this new chunk
 					// in queueing only amounts divisable-by-4
-					const auto remainder{(partAmount - diffAmount) & 0x03U};
+					const auto remainder{uint8_t((partAmount - diffAmount) & 0x03U)};
 					// Queue as much as we can
 					epStatus.memBuffer = sendData(0, static_cast<const uint8_t *>(epStatus.memBuffer) + diffAmount,
-						(partAmount - diffAmount) - remainder) + remainder;
+						uint8_t((partAmount - diffAmount) - remainder)) + remainder;
 					// And copy any new leftovers to the leftovers buffer.
 					memcpy(leftoverBytes.data(), static_cast<const uint8_t *>(epStatus.memBuffer) - remainder, remainder);
 					leftoverCount = remainder;
@@ -221,7 +221,7 @@ namespace usb::device
 				else
 				{
 					// How many bytes will be left over by queueing only a divisible-by-4 amount
-					const auto remainder{partAmount & 0x03U};
+					const auto remainder{uint8_t(partAmount & 0x03U)};
 					// Queue as much as we can
 					epStatus.memBuffer = sendData(0, static_cast<const uint8_t *>(epStatus.memBuffer),
 						partAmount - remainder) + remainder;
