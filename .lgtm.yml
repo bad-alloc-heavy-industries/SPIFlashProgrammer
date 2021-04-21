@@ -1,0 +1,14 @@
+extraction:
+  cpp:
+    after_prepare:
+      - PATH="$HOME/.local/bin:$PATH"
+      - pip3 install --upgrade setuptools wheel
+      - pip3 install --upgrade meson
+    configure:
+      command:
+        - meson build --cross-file cross-files/arm-none-eabi-system.meson
+    index:
+      build_command:
+        - ninja -C build
+queries:
+  - include: "*"
