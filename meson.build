@@ -27,3 +27,9 @@ commonInclude = include_directories('common/include')
 
 subdir('firmware')
 subdir('software')
+
+runClangTidy = find_program('runClangTidy.py')
+run_target(
+	'clang-tidy',
+	command: [runClangTidy, '-s', meson.current_source_dir(), '-p', meson.current_build_dir()]
+)
