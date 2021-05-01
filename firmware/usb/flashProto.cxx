@@ -165,7 +165,7 @@ namespace usb::flashProto
 		spiIntWrite(uint8_t(page));
 		spiIntWrite(0);
 
-		for (uint16_t byteCount{}; byteCount < 256; byteCount += uint16_t(response.size()))
+		for (uint16_t byteCount{}; byteCount < 256U; byteCount += uint16_t(response.size()))
 		{
 			for (auto &byte : response)
 				byte = std::byte{spiIntRead()};
