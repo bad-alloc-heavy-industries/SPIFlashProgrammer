@@ -14,7 +14,7 @@ subdir('include')
 
 flashprogSrc = [
 	'flashprog.cxx', 'args.cxx', 'args/tokenizer.cxx', 'args/types.cxx',
-	versionHeader
+	'progress.cxx', versionHeader
 ]
 
 executable(

@@ -10,6 +10,7 @@
 #include "help.hxx"
 #include "usbContext.hxx"
 #include "usbProtocol.hxx"
+#include "progress.hxx"
 
 // TODO: Add ChaiScript support for the flashing algorithms.
 
@@ -216,11 +217,12 @@ int32_t readDevice(const usbDevice_t &rawDevice, const argsTree_t *const readArg
 		return 1;
 	}
 
-	console.info("Reading chip "sv, nullptr);
 	const auto startTime{std::chrono::steady_clock::now()};
 
 	const uint32_t pageSize{chipInfo.pageSize};
 	const uint32_t pageCount{chipInfo.deviceSize / pageSize};
+	progressBar_t bar{"Reading chip "sv, pageCount};
+	bar.display();
 	for (uint32_t page{}; page < pageCount; ++page)
 	{
 		requests::read_t request{};
@@ -249,9 +251,9 @@ int32_t readDevice(const usbDevice_t &rawDevice, const argsTree_t *const readArg
 			fd.write(data);
 			offset += data.size();
 		}
-		console.writeln('.', nullptr);
+		++bar;
 	}
-	console.writeln();
+	bar.close();
 	const auto endTime{std::chrono::steady_clock::now()};
 
 	console.info("Complete"sv);
