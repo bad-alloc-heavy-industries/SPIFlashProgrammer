@@ -26,19 +26,6 @@ static const usbDeviceDescriptor_t usbDeviceDesc
 	configDescriptorCount
 };
 
-static const usbDeviceQualifierDescriptor_t usbDeviceQualifierDesc
-{
-	sizeof(usbDeviceQualifierDescriptor_t),
-	usbDescriptor_t::deviceQualifier,
-	0x0200, // This is 2.00 in USB's BCD format
-	usbClass_t::none,
-	uint8_t(subclasses::device_t::none),
-	uint8_t(protocols::device_t::none),
-	epBufferSize,
-	0, // No other configurations
-	0 // reserved field that must be 0.
-};
-
 static const std::array<usbConfigDescriptor_t, configDescriptorCount> usbConfigDesc
 {{
 	{
@@ -161,7 +148,7 @@ namespace usb::device
 			case usbDescriptor_t::device:
 				return {response_t::data, &usbDeviceDesc, usbDeviceDesc.length};
 			case usbDescriptor_t::deviceQualifier:
-				return {response_t::data, &usbDeviceQualifierDesc, usbDeviceQualifierDesc.length};
+				return {response_t::stall, nullptr, 0};
 			// Handle configuration descriptor requests
 			case usbDescriptor_t::configuration:
 			{
