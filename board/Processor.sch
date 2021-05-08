@@ -271,8 +271,8 @@ $Comp
 L Device:C_Small C9
 U 1 1 5F6F9D96
 P 2500 2500
-F 0 "C9" V 2550 2550 50  0000 L TNN
-F 1 "0.1uF" V 2550 2450 50  0000 R TNN
+F 0 "C9" V 2550 2550 50  0000 L CNN
+F 1 "0.1uF" V 2550 2450 50  0000 R CNN
 F 2 "rhais_rcl:C0603" H 2500 2500 50  0001 C CNN
 F 3 "http://www.farnell.com/datasheets/1870456.pdf" H 2500 2500 50  0001 C CNN
 F 4 "Multicomp" H 2500 2500 50  0001 C CNN "MFR"
@@ -286,8 +286,8 @@ $Comp
 L Device:C_Small C10
 U 1 1 5F6FA7D3
 P 2700 2500
-F 0 "C10" V 2750 2550 50  0000 L TNN
-F 1 "0.1uF" V 2750 2450 50  0000 R TNN
+F 0 "C10" V 2750 2550 50  0000 L CNN
+F 1 "0.1uF" V 2750 2450 50  0000 R CNN
 F 2 "rhais_rcl:C0603" H 2700 2500 50  0001 C CNN
 F 3 "http://www.farnell.com/datasheets/1870456.pdf" H 2700 2500 50  0001 C CNN
 F 4 "Multicomp" H 2700 2500 50  0001 C CNN "MFR"
@@ -301,8 +301,8 @@ $Comp
 L Device:C_Small C11
 U 1 1 5F6FACFB
 P 2900 2500
-F 0 "C11" V 2950 2550 50  0000 L TNN
-F 1 "0.1uF" V 2950 2450 50  0000 R TNN
+F 0 "C11" V 2950 2550 50  0000 L CNN
+F 1 "0.1uF" V 2950 2450 50  0000 R CNN
 F 2 "rhais_rcl:C0603" H 2900 2500 50  0001 C CNN
 F 3 "http://www.farnell.com/datasheets/1870456.pdf" H 2900 2500 50  0001 C CNN
 F 4 "Multicomp" H 2900 2500 50  0001 C CNN "MFR"
@@ -316,8 +316,8 @@ $Comp
 L Device:C_Small C12
 U 1 1 5F6FB351
 P 3100 2500
-F 0 "C12" V 3150 2550 50  0000 L TNN
-F 1 "0.1uF" V 3150 2450 50  0000 R TNN
+F 0 "C12" V 3150 2550 50  0000 L CNN
+F 1 "0.1uF" V 3150 2450 50  0000 R CNN
 F 2 "rhais_rcl:C0603" H 3100 2500 50  0001 C CNN
 F 3 "http://www.farnell.com/datasheets/1870456.pdf" H 3100 2500 50  0001 C CNN
 F 4 "Multicomp" H 3100 2500 50  0001 C CNN "MFR"
@@ -331,8 +331,8 @@ $Comp
 L Device:C_Small C13
 U 1 1 5F6FB822
 P 3300 2500
-F 0 "C13" V 3350 2550 50  0000 L TNN
-F 1 "0.1uF" V 3350 2450 50  0000 R TNN
+F 0 "C13" V 3350 2550 50  0000 L CNN
+F 1 "0.1uF" V 3350 2450 50  0000 R CNN
 F 2 "rhais_rcl:C0603" H 3300 2500 50  0001 C CNN
 F 3 "http://www.farnell.com/datasheets/1870456.pdf" H 3300 2500 50  0001 C CNN
 F 4 "Multicomp" H 3300 2500 50  0001 C CNN "MFR"
@@ -439,8 +439,8 @@ $Comp
 L Device:C_Small C14
 U 1 1 5F6B3ABF
 P 3500 2500
-F 0 "C14" V 3550 2550 50  0000 L TNN
-F 1 "1uF" V 3550 2450 50  0000 R TNN
+F 0 "C14" V 3550 2550 50  0000 L CNN
+F 1 "1uF" V 3550 2450 50  0000 R CNN
 F 2 "rhais_rcl:C0603" H 3500 2500 50  0001 C CNN
 F 3 "http://www.farnell.com/datasheets/2860632.pdf" H 3500 2500 50  0001 C CNN
 F 4 "Multicomp" H 3500 2500 50  0001 C CNN "MFR"
@@ -479,8 +479,8 @@ $Comp
 L Device:C_Small C15
 U 1 1 5F6E4597
 P 2700 4000
-F 0 "C15" V 2750 4050 50  0000 L TNN
-F 1 "0.1uF" V 2750 3950 50  0000 R TNN
+F 0 "C15" V 2750 4050 50  0000 L CNN
+F 1 "0.1uF" V 2750 3950 50  0000 R CNN
 F 2 "rhais_rcl:C0603" H 2700 4000 50  0001 C CNN
 F 3 "http://www.farnell.com/datasheets/1870456.pdf" H 2700 4000 50  0001 C CNN
 F 4 "Multicomp" H 2700 4000 50  0001 C CNN "MFR"
@@ -494,8 +494,8 @@ $Comp
 L Device:C_Small C16
 U 1 1 5F6E459D
 P 2900 4000
-F 0 "C16" V 2950 4050 50  0000 L TNN
-F 1 "0.1uF" V 2950 3950 50  0000 R TNN
+F 0 "C16" V 2950 4050 50  0000 L CNN
+F 1 "0.1uF" V 2950 3950 50  0000 R CNN
 F 2 "rhais_rcl:C0603" H 2900 4000 50  0001 C CNN
 F 3 "http://www.farnell.com/datasheets/1870456.pdf" H 2900 4000 50  0001 C CNN
 F 4 "Multicomp" H 2900 4000 50  0001 C CNN "MFR"
@@ -513,8 +513,8 @@ $Comp
 L Device:C_Small C17
 U 1 1 5F6E6CE5
 P 3100 4000
-F 0 "C17" V 3150 4050 50  0000 L TNN
-F 1 "1uF" V 3150 3950 50  0000 R TNN
+F 0 "C17" V 3150 4050 50  0000 L CNN
+F 1 "1uF" V 3150 3950 50  0000 R CNN
 F 2 "rhais_rcl:C0603" H 3100 4000 50  0001 C CNN
 F 3 "http://www.farnell.com/datasheets/2860632.pdf" H 3100 4000 50  0001 C CNN
 F 4 "Multicomp" H 3100 4000 50  0001 C CNN "MFR"
@@ -526,21 +526,6 @@ F 7 "https://uk.farnell.com/multicomp/mc0603b105k160ct/cap-1-f-16v-10-x7r-0603/d
 $EndComp
 Wire Wire Line
 	3100 4100 3100 4200
-$Comp
-L Device:C_Small C18
-U 1 1 5F6E7E4C
-P 3300 4000
-F 0 "C18" V 3350 4050 50  0000 L TNN
-F 1 "2.2uF" V 3350 3950 50  0000 R TNN
-F 2 "rhais_rcl:C0603" H 3300 4000 50  0001 C CNN
-F 3 "https://product.tdk.com/info/en/catalog/datasheets/mlcc_commercial_general_en.pdf" H 3300 4000 50  0001 C CNN
-F 4 "TDK" H 3300 4000 50  0001 C CNN "MFR"
-F 5 "C1608X5R1C225K080AB" H 3300 4000 50  0001 C CNN "MPN"
-F 6 "2211169" H 3300 4000 50  0001 C CNN "OC_FARNELL"
-F 7 "https://uk.farnell.com/tdk/c1608x5r1c225k080ab/cap-2-2-f-16v-10-x5r-0603/dp/2211169" H 3300 4000 50  0001 C CNN "URL_FARNELL"
-	1    3300 4000
-	1    0    0    -1  
-$EndComp
 Wire Wire Line
 	3300 4100 3300 4200
 Wire Wire Line
@@ -615,26 +600,11 @@ Wire Wire Line
 Wire Wire Line
 	2650 5250 2750 5250
 $Comp
-L Switch:SW_Push SW1
-U 1 1 5F934F99
-P 4250 3850
-F 0 "SW1" H 4150 3950 50  0000 C CNN
-F 1 "B3U-1000P-B" H 4350 4050 50  0000 C CNN
-F 2 "rhais_button-smd:B3U-1000P-B" H 4250 4050 50  0001 C CNN
-F 3 "http://omronfs.omron.com/en_US/ecb/products/pdf/en-b3u.pdf" H 4250 4050 50  0001 C CNN
-F 4 "Omron" H 4250 3850 50  0001 C CNN "MFR"
-F 5 "B3U-1000P-B" H 4250 3850 50  0001 C CNN "MPN"
-F 6 "1333654" H 4250 3850 50  0001 C CNN "OC_FARNELL"
-F 7 "https://uk.farnell.com/omron/b3u-1000p-b/switch-spst-no-0-05a-12v-smd-boss/dp/1333654" H 4250 3850 50  0001 C CNN "URL_FARNELL"
-	1    4250 3850
-	1    0    0    -1  
-$EndComp
-$Comp
 L Switch:SW_Push SW2
 U 1 1 5F93C8F3
 P 4250 3950
 F 0 "SW2" H 4150 4050 50  0000 C CNN
-F 1 "B3U-1000P-B" H 4100 4150 50  0000 C CNN
+F 1 "B3U-1000P-B" H 4250 3900 50  0001 C CNN
 F 2 "rhais_button-smd:B3U-1000P-B" H 4250 4150 50  0001 C CNN
 F 3 "http://omronfs.omron.com/en_US/ecb/products/pdf/en-b3u.pdf" H 4250 4150 50  0001 C CNN
 F 4 "Omron" H 4250 3950 50  0001 C CNN "MFR"
@@ -781,21 +751,6 @@ Wire Wire Line
 Wire Wire Line
 	9100 2600 8900 2600
 $Comp
-L Device:C_Small C21
-U 1 1 5F93A344
-P 10000 2500
-F 0 "C21" H 10050 2550 50  0000 L BNN
-F 1 "0.1uF" H 10050 2450 50  0000 L TNN
-F 2 "rhais_rcl:C0603" H 10000 2500 50  0001 C CNN
-F 3 "http://www.farnell.com/datasheets/1870456.pdf" H 10000 2500 50  0001 C CNN
-F 4 "Multicomp" H 10000 2500 50  0001 C CNN "MFR"
-F 5 "MC0603B104J250CT" H 10000 2500 50  0001 C CNN "MPN"
-F 6 "2310559" H 10000 2500 50  0001 C CNN "OC_FARNELL"
-F 7 "https://uk.farnell.com/multicomp/mc0603b104j250ct/cap-0-1-f-25v-5-x7r-0603-reel/dp/2310559" H 10000 2500 50  0001 C CNN "URL_FARNELL"
-	1    10000 2500
-	1    0    0    -1  
-$EndComp
-$Comp
 L power:+3.3V #PWR013
 U 1 1 5F93B3D2
 P 10000 2300
@@ -878,21 +833,6 @@ $EndComp
 Wire Wire Line
 	3950 6200 3950 6300
 $Comp
-L Device:R_Small R15
-U 1 1 5F9A83F5
-P 3950 5600
-F 0 "R15" V 4000 5600 50  0000 C TNN
-F 1 "1k" V 3900 5600 50  0000 C BNN
-F 2 "rhais_rcl:R0603" H 3950 5600 50  0001 C CNN
-F 3 "http://www.farnell.com/datasheets/1788326.pdf" H 3950 5600 50  0001 C CNN
-F 4 "Multicomp" H 3950 5600 50  0001 C CNN "MFR"
-F 5 "MC0063W0603110K" H 3950 5600 50  0001 C CNN "MPN"
-F 6 "2130939" H 3950 5600 50  0001 C CNN "OC_FARNELL"
-F 7 "https://uk.farnell.com/multicomp/mc0063w0603110k/res-10k-1-0-063w-0603-thick-film/dp/2130939" H 3950 5600 50  0001 C CNN "URL_FARNELL"
-	1    3950 5600
-	1    0    0    -1  
-$EndComp
-$Comp
 L Device:R_Small R16
 U 1 1 5F9A8831
 P 4350 5600
@@ -905,7 +845,7 @@ F 5 "MC0063W0603110K" H 4350 5600 50  0001 C CNN "MPN"
 F 6 "2130939" H 4350 5600 50  0001 C CNN "OC_FARNELL"
 F 7 "https://uk.farnell.com/multicomp/mc0063w0603110k/res-10k-1-0-063w-0603-thick-film/dp/2130939" H 4350 5600 50  0001 C CNN "URL_FARNELL"
 	1    4350 5600
-	1    0    0    -1  
+	-1   0    0    -1  
 $EndComp
 Wire Wire Line
 	3950 5700 3950 5800
@@ -924,7 +864,7 @@ F 5 "MC0063W0603110K" H 5250 6000 50  0001 C CNN "MPN"
 F 6 "2130939" H 5250 6000 50  0001 C CNN "OC_FARNELL"
 F 7 "https://uk.farnell.com/multicomp/mc0063w0603110k/res-10k-1-0-063w-0603-thick-film/dp/2130939" H 5250 6000 50  0001 C CNN "URL_FARNELL"
 	1    5250 6000
-	0    1    1    0   
+	0    1    -1   0   
 $EndComp
 Wire Wire Line
 	4250 6000 5150 6000
@@ -941,7 +881,7 @@ F 5 "MC0063W0603110K" H 5250 6300 50  0001 C CNN "MPN"
 F 6 "2130939" H 5250 6300 50  0001 C CNN "OC_FARNELL"
 F 7 "https://uk.farnell.com/multicomp/mc0063w0603110k/res-10k-1-0-063w-0603-thick-film/dp/2130939" H 5250 6300 50  0001 C CNN "URL_FARNELL"
 	1    5250 6300
-	0    1    1    0   
+	0    1    -1   0   
 $EndComp
 Wire Wire Line
 	4650 6300 5150 6300
@@ -998,22 +938,7 @@ F 5 "MC0063W0603110K" H 4750 5600 50  0001 C CNN "MPN"
 F 6 "2130939" H 4750 5600 50  0001 C CNN "OC_FARNELL"
 F 7 "https://uk.farnell.com/multicomp/mc0063w0603110k/res-10k-1-0-063w-0603-thick-film/dp/2130939" H 4750 5600 50  0001 C CNN "URL_FARNELL"
 	1    4750 5600
-	1    0    0    1   
-$EndComp
-$Comp
-L Device:R_Small R20
-U 1 1 5F932C8B
-P 5250 6600
-F 0 "R20" V 5300 6600 50  0000 C TNN
-F 1 "10k" V 5200 6600 50  0000 C BNN
-F 2 "rhais_rcl:R0603" H 5250 6600 50  0001 C CNN
-F 3 "http://www.farnell.com/datasheets/1788326.pdf" H 5250 6600 50  0001 C CNN
-F 4 "Multicomp" H 5250 6600 50  0001 C CNN "MFR"
-F 5 "MC0063W0603110K" H 5250 6600 50  0001 C CNN "MPN"
-F 6 "2130939" H 5250 6600 50  0001 C CNN "OC_FARNELL"
-F 7 "https://uk.farnell.com/multicomp/mc0063w0603110k/res-10k-1-0-063w-0603-thick-film/dp/2130939" H 5250 6600 50  0001 C CNN "URL_FARNELL"
-	1    5250 6600
-	0    -1   -1   0   
+	-1   0    0    1   
 $EndComp
 Wire Wire Line
 	5450 6300 5350 6300
@@ -1079,4 +1004,79 @@ Wire Wire Line
 	5450 6350 5850 6350
 Wire Wire Line
 	5450 6600 5450 6350
+$Comp
+L Device:R_Small R20
+U 1 1 5F932C8B
+P 5250 6600
+F 0 "R20" V 5300 6600 50  0000 C TNN
+F 1 "10k" V 5200 6600 50  0000 C BNN
+F 2 "rhais_rcl:R0603" H 5250 6600 50  0001 C CNN
+F 3 "http://www.farnell.com/datasheets/1788326.pdf" H 5250 6600 50  0001 C CNN
+F 4 "Multicomp" H 5250 6600 50  0001 C CNN "MFR"
+F 5 "MC0063W0603110K" H 5250 6600 50  0001 C CNN "MPN"
+F 6 "2130939" H 5250 6600 50  0001 C CNN "OC_FARNELL"
+F 7 "https://uk.farnell.com/multicomp/mc0063w0603110k/res-10k-1-0-063w-0603-thick-film/dp/2130939" H 5250 6600 50  0001 C CNN "URL_FARNELL"
+	1    5250 6600
+	0    -1   -1   0   
+$EndComp
+$Comp
+L Device:R_Small R15
+U 1 1 5F9A83F5
+P 3950 5600
+F 0 "R15" V 4000 5600 50  0000 C TNN
+F 1 "1k" V 3900 5600 50  0000 C BNN
+F 2 "rhais_rcl:R0603" H 3950 5600 50  0001 C CNN
+F 3 "http://www.farnell.com/datasheets/1788326.pdf" H 3950 5600 50  0001 C CNN
+F 4 "Multicomp" H 3950 5600 50  0001 C CNN "MFR"
+F 5 "MC0063W0603110K" H 3950 5600 50  0001 C CNN "MPN"
+F 6 "2130939" H 3950 5600 50  0001 C CNN "OC_FARNELL"
+F 7 "https://uk.farnell.com/multicomp/mc0063w0603110k/res-10k-1-0-063w-0603-thick-film/dp/2130939" H 3950 5600 50  0001 C CNN "URL_FARNELL"
+	1    3950 5600
+	-1   0    0    -1  
+$EndComp
+$Comp
+L Switch:SW_Push SW1
+U 1 1 5F934F99
+P 4250 3850
+F 0 "SW1" H 4150 3950 50  0000 C CNN
+F 1 "B3U-1000P-B" H 4250 3800 50  0000 C CNN
+F 2 "rhais_button-smd:B3U-1000P-B" H 4250 4050 50  0001 C CNN
+F 3 "http://omronfs.omron.com/en_US/ecb/products/pdf/en-b3u.pdf" H 4250 4050 50  0001 C CNN
+F 4 "Omron" H 4250 3850 50  0001 C CNN "MFR"
+F 5 "B3U-1000P-B" H 4250 3850 50  0001 C CNN "MPN"
+F 6 "1333654" H 4250 3850 50  0001 C CNN "OC_FARNELL"
+F 7 "https://uk.farnell.com/omron/b3u-1000p-b/switch-spst-no-0-05a-12v-smd-boss/dp/1333654" H 4250 3850 50  0001 C CNN "URL_FARNELL"
+	1    4250 3850
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:C_Small C18
+U 1 1 5F6E7E4C
+P 3300 4000
+F 0 "C18" V 3350 4050 50  0000 L CNN
+F 1 "2.2uF" V 3350 3950 50  0000 R CNN
+F 2 "rhais_rcl:C0603" H 3300 4000 50  0001 C CNN
+F 3 "https://product.tdk.com/info/en/catalog/datasheets/mlcc_commercial_general_en.pdf" H 3300 4000 50  0001 C CNN
+F 4 "TDK" H 3300 4000 50  0001 C CNN "MFR"
+F 5 "C1608X5R1C225K080AB" H 3300 4000 50  0001 C CNN "MPN"
+F 6 "2211169" H 3300 4000 50  0001 C CNN "OC_FARNELL"
+F 7 "https://uk.farnell.com/tdk/c1608x5r1c225k080ab/cap-2-2-f-16v-10-x5r-0603/dp/2211169" H 3300 4000 50  0001 C CNN "URL_FARNELL"
+	1    3300 4000
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:C_Small C21
+U 1 1 5F93A344
+P 10000 2500
+F 0 "C21" H 10050 2550 50  0000 L BNN
+F 1 "0.1uF" H 10050 2450 50  0000 L TNN
+F 2 "rhais_rcl:C0603" H 10000 2500 50  0001 C CNN
+F 3 "http://www.farnell.com/datasheets/1870456.pdf" H 10000 2500 50  0001 C CNN
+F 4 "Multicomp" H 10000 2500 50  0001 C CNN "MFR"
+F 5 "MC0603B104J250CT" H 10000 2500 50  0001 C CNN "MPN"
+F 6 "2310559" H 10000 2500 50  0001 C CNN "OC_FARNELL"
+F 7 "https://uk.farnell.com/multicomp/mc0603b104j250ct/cap-0-1-f-25v-5-x7r-0603-reel/dp/2310559" H 10000 2500 50  0001 C CNN "URL_FARNELL"
+	1    10000 2500
+	1    0    0    -1  
+$EndComp
 $EndSCHEMATC
