@@ -148,11 +148,13 @@ namespace usb::flashProto
 	{
 		requests::read_t readRequest{request};
 
+#if 0
 		if (targetDevice == spiChip_t::none)
 		{
 			// TODO: Handle..
 			return;
 		}
+#endif
 
 		sendResponse(responses::read_t{});
 		const uint32_t page{readRequest.page};
