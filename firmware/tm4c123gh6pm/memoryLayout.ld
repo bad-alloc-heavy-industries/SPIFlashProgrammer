@@ -12,7 +12,7 @@ MEMORY
  *
  * .text 		- machine instructions.
  * .data 		- initialized data defined in the program.
- * .bss  		- un-initialized global and static variables (to be initialized to 0 before starting main).
+ * .bss 		- un-initialized global and static variables (to be initialized to 0 before starting main).
  * .stack		- just contains the pointer to the stack end at the right place.
  */
 SECTIONS
@@ -55,9 +55,20 @@ SECTIONS
 		PROVIDE(endBSS = .);
 	} >RAM
 
-	/* DWARF debug sections.
-	 Symbols in the DWARF debugging sections are relative to the beginning
-	 of the section so we begin them at 0. */
+	/* Stabs debugging sections. */
+	.stab 0 : { *(.stab) }
+	.stabstr 0 : { *(.stabstr) }
+	.stab.excl 0 : { *(.stab.excl) }
+	.stab.exclstr 0 : { *(.stab.exclstr) }
+	.stab.index 0 : { *(.stab.index) }
+	.stab.indexstr 0 : { *(.stab.indexstr) }
+	.comment 0 : { *(.comment) }
+
+	/*
+	 * DWARF debug sections.
+	 * Symbols in the DWARF debugging sections are relative to the beginning
+	 * of the section so we begin them at 0.
+	 */
 	/* DWARF 1 */
 	.debug 0 : { *(.debug) }
 	.line 0 : { *(.line) }
@@ -85,5 +96,6 @@ SECTIONS
 	.debug_ranges 0 : { *(.debug_ranges) }
 	/* DWARF Extension. */
 	.debug_macro 0 : { *(.debug_macro) }
+	.debug_addr 0 : { *(.debug_addr) }
 	.gnu.attributes 0 : { KEEP (*(.gnu.attributes)) }
 }
