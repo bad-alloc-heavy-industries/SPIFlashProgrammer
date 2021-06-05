@@ -115,13 +115,13 @@ namespace usb::types
 	{
 		setupPacket::requestType_t requestType{};
 		request_t request{};
-		setupPacket::value_t value;
-		setupPacket::index_t index;
-		uint16_t length;
+		setupPacket::value_t value{};
+		setupPacket::index_t index{};
+		uint16_t length{};
 
 		setupPacket_t() = default;
 	};
-} // namespace usb
+} // namespace usb::types
 
 namespace usb::device
 {
