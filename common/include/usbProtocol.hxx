@@ -84,7 +84,7 @@ namespace flashProto
 			constexpr deviceCount_t() noexcept = default;
 
 #ifdef __arm__
-			template<size_t N> deviceCount_t(const std::array<std::byte, N> &data) noexcept : deviceCount_t{}
+			template<size_t N> deviceCount_t(const std::array<uint8_t, N> &data) noexcept : deviceCount_t{}
 			{
 				static_assert(N >= sizeof(deviceCount_t));
 				std::memcpy(&type, data.data(), sizeof(deviceCount_t));
@@ -104,7 +104,7 @@ namespace flashProto
 			constexpr listDevice_t() noexcept = default;
 
 #ifdef __arm__
-			template<size_t N> listDevice_t(const std::array<std::byte, N> &data) noexcept : listDevice_t{}
+			template<size_t N> listDevice_t(const std::array<uint8_t, N> &data) noexcept : listDevice_t{}
 			{
 				static_assert(N >= sizeof(listDevice_t));
 				std::memcpy(&type, data.data(), sizeof(listDevice_t));
@@ -124,7 +124,7 @@ namespace flashProto
 			constexpr targetDevice_t() noexcept = default;
 
 #ifdef __arm__
-			template<size_t N> targetDevice_t(const std::array<std::byte, N> &data) noexcept : targetDevice_t{}
+			template<size_t N> targetDevice_t(const std::array<uint8_t, N> &data) noexcept : targetDevice_t{}
 			{
 				static_assert(N >= sizeof(targetDevice_t));
 				std::memcpy(&type, data.data(), sizeof(targetDevice_t));
@@ -147,7 +147,7 @@ namespace flashProto
 			constexpr erase_t() noexcept = default;
 
 #ifdef __arm__
-			template<size_t N> erase_t(const std::array<std::byte, N> &data) noexcept : erase_t{}
+			template<size_t N> erase_t(const std::array<uint8_t, N> &data) noexcept : erase_t{}
 			{
 				static_assert(N >= sizeof(erase_t));
 				std::memcpy(&type, data.data(), sizeof(erase_t));
@@ -166,7 +166,7 @@ namespace flashProto
 			constexpr read_t() noexcept = default;
 
 #ifdef __arm__
-			template<size_t N> read_t(const std::array<std::byte, N> &data) noexcept : read_t{}
+			template<size_t N> read_t(const std::array<uint8_t, N> &data) noexcept : read_t{}
 			{
 				static_assert(N >= sizeof(read_t));
 				std::memcpy(&type, data.data(), sizeof(read_t));

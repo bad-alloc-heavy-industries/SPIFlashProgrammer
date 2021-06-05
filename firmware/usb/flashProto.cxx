@@ -15,8 +15,8 @@ using namespace flashProto;
 
 namespace usb::flashProto
 {
-	std::array<std::byte, epBufferSize> request{};
-	std::array<std::byte, epBufferSize> response{};
+	std::array<uint8_t, epBufferSize> request{};
+	std::array<uint8_t, epBufferSize> response{};
 	spiChip_t targetDevice{spiChip_t::none};
 
 	void init() noexcept
@@ -172,7 +172,7 @@ namespace usb::flashProto
 		{
 			// For each byte in the response buffer, read a byte from Flash and store it
 			for (auto &byte : response)
-				byte = std::byte{spiIntRead()};
+				byte = spiIntRead();
 			// Reset the transfer buffer pointer and amount
 			epStatus.memBuffer = response.data();
 			epStatus.transferCount = response.size();
