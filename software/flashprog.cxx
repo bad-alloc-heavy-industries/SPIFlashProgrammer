@@ -235,7 +235,16 @@ int32_t readDevice(const usbDevice_t &rawDevice, const argsTree_t *const readArg
 		}
 
 		try
-			{ responses::read_t response{device, 1}; }
+		{
+			responses::read_t response{device, 1};
+			if (response.type != messages_t::read)
+			{
+				console.error("Error during reading, invalid response from device"sv);
+				if (!device.releaseInterface(0))
+					return 2;
+				return 1;
+			}
+		}
 		catch (const responses::usbError_t &error)
 		{
 			console.error("Error reading page data: "sv, error.what());
