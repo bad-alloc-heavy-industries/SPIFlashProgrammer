@@ -326,6 +326,14 @@ namespace usb::core
 		return !epStatus.transferCount;
 	}
 
+	bool readEPReady(const uint8_t endpoint) noexcept
+	{
+		if (endpoint == 0)
+			return usbCtrl.ep0Ctrl.statusCtrlL & vals::usb::ep0StatusCtrlLRxReady;
+		else
+			return usbCtrl.epCtrls[endpoint - 1].rxStatusCtrlL & vals::usb::epStatusCtrlLRxReady;
+	}
+
 	bool writeEPBusy(const uint8_t endpoint) noexcept
 	{
 		if (endpoint == 0)
