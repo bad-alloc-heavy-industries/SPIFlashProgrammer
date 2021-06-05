@@ -167,13 +167,19 @@ namespace usb::flashProto
 		spiIntWrite(uint8_t(page));
 		spiIntWrite(0);
 
+		// Work through reading the page of Flash response.size() bytes at at time
 		for (uint16_t byteCount{}; byteCount < 256U; byteCount += uint16_t(response.size()))
 		{
+			// For each byte in the response buffer, read a byte from Flash and store it
 			for (auto &byte : response)
 				byte = std::byte{spiIntRead()};
+			// Reset the transfer buffer pointer and amount
+			epStatus.memBuffer = response.data();
 			epStatus.transferCount = response.size();
+			// Wait for the endpoint to have free space in the hardware FIFO
 			while (writeEPBusy(1))
 				continue;
+			// Transfer the data to the USB controller and tell it that we're ready for it to transmit
 			writeEP(1);
 		}
 
