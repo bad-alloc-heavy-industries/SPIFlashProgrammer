@@ -184,6 +184,19 @@ namespace flashProto
 			messages_t type{messages_t::write};
 			page_t page{};
 			page_t count{};
+
+			constexpr write_t() noexcept = default;
+
+#ifdef __arm__
+			template<size_t N> write_t(const std::array<uint8_t, N> &data) noexcept : write_t{}
+			{
+				static_assert(N >= sizeof(write_t));
+				std::memcpy(&type, data.data(), sizeof(write_t));
+			}
+#else
+			[[nodiscard]] bool write(const usbDeviceHandle_t &device, uint8_t endpoint) const noexcept
+				{ return device.writeInterrupt(endpoint, &type, sizeof(write_t)); }
+#endif
 		};
 
 		struct verify_t final
@@ -318,6 +331,19 @@ namespace flashProto
 		struct write_t final
 		{
 			messages_t type{messages_t::write};
+
+			constexpr write_t() noexcept = default;
+
+#ifndef __arm__
+			write_t(const usbDeviceHandle_t &device, uint8_t endpoint) : write_t{}
+			{
+				if (!read(device, endpoint))
+					throw usbError_t{};
+			}
+
+			[[nodiscard]] bool read(const usbDeviceHandle_t &device, uint8_t endpoint) noexcept
+				{ return device.readInterrupt(endpoint, &type, sizeof(write_t)); }
+#endif
 		};
 
 		struct verify_t final
