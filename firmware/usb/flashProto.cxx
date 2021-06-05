@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include <cstring>
 #include <cstdint>
+#include <array>
 #include <substrate/units>
+#include <substrate/indexed_iterator>
 #include "tm4c123gh6pm/platform.hxx"
 #include "tm4c123gh6pm/constants.hxx"
 #include "usb/core.hxx"
@@ -187,6 +189,57 @@ namespace usb::flashProto
 		spiSelect(spiChip_t::none);
 	}
 
+	void handleWrite()
+	{
+		requests::write_t writeRequest{request};
+
+#if 0
+		if (targetDevice == spiChip_t::none)
+		{
+			// TODO: Handle..
+			return;
+		}
+#endif
+
+		// if (writeRequest.count > 256U)
+
+		const uint32_t page{writeRequest.page};
+		auto &epStatus{epStatusControllerOut[1]};
+
+		// Enable writes to the device (must be done for every page, so..)
+		spiSelect(targetDevice);
+		spiIntWrite(spiOpcodes::writeEnable);
+		spiSelect(spiChip_t::none);
+
+		spiSelect(targetDevice);
+		spiIntWrite(spiOpcodes::pageWrite);
+		// Translate the page number into a byte address
+		spiIntWrite(uint8_t(page >> 8U));
+		spiIntWrite(uint8_t(page));
+		spiIntWrite(0);
+
+		for (uint16_t byteCount{}; byteCount < writeRequest.count; byteCount += uint16_t(request.size()))
+		{
+			const auto transferCount{std::min<uint16_t>(uint16_t(writeRequest.count) - byteCount, request.size())};
+			epStatus.memBuffer = request.data();
+			epStatus.transferCount = transferCount;
+			while (!readEPReady(1))
+				continue;
+			readEP(1);
+			for (const auto &[i, byte] : substrate::indexedIterator_t{request})
+			{
+				if (i >= transferCount)
+					break;
+				spiIntWrite(*byte);
+			}
+		}
+
+		spiSelect(spiChip_t::none);
+		while (isBusy())
+			continue;
+		sendResponse(responses::write_t{});
+	}
+
 	void handleRequest() noexcept
 	{
 		epStatusControllerOut[1].memBuffer = request.data();
@@ -212,6 +265,8 @@ namespace usb::flashProto
 				return handleErase();
 			case messages_t::read:
 				return handleRead();
+			case messages_t::write:
+				return handleWrite();
 		}
 	}
 
