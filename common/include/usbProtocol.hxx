@@ -299,7 +299,7 @@ namespace flashProto
 		// constitute listDevice_t::pageSize of data.
 		struct read_t final
 		{
-			messages_t type{messages_t::targetDevice};
+			messages_t type{messages_t::read};
 
 			constexpr read_t() noexcept = default;
 
