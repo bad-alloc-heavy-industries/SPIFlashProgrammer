@@ -274,6 +274,121 @@ int32_t readDevice(const usbDevice_t &rawDevice, const argsTree_t *const readArg
 	return 0;
 }
 
+int32_t writeDevice(const usbDevice_t &rawDevice, const argsTree_t *const writeArgs)
+{
+	const auto *const chip{dynamic_cast<flashprog::args::argChip_t *>(writeArgs->find(argType_t::chip))};
+	const auto *const file{dynamic_cast<flashprog::args::argFile_t *>(writeArgs->find(argType_t::file))};
+	const auto chipNumber{chip ? chip->chipNumber() : 0U};
+
+	const auto device{rawDevice.open()};
+	if (!device.valid() ||
+		!device.claimInterface(0))
+		return 1;
+
+	substrate::fd_t fd{file->fileName().data(), O_RDONLY | O_NOCTTY};
+	if (!fd.valid())
+	{
+		console.error("Failed to open input file '"sv, file->fileName(), "'"sv);
+		if (!device.releaseInterface(0))
+			return 2;
+		return 1;
+	}
+
+	responses::listDevice_t chipInfo{};
+	try
+	{
+		requests::listDevice_t request{};
+		request.deviceType = deviceType_t::internal;
+		request.deviceNumber = chipNumber;
+		if (!request.write(device, 1))
+			throw requests::usbError_t{};
+		chipInfo = responses::listDevice_t{device, 1};
+	}
+	catch (const responses::usbError_t &error)
+	{
+		console.error("Error getting target device information: "sv, error.what());
+		if (!device.releaseInterface(0))
+			return 2;
+		return 1;
+	}
+
+	const auto fileLength{fd.length()};
+	if (fileLength < 0 || fileLength > chipInfo.deviceSize)
+	{
+		console.error("The file given is larger than the target device"sv);
+		if (!device.releaseInterface(0))
+			return 2;
+		return 1;
+	}
+
+	if (!targetDevice(device, deviceType_t::internal, chipNumber))
+	{
+		if (!device.releaseInterface(0))
+			return 2;
+		return 1;
+	}
+
+	const auto startTime{std::chrono::steady_clock::now()};
+
+	const uint32_t pageSize{chipInfo.pageSize};
+	const uint32_t pageCount{uint32_t(fileLength) / pageSize};
+	progressBar_t bar{"Writing chip "sv, pageCount};
+	bar.display();
+	for (uint32_t page{}; page < pageCount; ++page)
+	{
+		const uint32_t byteCount{std::min(uint32_t(fileLength) - (page * pageSize), pageSize)};
+		requests::write_t request{};
+		request.page = page;
+		request.count = byteCount;
+		if (!request.write(device, 1))
+		{
+			if (!device.releaseInterface(0))
+				return 2;
+			return 1;
+		}
+
+		std::array<std::byte, 64> data{};
+		for (uint32_t offset{}; offset < byteCount;)
+		{
+			const auto writeCount{std::min(size_t{byteCount - offset}, data.size())};
+			fd.read(data.data(), writeCount);
+			device.writeInterrupt(1, data.data(), writeCount);
+			offset += writeCount;
+		}
+
+		try
+		{
+			responses::write_t response{device, 1};
+			if (response.type != messages_t::write)
+			{
+				console.error("Error during writing, invalid response from device"sv);
+				if (!device.releaseInterface(0))
+					return 2;
+				return 1;
+			}
+		}
+		catch (const responses::usbError_t &error)
+		{
+			console.error("Error writing page data: "sv, error.what());
+			if (!device.releaseInterface(0))
+				return 2;
+			return 1;
+		}
+		++bar;
+	}
+
+	bar.close();
+	const auto endTime{std::chrono::steady_clock::now()};
+
+	console.info("Complete"sv);
+	const auto elapsedSeconds{std::chrono::duration_cast<std::chrono::seconds>(endTime - startTime)};
+	console.info("Total time elapsed: "sv, substrate::asTime_t{uint64_t(elapsedSeconds.count())});
+
+	if (!device.releaseInterface(0))
+		return 1;
+	return 0;
+}
+
 /*!
  * flashprog usage:
  *
@@ -345,6 +460,8 @@ int32_t main(int argCount, char **argList)
 			return eraseDevice(devices[0], dynamic_cast<const argsTree_t *>(operation));
 		else if (operation->type() == argType_t::read)
 			return readDevice(devices[0], dynamic_cast<const argsTree_t *>(operation));
+		else if (operation->type() == argType_t::write)
+			return writeDevice(devices[0], dynamic_cast<const argsTree_t *>(operation));
 	}
 
 	return 0;
