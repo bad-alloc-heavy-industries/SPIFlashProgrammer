@@ -29,6 +29,7 @@ namespace usb::flashProto
 	template<typename T> void sendResponse(const T &data)
 	{
 		auto &epStatus{epStatusControllerIn[1]};
+		epStatus.memBuffer = response.data();
 		epStatus.transferCount = sizeof(T);
 		memcpy(response.data(), &data.type, sizeof(T));
 		while (writeEPBusy(1))
@@ -196,7 +197,6 @@ namespace usb::flashProto
 			return;
 		}
 
-		epStatusControllerIn[1].memBuffer = response.data();
 		// We have now have valid data in the request buffer above. Needs reinterpreting according to the
 		// usbProtocol header structures.
 		auto type{messages_t(request[0])};
