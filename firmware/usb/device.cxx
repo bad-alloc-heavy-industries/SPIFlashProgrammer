@@ -28,17 +28,20 @@ namespace usb::device
 		auto &epCtrl{usbCtrl.epCtrls[endpointNumber - 1]};
 		if (direction == endpointDir_t::controllerIn)
 		{
-			const auto statusCtrlH{[](const usbEndpointType_t type) noexcept
+			const auto statusCtrlH
 			{
-				switch (type)
+				[](const usbEndpointType_t type) noexcept
 				{
-					case usbEndpointType_t::isochronous:
-						return vals::usb::epTxStatusCtrlHModeIsochronous;
-					default:
-						break;
-				}
-				return vals::usb::epTxStatusCtrlHModeBulkIntr;
-			}(endpoint.endpointType)};
+					switch (type)
+					{
+						case usbEndpointType_t::isochronous:
+							return vals::usb::epTxStatusCtrlHModeIsochronous;
+						default:
+							break;
+					}
+					return vals::usb::epTxStatusCtrlHModeBulkIntr;
+				}(endpoint.endpointType)
+			};
 			epCtrl.txStatusCtrlH = (epCtrl.txStatusCtrlH & vals::usb::epTxStatusCtrlHMask) | statusCtrlH;
 			epCtrl.txDataMax = endpoint.maxPacketSize;
 			usbCtrl.txFIFOSize = vals::usb::fifoMapMaxSize(endpoint.maxPacketSize, vals::usb::fifoSizeDoubleBuffered);
