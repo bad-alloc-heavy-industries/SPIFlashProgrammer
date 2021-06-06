@@ -226,6 +226,7 @@ namespace usb::flashProto
 			while (!readEPReady(1))
 				continue;
 			readEP(1);
+			clearWaitingRXIRQs();
 			for (const auto &[i, byte] : substrate::indexedIterator_t{request})
 			{
 				if (i >= transferCount)

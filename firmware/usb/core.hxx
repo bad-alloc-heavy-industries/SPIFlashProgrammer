@@ -29,6 +29,7 @@ namespace usb::core
 
 	extern bool readEPReady(uint8_t endpoint) noexcept;
 	extern bool writeEPBusy(uint8_t endpoint) noexcept;
+	extern void clearWaitingRXIRQs() noexcept;
 } // namespace usb::core
 
 #endif /*USB_CORE__HXX*/

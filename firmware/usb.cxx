@@ -341,6 +341,8 @@ namespace usb::core
 		else
 			return usbCtrl.epCtrls[endpoint - 1].txStatusCtrlL & vals::usb::epStatusCtrlLTxReady;
 	}
+
+	void clearWaitingRXIRQs() noexcept { vals::readDiscard(usbCtrl.rxIntStatus); }
 } // namespace usb::core
 
 void irqUSB() noexcept
