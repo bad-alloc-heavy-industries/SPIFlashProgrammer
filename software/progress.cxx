@@ -5,6 +5,7 @@
 #include <string>
 #include <algorithm>
 #include <array>
+#include <cstring>
 #include <csignal>
 #include <substrate/console>
 #include <substrate/conversions>
@@ -60,8 +61,8 @@ void sigwinchHandler(const int32_t) noexcept
 		currentProgressBar->updateWindowSize();
 }
 
-progressBar_t::progressBar_t(std::string_view prefix, const std::size_t total) noexcept :
-	total_{total}, prefix_{prefix}
+progressBar_t::progressBar_t(std::string_view prefix, std::optional<std::size_t> total) noexcept :
+	total_{total}, prefix_{std::move(prefix)}
 {
 	struct sigaction action{};
 	action.sa_flags = SA_RESTART;
@@ -70,6 +71,8 @@ progressBar_t::progressBar_t(std::string_view prefix, const std::size_t total) n
 	sigaction(SIGWINCH, &action, nullptr);
 	updateWindowSize();
 	currentProgressBar = this;
+	if (!total_)
+		startTime_ = std::make_optional(std::chrono::steady_clock::now());
 }
 
 void progressBar_t::updateWindowSize() noexcept
@@ -104,6 +107,7 @@ struct bar_t final
 private:
 	float fraction;
 	std::size_t length;
+	std::size_t step{};
 
 	constexpr static auto charset{substrate::make_array<std::string_view>(
 	{
@@ -120,6 +124,7 @@ private:
 
 public:
 	bar_t(const float frac, const std::size_t cols) : fraction{frac}, length{cols} { }
+	bar_t(const std::size_t count, const std::size_t cols) : fraction{}, length{cols}, step{count} { }
 	operator std::string() const noexcept
 	{
 		const auto charsetSyms{charset.size() - 1U};
@@ -142,14 +147,22 @@ public:
 
 void progressBar_t::display() noexcept
 {
-	const auto frac{float(count_) / total_};
+	const auto frac{float(count_) / (total_ ? *total_ : 1)};
 	std::array<char, 4> percentageBuffer{};
-	std::snprintf(percentageBuffer.data(), percentageBuffer.size(), "%3.0f", frac * 100);
+	if (total_)
+		std::snprintf(percentageBuffer.data(), percentageBuffer.size(), "%3.0f", frac * 100);
+	else
+		std::strncpy(percentageBuffer.data(), "---", 4);
+	percentageBuffer[percentageBuffer.size() - 1] = 0;
 	const std::string_view percentage{percentageBuffer.data(), percentageBuffer.size()};
 
 	const auto barLength{prefix_.size() + prefixSeperator.size() + percentage.size() +
 		percentageSeperator.size() + endSeperator.size() + 1U};
-	std::string bar(bar_t{frac, std::max<std::size_t>(1U, cols_ - barLength)});
+	std::string bar(
+		total_ ?
+			bar_t{frac, std::max<std::size_t>(1U, cols_ - barLength)} :
+			bar_t{count_, std::max<std::size_t>(1U, cols_ - barLength)}
+	);
 
 	const auto spinnerChar{spinner[spinnerStep_]};
 	const auto now{std::chrono::steady_clock::now()};
@@ -157,6 +170,28 @@ void progressBar_t::display() noexcept
 	{
 		spinnerStep_ = (spinnerStep_ + 1) % spinner.size();
 		spinnerLastUpdated_ = now;
+	}
+
+	if (!total_)
+	{
+		const auto value{std::chrono::duration_cast<std::chrono::seconds>(now - *startTime_).count()};
+		const auto minsValue{value / 60U};
+		const auto secsValue{value % 60U};
+		const substrate::fromInt_t mins{minsValue};
+		const substrate::fromInt_t secs{secsValue};
+		const auto totalDigits{mins.digits() + secs.digits() + 3U};
+
+		if (totalDigits < barLength)
+		{
+			size_t offset{(cols_ - barLength - totalDigits) / 2U};
+			mins.formatTo(bar.data() + offset);
+			offset += mins.digits();
+			bar[offset] = 'm';
+			offset += 2U;
+			secs.formatTo(bar.data() + offset);
+			offset += secs.digits();
+			bar[offset] = 's';
+		}
 	}
 
 	console.writeln('\r', nullptr);

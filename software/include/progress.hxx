@@ -5,6 +5,7 @@
 #include <cstddef>
 #include <string_view>
 #include <chrono>
+#include <optional>
 
 struct progressBar_t final
 {
@@ -12,16 +13,17 @@ private:
 	using time_t = typename std::chrono::steady_clock::time_point;
 
 	std::size_t count_{};
-	std::size_t total_;
+	std::optional<std::size_t> total_;
 	std::size_t rows_{};
 	std::size_t cols_{};
 	std::size_t spinnerStep_{};
 	std::string_view prefix_{};
 	time_t spinnerLastUpdated_{};
 	bool disable{false};
+	std::optional<time_t> startTime_{std::nullopt};
 
 public:
-	progressBar_t(std::string_view prefix, std::size_t total) noexcept;
+	progressBar_t(std::string_view prefix, std::optional<std::size_t> total = std::nullopt) noexcept;
 	progressBar_t(const progressBar_t &) = delete;
 	progressBar_t(progressBar_t &&) = default;
 	progressBar_t &operator =(const progressBar_t &) = delete;
