@@ -137,7 +137,8 @@ int32_t eraseDevice(const usbDevice_t &rawDevice, const argsTree_t *const eraseA
 		return 1;
 	}
 
-	console.info("Erasing chip "sv, nullptr);
+	progressBar_t bar{"Erasing chip"sv};
+	bar.display();
 	const auto startTime{std::chrono::steady_clock::now()};
 
 	requests::erase_t request{};
@@ -148,17 +149,18 @@ int32_t eraseDevice(const usbDevice_t &rawDevice, const argsTree_t *const eraseA
 			return 2;
 		return 1;
 	}
+	++bar;
 
 	responses::erase_t response{device, 1};
 	request.operation = eraseOperation_t::status;
 	while (!response.complete)
 	{
-		std::this_thread::sleep_for(1s);
+		std::this_thread::sleep_for(250ms);
 		device.writeInterrupt(1, &request, sizeof(request));
 		device.readInterrupt(1, &response, sizeof(response));
-		console.writeln('.', nullptr);
+		++bar;
 	}
-	console.writeln();
+	bar.close();
 	const auto endTime{std::chrono::steady_clock::now()};
 
 	console.info("Complete"sv);
