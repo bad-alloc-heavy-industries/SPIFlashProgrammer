@@ -4,8 +4,8 @@
 #include <array>
 #include <substrate/units>
 #include <substrate/indexed_iterator>
-#include "tm4c123gh6pm/platform.hxx"
-#include "tm4c123gh6pm/constants.hxx"
+#include <tm4c123gh6pm/platform.hxx>
+#include <tm4c123gh6pm/constants.hxx>
 #include "usb/core.hxx"
 #include "usbProtocol.hxx"
 #include "spi.hxx"

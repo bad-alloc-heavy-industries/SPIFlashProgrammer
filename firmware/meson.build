@@ -2,6 +2,16 @@
 
 substrate = include_directories('../deps/substrate')
 
+dragonTI = dependency(
+	'dragonTI',
+	required: true,
+	version: '>=0.0.1',
+	fallback: ['dragonTI', 'dragonTI_dep'],
+	default_options: [
+		'chip=tm4c123gh6pm',
+	]
+)
+
 firmwareSrc = [
 	'startup.cxx', 'spiFlashProgrammer.cxx', 'led.cxx', 'spi.cxx',
 	'osc.cxx', 'usb.cxx', 'usb/descriptors.cxx', 'usb/device.cxx',
@@ -19,8 +29,9 @@ firmware = executable(
 	'SPIFlashProgrammer',
 	firmwareSrc,
 	include_directories: [commonInclude, substrate],
+	dependencies: [dragonTI],
 	cpp_args: firmwareArgs,
-	link_args: ['-T', '@0@/tm4c123gh6pm/memoryLayout.ld'.format(meson.current_source_dir())],
+	#link_args: ['-T', '@0@/tm4c123gh6pm/memoryLayout.ld'.format(meson.current_source_dir())],
 	gnu_symbol_visibility: 'inlineshidden',
 	name_suffix: 'elf',
 	build_by_default: true,
