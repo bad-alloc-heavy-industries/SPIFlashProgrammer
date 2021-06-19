@@ -107,7 +107,6 @@ struct bar_t final
 private:
 	float fraction;
 	std::size_t length;
-	std::size_t step{};
 
 	constexpr static auto charset{substrate::make_array<std::string_view>(
 	{
@@ -124,7 +123,6 @@ private:
 
 public:
 	bar_t(const float frac, const std::size_t cols) : fraction{frac}, length{cols} { }
-	bar_t(const std::size_t count, const std::size_t cols) : fraction{}, length{cols}, step{count} { }
 	operator std::string() const noexcept
 	{
 		const auto charsetSyms{charset.size() - 1U};
@@ -161,7 +159,7 @@ void progressBar_t::display() noexcept
 	std::string bar(
 		total_ ?
 			bar_t{frac, std::max<std::size_t>(1U, cols_ - barLength)} :
-			bar_t{count_, std::max<std::size_t>(1U, cols_ - barLength)}
+			bar_t{0.f, std::max<std::size_t>(1U, cols_ - barLength)}
 	);
 
 	const auto spinnerChar{spinner[spinnerStep_]};
