@@ -1,5 +1,5 @@
-#ifndef UTILS_ITERATOR__HXX
-#define UTILS_ITERATOR__HXX
+#ifndef UTILS_ITERATOR___HXX
+#define UTILS_ITERATOR___HXX
 
 #include <iterator>
 
@@ -172,4 +172,4 @@ namespace flashprog::utils
 		{ return normalIterator_t<iterator_t, container_t>{iter.base() + n}; }
 } // namespace flashprog::utils
 
-#endif /*UTILS_ITERATOR__HXX*/
+#endif /*UTILS_ITERATOR___HXX*/

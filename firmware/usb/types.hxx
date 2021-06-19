@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
-#ifndef USB_TYPES__HXX
-#define USB_TYPES__HXX
+#ifndef USB_TYPES___HXX
+#define USB_TYPES___HXX
 
 #include <cstdint>
 #include <tuple>
@@ -133,4 +133,4 @@ namespace usb::types
 	using answer_t = std::tuple<response_t, const void *, std::uint16_t>;
 } // namespace usb::types
 
-#endif /*USB_TYPES__HXX*/
+#endif /*USB_TYPES___HXX*/

@@ -1,5 +1,5 @@
-#ifndef USB_FLASH_PROTO__HXX
-#define USB_FLASH_PROTO__HXX
+#ifndef USB_FLASH_PROTO___HXX
+#define USB_FLASH_PROTO___HXX
 
 namespace usb::flashProto
 {
@@ -7,4 +7,4 @@ namespace usb::flashProto
 	void handlePacket() noexcept;
 } // namespace usb::flashProto
 
-#endif /*USB_FLASH_PROTO__HXX*/
+#endif /*USB_FLASH_PROTO___HXX*/

@@ -1,5 +1,5 @@
-#ifndef ARGS__HXX
-#define ARGS__HXX
+#ifndef ARGS___HXX
+#define ARGS___HXX
 
 #include <vector>
 #include <array>
@@ -228,4 +228,4 @@ using flashprog::args::argType_t;
 extern bool parseArguments(size_t argCount, const char *const *argList,
 	flashprog::utils::span_t<const flashprog::args::option_t> options);
 
-#endif /*ARGS__HXX*/
+#endif /*ARGS___HXX*/

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
-#ifndef SPI__HXX
-#define SPI__HXX
+#ifndef SPI___HXX
+#define SPI___HXX
 
 #include <cstdint>
 #include <array>
@@ -40,4 +40,4 @@ namespace spiOpcodes
 	constexpr static const uint8_t writeDisable{0x04U};
 } // namespace spiOpcodes
 
-#endif /*SPI__HXX*/
+#endif /*SPI___HXX*/

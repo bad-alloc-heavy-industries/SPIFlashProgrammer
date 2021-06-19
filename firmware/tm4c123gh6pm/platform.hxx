@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
-#ifndef TM4C123GH6PM_PLATFORM__HXX
-#define TM4C123GH6PM_PLATFORM__HXX
+#ifndef TM4C123GH6PM_PLATFORM___HXX
+#define TM4C123GH6PM_PLATFORM___HXX
 
 #include <cstdint>
 #include <array>
@@ -1194,4 +1194,4 @@ template<> struct writeFIFO_t<uint32_t> final
 	}
 };
 
-#endif /*TM4C123GH6PM_PLATFORM__HXX*/
+#endif /*TM4C123GH6PM_PLATFORM___HXX*/

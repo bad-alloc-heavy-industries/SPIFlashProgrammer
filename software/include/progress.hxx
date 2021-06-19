@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
-#ifndef PROGRESS__HXX
-#define PROGRESS__HXX
+#ifndef PROGRESS___HXX
+#define PROGRESS___HXX
 
 #include <cstddef>
 #include <string_view>
@@ -31,4 +31,4 @@ public:
 	void close() noexcept;
 };
 
-#endif /*PROGRESS__HXX*/
+#endif /*PROGRESS___HXX*/

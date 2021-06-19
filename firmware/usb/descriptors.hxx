@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
-#ifndef USB_DESCRIPTORS__HXX
-#define USB_DESCRIPTORS__HXX
+#ifndef USB_DESCRIPTORS___HXX
+#define USB_DESCRIPTORS___HXX
 
 #include <cstdint>
 #include <cstddef>
@@ -302,4 +302,4 @@ namespace usb::descriptors
 	extern const std::array<usbMultiPartTable_t, usb::types::configDescriptorCount> usbConfigDescriptors;
 } // namespace usb::descriptors
 
-#endif /*USB_DESCRIPTORS__HXX*/
+#endif /*USB_DESCRIPTORS___HXX*/

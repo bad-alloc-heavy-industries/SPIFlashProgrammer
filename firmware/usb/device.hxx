@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
-#ifndef USB_DEVICE__HXX
-#define USB_DEVICE__HXX
+#ifndef USB_DEVICE___HXX
+#define USB_DEVICE___HXX
 
 #include <cstdint>
 #include <cstring>
@@ -132,4 +132,4 @@ namespace usb::device
 	extern usb::types::answer_t handleGetDescriptor() noexcept;
 } // namespace usb::device
 
-#endif /*USB_DEVICE__HXX*/
+#endif /*USB_DEVICE___HXX*/

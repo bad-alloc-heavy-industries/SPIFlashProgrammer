@@ -1,5 +1,5 @@
-#ifndef INDEXED_ITERATOR__HXX
-#define INDEXED_ITERATOR__HXX
+#ifndef INDEXED_ITERATOR___HXX
+#define INDEXED_ITERATOR___HXX
 
 #include <cstdint>
 #include <cstddef>
@@ -52,4 +52,4 @@ namespace utility
 	template<typename T> indexedIterator_t(T) -> indexedIterator_t<T>;
 } // namespace pcat
 
-#endif /*INDEXED_ITERATOR__HXX*/
+#endif /*INDEXED_ITERATOR___HXX*/

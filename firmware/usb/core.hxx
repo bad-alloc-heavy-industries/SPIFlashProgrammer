@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
-#ifndef USB_CORE__HXX
-#define USB_CORE__HXX
+#ifndef USB_CORE___HXX
+#define USB_CORE___HXX
 
 #include "usb/types.hxx"
 
@@ -32,4 +32,4 @@ namespace usb::core
 	extern void clearWaitingRXIRQs() noexcept;
 } // namespace usb::core
 
-#endif /*USB_CORE__HXX*/
+#endif /*USB_CORE___HXX*/

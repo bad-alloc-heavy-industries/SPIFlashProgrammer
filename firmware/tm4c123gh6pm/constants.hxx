@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
-#ifndef TM4C123GH6PM_CONSTANTS__HXX
-#define TM4C123GH6PM_CONSTANTS__HXX
+#ifndef TM4C123GH6PM_CONSTANTS___HXX
+#define TM4C123GH6PM_CONSTANTS___HXX
 
 #include <cstdint>
 
@@ -564,4 +564,4 @@ namespace vals
 	} // namespace sysCtrl
 } // namespace vals
 
-#endif /*TM4C123GH6PM_CONSTANTS__HXX*/
+#endif /*TM4C123GH6PM_CONSTANTS___HXX*/

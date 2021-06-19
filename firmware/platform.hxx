@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: BSD-3-Clause
-#ifndef PLATFORM__HXX
-#define PLATFORM__HXX
+#ifndef PLATFORM___HXX
+#define PLATFORM___HXX
 
 extern void run() noexcept;
 extern void irqUSB() noexcept;
 
-#endif /*PLATFORM__HXX*/
+#endif /*PLATFORM___HXX*/
