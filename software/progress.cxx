@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <string>
 #include <algorithm>
+#include <array>
 #include <csignal>
 #include <substrate/console>
 #include <substrate/conversions>
@@ -11,6 +12,7 @@
 
 using substrate::console;
 using namespace std::literals::string_view_literals;
+using namespace std::literals::chrono_literals;
 
 // NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables)
 progressBar_t *currentProgressBar{nullptr};
@@ -49,6 +51,8 @@ constexpr static auto spinner{substrate::make_array<std::string_view>(
 #error "Must define a valid spinner style"
 #endif
 })};
+
+constexpr static auto spinnerTimestep{75ms};
 
 void sigwinchHandler(const int32_t) noexcept
 {
@@ -136,7 +140,7 @@ public:
 	}
 };
 
-void progressBar_t::display() const noexcept
+void progressBar_t::display() noexcept
 {
 	const auto frac{float(count_) / total_};
 	std::array<char, 4> percentageBuffer{};
@@ -147,11 +151,17 @@ void progressBar_t::display() const noexcept
 		percentageSeperator.size() + endSeperator.size() + 1U};
 	std::string bar(bar_t{frac, std::max<std::size_t>(1U, cols_ - barLength)});
 
-	const auto spinnerStep{spinner[(count_ / 16) % spinner.size()]};
+	const auto spinnerChar{spinner[spinnerStep_]};
+	const auto now{std::chrono::steady_clock::now()};
+	if ((now - spinnerLastUpdated_) >= spinnerTimestep)
+	{
+		spinnerStep_ = (spinnerStep_ + 1) % spinner.size();
+		spinnerLastUpdated_ = now;
+	}
 
 	console.writeln('\r', nullptr);
 	console.info(prefix_, prefixSeperator, percentage, percentageSeperator, bar,
-		endSeperator, spinnerStep, ' ', nullptr);
+		endSeperator, spinnerChar, ' ', nullptr);
 }
 
 void progressBar_t::close() noexcept
