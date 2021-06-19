@@ -5,6 +5,9 @@ substrate = dependency(
 	required: true,
 	version: '>=0.0.1',
 	fallback: ['substrate', 'substrate_dep'],
+	default_options: [
+		'build_tests=false',
+	],
 	native: true
 )
 
