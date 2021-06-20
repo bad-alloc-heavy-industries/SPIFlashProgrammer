@@ -231,7 +231,7 @@ namespace usb::flashProto
 			{
 				if (i >= transferCount)
 					break;
-				spiIntWrite(*byte);
+				spiIntWrite(byte);
 			}
 		}
 
