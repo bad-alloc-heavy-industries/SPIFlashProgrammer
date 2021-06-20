@@ -3,15 +3,19 @@
 #include "osc.hxx"
 #include "led.hxx"
 #include "spi.hxx"
-#include "usb.hxx"
+#include <usb/core.hxx>
+#include "usb/flashProto.hxx"
 
 void run() noexcept
 {
 	ledInit();
 	oscInit();
 	spiInit();
-	usbInit();
+	usb::core::init();
+	usb::core::registerHandler(1, 1, usb::flashProto::flashProtoHandler);
 
 	while (true)
 		__asm__("wfi");
 }
+
+void irqUSB() noexcept { usb::core::handleIRQ(); }

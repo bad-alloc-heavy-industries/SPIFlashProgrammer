@@ -6,7 +6,7 @@
 #include <substrate/indexed_iterator>
 #include <tm4c123gh6pm/platform.hxx>
 #include <tm4c123gh6pm/constants.hxx>
-#include "usb/core.hxx"
+#include <usb/core.hxx>
 #include "usbProtocol.hxx"
 #include "spi.hxx"
 
@@ -21,7 +21,7 @@ namespace usb::flashProto
 	std::array<uint8_t, epBufferSize> response{};
 	spiChip_t targetDevice{spiChip_t::none};
 
-	void init() noexcept
+	void init(const uint8_t endpoint) noexcept
 	{
 		epStatusControllerIn[1].isMultiPart(false);
 		epStatusControllerIn[1].needsArming(false);
@@ -275,11 +275,17 @@ namespace usb::flashProto
 	{
 	}
 
-	void handlePacket() noexcept
+	void handlePacket(const uint8_t endpoint) noexcept
 	{
 		if (usbPacket.dir() == endpointDir_t::controllerOut)
 			handleRequest();
 		else
 			handleResponse();
 	}
+
+	handler_t flashProtoHandler
+	{
+		init,
+		handlePacket
+	};
 } // namespace usb::flashProto

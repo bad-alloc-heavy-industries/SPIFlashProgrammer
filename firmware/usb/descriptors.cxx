@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include <array>
-#include "core.hxx"
-#include "descriptors.hxx"
-#include "device.hxx"
+#include <usb/core.hxx>
+#include <usb/descriptors.hxx>
+#include <usb/device.hxx>
 
 using namespace usb::types;
 using namespace usb::descriptors;
@@ -23,10 +23,10 @@ static const usbDeviceDescriptor_t usbDeviceDesc
 	1, // Manufacturer string index
 	2, // Product string index
 	0, // Temporarily do not support a serial number string
-	configDescriptorCount
+	configsCount
 };
 
-static const std::array<usbConfigDescriptor_t, configDescriptorCount> usbConfigDesc
+static const std::array<usbConfigDescriptor_t, configsCount> usbConfigDesc
 {{
 	{
 		sizeof(usbConfigDescriptor_t),
@@ -98,7 +98,7 @@ static const std::array<usbMultiPartDesc_t, 4> usbConfigSecs
 
 namespace usb::descriptors
 {
-	const std::array<usbMultiPartTable_t, configDescriptorCount> usbConfigDescriptors
+	const std::array<usbMultiPartTable_t, configsCount> usbConfigDescriptors
 	{{
 		{usbConfigSecs.begin(), usbConfigSecs.end()}
 	}};
@@ -152,7 +152,7 @@ namespace usb::device
 			// Handle configuration descriptor requests
 			case usbDescriptor_t::configuration:
 			{
-				if (descriptor.index >= configDescriptorCount)
+				if (descriptor.index >= configsCount)
 					break;
 				static_assert(sizeof(usbConfigDescriptor_t) == 9);
 				static_assert(sizeof(usbInterfaceDescriptor_t) == 9);

@@ -12,10 +12,19 @@ dragonTI = dependency(
 	]
 )
 
+dragonUSB = dependency(
+	'dragonUSB',
+	required: true,
+	version: '>=0.0.1',
+	fallback: ['dragonUSB', 'dragonUSB_dep'],
+	default_options: [
+		'chip=tm4c123gh6pm',
+	]
+)
+
 firmwareSrc = [
 	'startup.cxx', 'spiFlashProgrammer.cxx', 'led.cxx', 'spi.cxx',
-	'osc.cxx', 'usb.cxx', 'usb/descriptors.cxx', 'usb/device.cxx',
-	'usb/flashProto.cxx'
+	'osc.cxx', 'usb/descriptors.cxx', 'usb/flashProto.cxx'
 ]
 
 firmwareArgs = targetCXX.get_supported_arguments(
@@ -29,7 +38,7 @@ firmware = executable(
 	'SPIFlashProgrammer',
 	firmwareSrc,
 	include_directories: [commonInclude, substrate],
-	dependencies: [dragonTI],
+	dependencies: [dragonTI, dragonUSB],
 	cpp_args: firmwareArgs,
 	#link_args: ['-T', '@0@/tm4c123gh6pm/memoryLayout.ld'.format(meson.current_source_dir())],
 	gnu_symbol_visibility: 'inlineshidden',
