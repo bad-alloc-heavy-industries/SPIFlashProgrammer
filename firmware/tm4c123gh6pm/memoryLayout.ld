@@ -55,6 +55,12 @@ SECTIONS
 		PROVIDE(endBSS = .);
 	} >RAM
 
+	.note.gnu.build-id :
+	{
+		PROVIDE(buildID = .);
+		KEEP(*(.note.gnu.build-id))
+	} >FLASH
+
 	/* Stabs debugging sections. */
 	.stab 0 : { *(.stab) }
 	.stabstr 0 : { *(.stabstr) }
