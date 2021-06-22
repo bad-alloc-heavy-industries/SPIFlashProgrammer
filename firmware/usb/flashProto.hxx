@@ -5,7 +5,8 @@
 
 namespace usb::flashProto
 {
-	extern usb::types::handler_t flashProtoHandler;
+	extern usb::types::handler_t flashProtoInHandler;
+	extern usb::types::handler_t flashProtoOutHandler;
 } // namespace usb::flashProto
 
 #endif /*USB_FLASH_PROTO___HXX*/

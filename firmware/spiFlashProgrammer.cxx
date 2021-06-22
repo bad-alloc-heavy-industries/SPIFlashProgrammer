@@ -6,13 +6,16 @@
 #include <usb/core.hxx>
 #include "usb/flashProto.hxx"
 
+using usb::types::endpointDir_t;
+
 void run() noexcept
 {
 	ledInit();
 	oscInit();
 	spiInit();
+	usb::core::registerHandler({1, endpointDir_t::controllerIn}, 1, usb::flashProto::flashProtoInHandler);
+	usb::core::registerHandler({1, endpointDir_t::controllerOut}, 1, usb::flashProto::flashProtoOutHandler);
 	usb::core::init();
-	usb::core::registerHandler(1, 1, usb::flashProto::flashProtoHandler);
 
 	while (true)
 		__asm__("wfi");
