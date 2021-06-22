@@ -275,17 +275,23 @@ namespace usb::flashProto
 	{
 	}
 
-	handler_t flashProtoInHandler
+	static const handler_t flashProtoInHandler
 	{
 		nullptr,
 		nullptr,
 		handleResponse
 	};
 
-	handler_t flashProtoOutHandler
+	static const handler_t flashProtoOutHandler
 	{
 		init,
 		nullptr,
 		handleRequest
 	};
+
+	void registerHandlers() noexcept
+	{
+		registerHandler({1, endpointDir_t::controllerIn}, 1, usb::flashProto::flashProtoInHandler);
+		registerHandler({1, endpointDir_t::controllerOut}, 1, usb::flashProto::flashProtoOutHandler);
+	}
 } // namespace usb::flashProto

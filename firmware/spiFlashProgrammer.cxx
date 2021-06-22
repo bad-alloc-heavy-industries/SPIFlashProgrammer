@@ -13,8 +13,7 @@ void run() noexcept
 	ledInit();
 	oscInit();
 	spiInit();
-	usb::core::registerHandler({1, endpointDir_t::controllerIn}, 1, usb::flashProto::flashProtoInHandler);
-	usb::core::registerHandler({1, endpointDir_t::controllerOut}, 1, usb::flashProto::flashProtoOutHandler);
+	usb::flashProto::registerHandlers();
 	usb::core::init();
 
 	while (true)
