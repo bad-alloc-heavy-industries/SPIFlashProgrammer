@@ -278,12 +278,14 @@ namespace usb::flashProto
 	handler_t flashProtoInHandler
 	{
 		nullptr,
+		nullptr,
 		handleResponse
 	};
 
 	handler_t flashProtoOutHandler
 	{
 		init,
+		nullptr,
 		handleRequest
 	};
 } // namespace usb::flashProto
