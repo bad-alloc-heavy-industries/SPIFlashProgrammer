@@ -13,8 +13,9 @@ void run() noexcept
 	ledInit();
 	oscInit();
 	spiInit();
-	usb::flashProto::registerHandlers();
 	usb::core::init();
+	usb::flashProto::registerHandlers();
+	usb::core::attach();
 
 	while (true)
 		__asm__("wfi");
