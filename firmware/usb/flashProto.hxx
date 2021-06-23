@@ -5,7 +5,7 @@
 
 namespace usb::flashProto
 {
-	extern void registerHandlers() noexcept;
+	extern void registerHandlers(uint8_t inEP, uint8_t outEP, uint8_t config) noexcept;
 } // namespace usb::flashProto
 
 #endif /*USB_FLASH_PROTO___HXX*/

@@ -14,7 +14,7 @@ void run() noexcept
 	oscInit();
 	spiInit();
 	usb::core::init();
-	usb::flashProto::registerHandlers();
+	usb::flashProto::registerHandlers(1, 1, 1);
 	usb::core::attach();
 
 	while (true)

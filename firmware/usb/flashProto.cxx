@@ -289,9 +289,9 @@ namespace usb::flashProto
 		handleRequest
 	};
 
-	void registerHandlers() noexcept
+	void registerHandlers(const uint8_t inEP, const uint8_t outEP, const uint8_t config) noexcept
 	{
-		registerHandler({1, endpointDir_t::controllerIn}, 1, usb::flashProto::flashProtoInHandler);
-		registerHandler({1, endpointDir_t::controllerOut}, 1, usb::flashProto::flashProtoOutHandler);
+		registerHandler({inEP, endpointDir_t::controllerIn}, config, usb::flashProto::flashProtoInHandler);
+		registerHandler({outEP, endpointDir_t::controllerOut}, config, usb::flashProto::flashProtoOutHandler);
 	}
 } // namespace usb::flashProto
