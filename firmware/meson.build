@@ -19,6 +19,13 @@ dragonUSB = dependency(
 	fallback: ['dragonUSB', 'dragonUSB_dep'],
 	default_options: [
 		'chip=tm4c123gh6pm',
+		'interfaces=2',
+		'endpoints=2',
+		'epBufferSize=64',
+		'configDescriptors=1',
+		'ifaceDescriptors=2',
+		'endpointDescriptors=4',
+		'strings=4'
 	]
 )
 
