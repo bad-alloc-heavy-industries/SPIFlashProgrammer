@@ -4,6 +4,7 @@
 #include "led.hxx"
 #include "spi.hxx"
 #include <usb/core.hxx>
+#include <usb/drivers/dfu.hxx>
 #include "usb/flashProto.hxx"
 
 using usb::types::endpointDir_t;
@@ -15,6 +16,7 @@ void run() noexcept
 	spiInit();
 	usb::core::init();
 	usb::flashProto::registerHandlers(1, 1, 1);
+	usb::dfu::registerHandlers({}, 2, 1);
 	usb::core::attach();
 
 	while (true)
