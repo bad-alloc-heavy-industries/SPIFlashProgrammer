@@ -20,12 +20,13 @@ dragonUSB = dependency(
 	default_options: [
 		'chip=tm4c123gh6pm',
 		'interfaces=2',
-		'endpoints=2',
+		'endpoints=1',
 		'epBufferSize=64',
 		'configDescriptors=1',
 		'ifaceDescriptors=2',
-		'endpointDescriptors=4',
-		'strings=4'
+		'endpointDescriptors=2',
+		'strings=5',
+		'drivers=dfu'
 	]
 )
 

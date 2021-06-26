@@ -34,10 +34,11 @@ static const std::array<usbConfigDescriptor_t, configsCount> usbConfigDesc
 		sizeof(usbConfigDescriptor_t),
 		usbDescriptor_t::configuration,
 		sizeof(usbConfigDescriptor_t) + sizeof(usbInterfaceDescriptor_t) +
-			sizeof(usbEndpointDescriptor_t) + sizeof(usbEndpointDescriptor_t),
+			sizeof(usbEndpointDescriptor_t) + sizeof(usbEndpointDescriptor_t) +
+			sizeof(usbInterfaceDescriptor_t) + sizeof(dfu::functionalDescriptor_t),
 		interfaceDescriptorCount,
 		1, // This config
-		4, // Configuration string index
+		0, // No string to describe this configuration (for now)
 		usbConfigAttr_t::defaults,
 		50 // 100mA (the max our regulator can do)
 	}
@@ -54,7 +55,18 @@ static const std::array<usbInterfaceDescriptor_t, interfaceDescriptorCount> usbI
 		usbClass_t::vendor,
 		uint8_t(subclasses::vendor_t::none),
 		uint8_t(protocols::vendor_t::flashprog),
-		0 // No string to describe this interface (for now)
+		4 // "Flash access interface" string index
+	},
+	{
+		sizeof(usbInterfaceDescriptor_t),
+		usbDescriptor_t::interface,
+		1, // Interface index 0
+		0, // Alternate 0
+		0, // No endpoints for this interface
+		usbClass_t::application,
+		uint8_t(subclasses::application_t::dfu),
+		uint8_t(protocols::application_t::runtime),
+		5, // "SPIFlashProgrammer Firmware Upgrade interface" string index
 	}
 }};
 
@@ -78,7 +90,17 @@ static const std::array<usbEndpointDescriptor_t, endpointDescriptorCount> usbEnd
 	}
 }};
 
-static const std::array<usbMultiPartDesc_t, 4> usbConfigSecs
+static const dfu::functionalDescriptor_t usbDFUFunctionalDesc
+{
+	sizeof(dfu::functionalDescriptor_t),
+	dfu::descriptor_t::functional,
+	{dfu::willDetach_t::yes, dfu::manifestationTolerant_t::no, dfu::canUpload_t::no, dfu::canDownload_t::yes},
+	0, // Set the detach timeout to 0ms
+	epBufferSize, // Set the max transfer size to the endpoint buffer size
+	0x011A // This is 1.1a in USB's BCD format
+};
+
+static const std::array<usbMultiPartDesc_t, 6> usbConfigSecs
 {{
 	{
 		sizeof(usbConfigDescriptor_t),
@@ -95,6 +117,14 @@ static const std::array<usbMultiPartDesc_t, 4> usbConfigSecs
 	{
 		sizeof(usbEndpointDescriptor_t),
 		&usbEndpointDesc[1]
+	},
+	{
+		sizeof(usbInterfaceDescriptor_t),
+		&usbInterfaceDesc[1]
+	},
+	{
+		sizeof(dfu::functionalDescriptor_t),
+		&usbDFUFunctionalDesc
 	}
 }};
 
@@ -106,31 +136,34 @@ namespace usb::descriptors
 	}};
 } // namespace usb::descriptors
 
-static const std::array<usbStringDesc_t, stringCount + 1> usbStringDescs
+static const std::array<usbStringDesc_t, stringCount + 1U> usbStringDescs
 {{
 	{{u"\x0904", 1}},
 	{{u"bad_alloc Heavy Industries", 26}},
 	{{u"SPIFlashProgrammer rev 2", 24}},
-	{{u"", 0}},
-	{{u"Flash access interface", 22}}
+	{{u"", 0}}, // NOLINT(bugprone-string-constructor)
+	{{u"Flash access interface", 22}},
+	{{u"SPIFlashProgrammer Firmware Upgrade interface", 45}}
 }};
 
-static const std::array<std::array<usbMultiPartDesc_t, 2>, stringCount + 1> usbStringParts
+static const std::array<std::array<usbMultiPartDesc_t, 2>, stringCount + 1U> usbStringParts
 {{
 	usbStringDescs[0].asParts(),
 	usbStringDescs[1].asParts(),
 	usbStringDescs[2].asParts(),
 	usbStringDescs[3].asParts(),
-	usbStringDescs[4].asParts()
+	usbStringDescs[4].asParts(),
+	usbStringDescs[5].asParts()
 }};
 
-static const std::array<usbMultiPartTable_t, stringCount + 1> usbStrings
+static const std::array<usbMultiPartTable_t, stringCount + 1U> usbStrings
 {{
 	{usbStringParts[0].begin(), usbStringParts[0].end()},
 	{usbStringParts[1].begin(), usbStringParts[1].end()},
 	{usbStringParts[2].begin(), usbStringParts[2].end()},
 	{usbStringParts[3].begin(), usbStringParts[3].end()},
-	{usbStringParts[4].begin(), usbStringParts[4].end()}
+	{usbStringParts[4].begin(), usbStringParts[4].end()},
+	{usbStringParts[5].begin(), usbStringParts[5].end()}
 }};
 
 using namespace usb::types;
