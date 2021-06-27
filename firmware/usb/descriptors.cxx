@@ -36,7 +36,7 @@ static const std::array<usbConfigDescriptor_t, configsCount> usbConfigDesc
 		sizeof(usbConfigDescriptor_t) + sizeof(usbInterfaceDescriptor_t) +
 			sizeof(usbEndpointDescriptor_t) + sizeof(usbEndpointDescriptor_t) +
 			sizeof(usbInterfaceDescriptor_t) + sizeof(dfu::functionalDescriptor_t),
-		interfaceDescriptorCount,
+		interfaceCount,
 		1, // This config
 		0, // No string to describe this configuration (for now)
 		usbConfigAttr_t::defaults,
@@ -60,7 +60,7 @@ static const std::array<usbInterfaceDescriptor_t, interfaceDescriptorCount> usbI
 	{
 		sizeof(usbInterfaceDescriptor_t),
 		usbDescriptor_t::interface,
-		1, // Interface index 0
+		1, // Interface index 1
 		0, // Alternate 0
 		0, // No endpoints for this interface
 		usbClass_t::application,
@@ -95,7 +95,7 @@ static const dfu::functionalDescriptor_t usbDFUFunctionalDesc
 	sizeof(dfu::functionalDescriptor_t),
 	dfu::descriptor_t::functional,
 	{dfu::willDetach_t::yes, dfu::manifestationTolerant_t::no, dfu::canUpload_t::no, dfu::canDownload_t::yes},
-	0, // Set the detach timeout to 0ms
+	10, // Set the detach timeout to 10ms
 	epBufferSize, // Set the max transfer size to the endpoint buffer size
 	0x011A // This is 1.1a in USB's BCD format
 };
