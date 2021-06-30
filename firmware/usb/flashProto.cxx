@@ -226,7 +226,6 @@ namespace usb::flashProto
 			while (!readEPReady(1))
 				continue;
 			readEP(1);
-			clearWaitingRXIRQs();
 			for (const auto &[i, byte] : substrate::indexedIterator_t{request})
 			{
 				if (i >= transferCount)
@@ -243,6 +242,8 @@ namespace usb::flashProto
 
 	void handleRequest(const uint8_t endpoint) noexcept
 	{
+		if (!readEPDataAvail(0))
+			return;
 		epStatusControllerOut[1].memBuffer = request.data();
 		epStatusControllerOut[1].transferCount = usbCtrl.epCtrls[0].rxCount;
 		if (!readEP(1))
