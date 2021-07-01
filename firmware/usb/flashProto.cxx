@@ -11,6 +11,7 @@
 #include "spi.hxx"
 
 using namespace substrate;
+using namespace usb::constants;
 using namespace usb::types;
 using namespace usb::core;
 using namespace flashProto;
