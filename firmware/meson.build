@@ -1,6 +1,19 @@
 # SPDX-License-Identifier: BSD-3-Clause
 
-substrate = include_directories('../deps/substrate')
+substrate = subproject(
+	'substrate',
+	required: true,
+	version: '>=0.0.1',
+	default_options: [
+		'build_tests=false',
+		'build_library=false'
+	]
+).get_variable(
+	'substrate_dep'
+).partial_dependency(
+	compile_args: true,
+	includes: true
+)
 
 dragonTI = dependency(
 	'dragonTI',
@@ -45,8 +58,8 @@ firmwareArgs = targetCXX.get_supported_arguments(
 firmware = executable(
 	'SPIFlashProgrammer',
 	firmwareSrc,
-	include_directories: [commonInclude, substrate],
-	dependencies: [dragonTI, dragonUSB],
+	include_directories: [commonInclude],
+	dependencies: [substrate, dragonTI, dragonUSB],
 	cpp_args: firmwareArgs,
 	#link_args: ['-T', '@0@/tm4c123gh6pm/memoryLayout.ld'.format(meson.current_source_dir())],
 	gnu_symbol_visibility: 'inlineshidden',
