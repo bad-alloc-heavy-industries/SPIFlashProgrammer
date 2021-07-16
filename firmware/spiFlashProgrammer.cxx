@@ -16,7 +16,7 @@ void run() noexcept
 	spiInit();
 	usb::core::init();
 	usb::flashProto::registerHandlers(1, 1, 1);
-	usb::dfu::registerHandlers({}, 2, 1);
+	usb::dfu::registerHandlers({}, 1, 1);
 	usb::core::attach();
 
 	while (true)
@@ -24,3 +24,17 @@ void run() noexcept
 }
 
 void irqUSB() noexcept { usb::core::handleIRQ(); }
+
+namespace usb::dfu
+{
+	void reboot() noexcept
+	{
+		scb.apint = vals::scb::apintKey | vals::scb::apintSystemResetRequest;
+		while (true)
+			continue;
+	}
+
+	bool flashBusy() noexcept { return false; }
+	void erase(const std::uintptr_t) noexcept { }
+	void write(const std::uintptr_t, const std::size_t, const uint8_t *const) noexcept { }
+}

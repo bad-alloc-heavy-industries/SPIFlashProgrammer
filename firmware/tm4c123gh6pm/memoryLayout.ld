@@ -2,7 +2,7 @@
 
 MEMORY
 {
-	FLASH	(rx):	ORIGIN = 0x00000000, LENGTH = 0x00040000
+	FLASH	(rx):	ORIGIN = 0x00002000, LENGTH = 0x0003E000
 	/* This chip has 32k of RAM, so reserve 28k for the application */
 	RAM		(rwx):	ORIGIN = 0x20000000, LENGTH = 0x00008000
 }
