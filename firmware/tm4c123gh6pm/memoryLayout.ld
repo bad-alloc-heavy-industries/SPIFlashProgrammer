@@ -39,6 +39,11 @@ SECTIONS
 		PROVIDE(stackTop = .);
 	} >RAM
 
+	.bootMagic :
+	{
+		KEEP(*(.bootMagic))
+	} > RAM
+
 	.data :
 	{
 		PROVIDE(beginData = .);

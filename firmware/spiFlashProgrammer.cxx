@@ -27,8 +27,13 @@ void irqUSB() noexcept { usb::core::handleIRQ(); }
 
 namespace usb::dfu
 {
+	// The linker script pins this to 0x20001000
+	[[gnu::section(".bootMagic")]] static uint16_t bootMagic;
+	constexpr static uint16_t bootMagicDFU{0xBADB};
+
 	void reboot() noexcept
 	{
+		bootMagic = bootMagicDFU;
 		scb.apint = vals::scb::apintKey | vals::scb::apintSystemResetRequest;
 		while (true)
 			continue;
