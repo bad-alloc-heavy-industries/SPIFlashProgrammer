@@ -243,7 +243,7 @@ namespace usb::flashProto
 
 	void handleRequest(const uint8_t endpoint) noexcept
 	{
-		if (!readEPDataAvail(0))
+		if (!readEPDataAvail(1))
 			return;
 		epStatusControllerOut[1].memBuffer = request.data();
 		epStatusControllerOut[1].transferCount = usbCtrl.epCtrls[0].rxCount;
@@ -293,7 +293,7 @@ namespace usb::flashProto
 
 	void registerHandlers(const uint8_t inEP, const uint8_t outEP, const uint8_t config) noexcept
 	{
-		registerHandler({inEP, endpointDir_t::controllerIn}, config, usb::flashProto::flashProtoInHandler);
-		registerHandler({outEP, endpointDir_t::controllerOut}, config, usb::flashProto::flashProtoOutHandler);
+		registerHandler({inEP, endpointDir_t::controllerIn}, config, flashProtoInHandler);
+		registerHandler({outEP, endpointDir_t::controllerOut}, config, flashProtoOutHandler);
 	}
 } // namespace usb::flashProto
