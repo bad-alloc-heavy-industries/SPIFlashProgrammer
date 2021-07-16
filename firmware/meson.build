@@ -71,19 +71,31 @@ firmware = executable(
 	install: false
 )
 
-gdb = find_program('gdb')
+objcopy = find_program('objcopy')
+firmwareBin = custom_target(
+	'SPIFlashProgrammer.bin',
+	input: firmware,
+	output: 'SPIFlashProgrammer.bin',
+	command: [
+		objcopy,
+		'-j', '.text',
+		'-j', '.data',
+		'-j', '.note.gnu.build-id',
+		'-O', 'binary',
+		'@INPUT@',
+		'@OUTPUT@',
+	],
+	build_by_default: true,
+	install: false
+)
+
+dfuUtil = find_program('dfu-util')
 run_target(
 	'program',
 	command: [
-		gdb,
-		'--nx',
-		'--batch',
-		'-ex', 'tar ext /dev/ttyBmpGdb',
-		'-ex', 'mon s',
-		'-ex', 'att 1',
-		'-ex', 'load',
-		'-ex', 'kill',
-		firmware
+		dfuUtil,
+		'-d', '1209:ab0c,:badb', '-R',
+		'-D', firmwareBin
 	]
 )
 
