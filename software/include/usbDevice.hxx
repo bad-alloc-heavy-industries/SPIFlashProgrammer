@@ -102,7 +102,7 @@ private:
 			static_cast<uint8_t *>(bufferPtr), bufferLen, 0)};
 		if (result < 0)
 		{
-			console.error("Failed to complete constrol transfer of "sv, bufferLen,
+			console.error("Failed to complete control transfer of "sv, bufferLen,
 				" bytes(s), reason:"sv, libusb_error_name(result));
 		}
 		else if (result != bufferLen)
