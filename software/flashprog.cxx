@@ -196,43 +196,25 @@ int32_t readDevice(const usbDevice_t &rawDevice, const argsTree_t *const readArg
 	const uint32_t pageSize{chipInfo.pageSize};
 	const uint32_t pageCount{chipInfo.deviceSize / pageSize};
 	progressBar_t bar{"Reading chip "sv, pageCount};
+	// NOLINTNEXTLINE: cppcoreguidelines-avoid-c-arrays
+	auto data{std::make_unique<std::byte []>(pageSize)};
 	bar.display();
 	for (uint32_t page{}; page < pageCount; ++page)
 	{
-		requests::read_t request{};
-		request.page = page;
-		if (!request.write(device, 1))
+		if (!requests::read_t{page}.write(device, 0))
 		{
 			if (!device.releaseInterface(0))
 				return 2;
 			return 1;
 		}
 
-		try
+		if (!device.readBulk(1, data.get(), pageSize) ||
+			!fd.write(data, pageSize))
 		{
-			responses::read_t response{device, 1};
-			if (response.type != messages_t::read)
-			{
-				console.error("Error during reading, invalid response from device"sv);
-				if (!device.releaseInterface(0))
-					return 2;
-				return 1;
-			}
-		}
-		catch (const responses::usbError_t &error)
-		{
-			console.error("Error reading page data: "sv, error.what());
+			console.error("Failed to read page "sv, page, " back from the device"sv);
 			if (!device.releaseInterface(0))
 				return 2;
 			return 1;
-		}
-
-		std::array<std::byte, 64> data{};
-		for (uint32_t offset{}; offset < pageSize;)
-		{
-			device.readInterrupt(1, data.data(), data.size());
-			fd.write(data);
-			offset += data.size();
 		}
 		++bar;
 	}

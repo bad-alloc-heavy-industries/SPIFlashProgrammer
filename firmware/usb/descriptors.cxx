@@ -81,7 +81,7 @@ namespace usb::descriptors
 			sizeof(usbEndpointDescriptor_t),
 			usbDescriptor_t::endpoint,
 			endpointAddress(usbEndpointDir_t::controllerIn, 1),
-			usbEndpointType_t::interrupt,
+			usbEndpointType_t::bulk,
 			epBufferSize,
 			1 // Poll once per frame
 		}

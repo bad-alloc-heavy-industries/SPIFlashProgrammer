@@ -16,14 +16,19 @@ using namespace substrate;
 using namespace usb::constants;
 using namespace usb::types;
 using namespace usb::core;
+using namespace usb::device;
 using namespace flashProto;
 using usb::device::packet;
 
 namespace usb::flashProto
 {
-	std::array<uint8_t, epBufferSize> request{};
-	std::array<uint8_t, epBufferSize> response{};
-	spiChip_t targetDevice{spiChip_t::none};
+	static std::array<uint8_t, epBufferSize> request{};
+	static std::array<uint8_t, epBufferSize> response{};
+	static std::array<uint8_t, 4096> flashBuffer{};
+	static spiChip_t targetDevice{spiChip_t::none};
+
+	static page_t readPage{};
+	static uint16_t readCount{};
 
 	void init(const uint8_t endpoint) noexcept
 	{
@@ -160,10 +165,8 @@ namespace usb::flashProto
 		sendResponse(response);
 	}
 
-	void handleRead() noexcept
+	static void handleRead() noexcept
 	{
-		requests::read_t readRequest{request};
-
 #if 0
 		if (targetDevice == spiChip_t::none)
 		{
@@ -172,19 +175,17 @@ namespace usb::flashProto
 		}
 #endif
 
-		sendResponse(responses::read_t{});
-		const uint32_t page{readRequest.page};
 		auto &epStatus{epStatusControllerIn[1]};
 
 		spiSelect(targetDevice);
 		spiIntWrite(spiOpcodes::pageRead);
 		// Translate the page number into a byte address
-		spiIntWrite(uint8_t(page >> 8U));
-		spiIntWrite(uint8_t(page));
+		spiIntWrite(uint8_t(readPage >> 8U));
+		spiIntWrite(uint8_t(readPage));
 		spiIntWrite(0);
 
 		// Work through reading the page of Flash response.size() bytes at at time
-		for (uint16_t byteCount{}; byteCount < 256U; byteCount += uint16_t(response.size()))
+		for (uint16_t byteCount{}; byteCount < readCount; byteCount += uint8_t(response.size()))
 		{
 			// For each byte in the response buffer, read a byte from Flash and store it
 			for (auto &byte : response)
@@ -200,6 +201,23 @@ namespace usb::flashProto
 		}
 
 		spiSelect(spiChip_t::none);
+		readCount = 0;
+	}
+
+	static bool setupRead(const uint16_t count) noexcept
+	{
+		if (count > flashBuffer.size())
+			return false;
+		else if (!count)
+			readCount = 256U;
+		else
+			readCount = count;
+		auto &epStatus{epStatusControllerOut[0]};
+		epStatus.memBuffer = &readPage;
+		epStatus.transferCount = sizeof(readPage);
+		epStatus.needsArming(true);
+		setupCallback = handleRead;
+		return true;
 	}
 
 	void handleWrite()
@@ -272,8 +290,6 @@ namespace usb::flashProto
 		{
 			case messages_t::erase:
 				return handleErase();
-			case messages_t::read:
-				return handleRead();
 			case messages_t::write:
 				return handleWrite();
 			default:
@@ -302,6 +318,11 @@ namespace usb::flashProto
 				return {response_t::data, response.data(), fetchDeviceListing(packet.value.asAddress())};
 			case messages_t::targetDevice:
 				if (handleTargetDevice(packet.value.asAddress()))
+					return {response_t::zeroLength, nullptr, 0};
+				else
+					return {response_t::stall, nullptr, 0};
+			case messages_t::read:
+				if (setupRead(packet.value))
 					return {response_t::zeroLength, nullptr, 0};
 				else
 					return {response_t::stall, nullptr, 0};

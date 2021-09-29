@@ -140,27 +140,6 @@ namespace flashProto
 #endif
 		};
 
-		// This read_t is then followed by 64-byte blocks of data
-		// Which are the contents of the page being read and
-		// constitute listDevice_t::pageSize of data.
-		struct read_t final
-		{
-			messages_t type{messages_t::read};
-
-			constexpr read_t() noexcept = default;
-
-#ifndef __arm__
-			read_t(const usbDeviceHandle_t &device, uint8_t endpoint) : read_t{}
-			{
-				if (!read(device, endpoint))
-					throw usbError_t{};
-			}
-
-			[[nodiscard]] bool read(const usbDeviceHandle_t &device, uint8_t endpoint) noexcept
-				{ return device.readInterrupt(endpoint, &type, sizeof(read_t)); }
-#endif
-		};
-
 		struct write_t final
 		{
 			messages_t type{messages_t::write};
@@ -187,9 +166,7 @@ namespace flashProto
 
 		static_assert(sizeof(deviceCount_t) == 3);
 		static_assert(sizeof(listDevice_t) == 16);
-		static_assert(sizeof(targetDevice_t) == 1);
 		static_assert(sizeof(erase_t) == 5);
-		static_assert(sizeof(read_t) == 1);
 	} // namespace responses
 
 	namespace requests
@@ -298,20 +275,17 @@ namespace flashProto
 
 		struct read_t final
 		{
-			messages_t type{messages_t::read};
 			page_t page{};
 
 			constexpr read_t() noexcept = default;
+			constexpr read_t(const page_t pageNumber) noexcept : page{pageNumber} { }
 
-#ifdef __arm__
-			template<size_t N> read_t(const std::array<uint8_t, N> &data) noexcept : read_t{}
+#ifndef __arm__
+			[[nodiscard]] bool write(const usbDeviceHandle_t &device, uint8_t interface) const noexcept
 			{
-				static_assert(N >= sizeof(read_t));
-				std::memcpy(&type, data.data(), sizeof(read_t));
+				return device.writeControl({recipient_t::interface, request_t::typeClass},
+					static_cast<uint8_t>(messages_t::read), 0, interface, page);
 			}
-#else
-			[[nodiscard]] bool write(const usbDeviceHandle_t &device, uint8_t endpoint) const noexcept
-				{ return device.writeInterrupt(endpoint, &type, sizeof(read_t)); }
 #endif
 		};
 
@@ -349,9 +323,9 @@ namespace flashProto
 
 		static_assert(sizeof(deviceCount_t) == 1);
 		static_assert(sizeof(listDevice_t) == 2);
-		static_assert(sizeof(targetDevice_t) == 3);
+		static_assert(sizeof(targetDevice_t) == 2);
 		static_assert(sizeof(erase_t) == 8);
-		static_assert(sizeof(read_t) == 4);
+		static_assert(sizeof(read_t) == 3);
 	} // namespace requests
 } // namespace flashProto
 
