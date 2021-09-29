@@ -43,9 +43,9 @@ using flashprog::args::argsTree_t;
 
 auto requestCount(const usbDeviceHandle_t &device)
 {
-	if (!requests::deviceCount_t{}.write(device, 1))
+	responses::deviceCount_t deviceCount{};
+	if (!requests::deviceCount_t{}.read(device, 0, deviceCount))
 		throw requests::usbError_t{};
-	responses::deviceCount_t deviceCount{device, 1};
 	return std::make_tuple(deviceCount.internalCount, deviceCount.externalCount);
 }
 

@@ -67,155 +67,6 @@ namespace flashProto
 		constexpr operator bool() const noexcept { return value; }
 	};
 
-	namespace requests
-	{
-#ifndef __arm__
-		struct usbError_t final : std::exception
-		{
-			[[nodiscard]] const char *what() const noexcept final
-				{ return "Failure during writing data to the device"; }
-		};
-#endif
-
-		struct deviceCount_t final
-		{
-			messages_t type{messages_t::deviceCount};
-
-			constexpr deviceCount_t() noexcept = default;
-
-#ifdef __arm__
-			template<size_t N> deviceCount_t(const std::array<uint8_t, N> &data) noexcept : deviceCount_t{}
-			{
-				static_assert(N >= sizeof(deviceCount_t));
-				std::memcpy(&type, data.data(), sizeof(deviceCount_t));
-			}
-#else
-			[[nodiscard]] bool write(const usbDeviceHandle_t &device, uint8_t endpoint) const noexcept
-				{ return device.writeInterrupt(endpoint, &type, sizeof(deviceCount_t)); }
-#endif
-		};
-
-		struct listDevice_t final
-		{
-			messages_t type{messages_t::listDevice};
-			uint8_t deviceNumber{0};
-			deviceType_t deviceType{deviceType_t::none};
-
-			constexpr listDevice_t() noexcept = default;
-
-#ifdef __arm__
-			template<size_t N> listDevice_t(const std::array<uint8_t, N> &data) noexcept : listDevice_t{}
-			{
-				static_assert(N >= sizeof(listDevice_t));
-				std::memcpy(&type, data.data(), sizeof(listDevice_t));
-			}
-#else
-			[[nodiscard]] bool write(const usbDeviceHandle_t &device, uint8_t endpoint) const noexcept
-				{ return device.writeInterrupt(endpoint, &type, sizeof(listDevice_t)); }
-#endif
-		};
-
-		struct targetDevice_t final
-		{
-			messages_t type{messages_t::targetDevice};
-			uint8_t deviceNumber{0};
-			deviceType_t deviceType{deviceType_t::none};
-
-			constexpr targetDevice_t() noexcept = default;
-
-#ifdef __arm__
-			template<size_t N> targetDevice_t(const std::array<uint8_t, N> &data) noexcept : targetDevice_t{}
-			{
-				static_assert(N >= sizeof(targetDevice_t));
-				std::memcpy(&type, data.data(), sizeof(targetDevice_t));
-			}
-#else
-			[[nodiscard]] bool write(const usbDeviceHandle_t &device, uint8_t endpoint) const noexcept
-				{ return device.writeInterrupt(endpoint, &type, sizeof(targetDevice_t)); }
-#endif
-		};
-
-		struct erase_t final
-		{
-			messages_t type{messages_t::erase};
-			eraseOperation_t operation{eraseOperation_t::status};
-			// Only valid for eraseOperation_t::page{,Range}
-			page_t beginPage{};
-			// Only valid for eraseOperation_t::pageRange
-			page_t endPage{};
-
-			constexpr erase_t() noexcept = default;
-
-#ifdef __arm__
-			template<size_t N> erase_t(const std::array<uint8_t, N> &data) noexcept : erase_t{}
-			{
-				static_assert(N >= sizeof(erase_t));
-				std::memcpy(&type, data.data(), sizeof(erase_t));
-			}
-#else
-			[[nodiscard]] bool write(const usbDeviceHandle_t &device, uint8_t endpoint) const noexcept
-				{ return device.writeInterrupt(endpoint, &type, sizeof(erase_t)); }
-#endif
-		};
-
-		struct read_t final
-		{
-			messages_t type{messages_t::read};
-			page_t page{};
-
-			constexpr read_t() noexcept = default;
-
-#ifdef __arm__
-			template<size_t N> read_t(const std::array<uint8_t, N> &data) noexcept : read_t{}
-			{
-				static_assert(N >= sizeof(read_t));
-				std::memcpy(&type, data.data(), sizeof(read_t));
-			}
-#else
-			[[nodiscard]] bool write(const usbDeviceHandle_t &device, uint8_t endpoint) const noexcept
-				{ return device.writeInterrupt(endpoint, &type, sizeof(read_t)); }
-#endif
-		};
-
-		// This write_t is then followed by 64-byte blocks of data
-		// Which contsitute the new contents of the page being written.
-		struct write_t final
-		{
-			messages_t type{messages_t::write};
-			page_t page{};
-			page_t count{};
-
-			constexpr write_t() noexcept = default;
-
-#ifdef __arm__
-			template<size_t N> write_t(const std::array<uint8_t, N> &data) noexcept : write_t{}
-			{
-				static_assert(N >= sizeof(write_t));
-				std::memcpy(&type, data.data(), sizeof(write_t));
-			}
-#else
-			[[nodiscard]] bool write(const usbDeviceHandle_t &device, uint8_t endpoint) const noexcept
-				{ return device.writeInterrupt(endpoint, &type, sizeof(write_t)); }
-#endif
-		};
-
-		struct verify_t final
-		{
-			messages_t type{messages_t::verify};
-		};
-
-		struct resetTarget_t final
-		{
-			messages_t type{messages_t::resetTarget};
-		};
-
-		static_assert(sizeof(deviceCount_t) == 1);
-		static_assert(sizeof(listDevice_t) == 3);
-		static_assert(sizeof(targetDevice_t) == 3);
-		static_assert(sizeof(erase_t) == 8);
-		static_assert(sizeof(read_t) == 4);
-	} // namespace requests
-
 	namespace responses
 	{
 #ifndef __arm__
@@ -358,6 +209,159 @@ namespace flashProto
 		static_assert(sizeof(erase_t) == 5);
 		static_assert(sizeof(read_t) == 1);
 	} // namespace responses
+
+	namespace requests
+	{
+#ifndef __arm__
+		struct usbError_t final : std::exception
+		{
+			[[nodiscard]] const char *what() const noexcept final
+				{ return "Failure during writing data to the device"; }
+		};
+#endif
+
+		struct deviceCount_t final
+		{
+			messages_t type{messages_t::deviceCount};
+
+			constexpr deviceCount_t() noexcept = default;
+
+#ifdef __arm__
+			template<size_t N> deviceCount_t(const std::array<uint8_t, N> &data) noexcept : deviceCount_t{}
+			{
+				static_assert(N >= sizeof(deviceCount_t));
+				std::memcpy(&type, data.data(), sizeof(deviceCount_t));
+			}
+#else
+			[[nodiscard]] bool read(const usbDeviceHandle_t &device, uint8_t interface,
+				responses::deviceCount_t &count) const noexcept
+			{
+				return device.readControl({recipient_t::interface, request_t::typeClass},
+					static_cast<uint8_t>(messages_t::deviceCount), 0, interface, count);
+			}
+#endif
+		};
+
+		struct listDevice_t final
+		{
+			messages_t type{messages_t::listDevice};
+			uint8_t deviceNumber{0};
+			deviceType_t deviceType{deviceType_t::none};
+
+			constexpr listDevice_t() noexcept = default;
+
+#ifdef __arm__
+			template<size_t N> listDevice_t(const std::array<uint8_t, N> &data) noexcept : listDevice_t{}
+			{
+				static_assert(N >= sizeof(listDevice_t));
+				std::memcpy(&type, data.data(), sizeof(listDevice_t));
+			}
+#else
+			[[nodiscard]] bool write(const usbDeviceHandle_t &device, uint8_t endpoint) const noexcept
+				{ return device.writeInterrupt(endpoint, &type, sizeof(listDevice_t)); }
+#endif
+		};
+
+		struct targetDevice_t final
+		{
+			messages_t type{messages_t::targetDevice};
+			uint8_t deviceNumber{0};
+			deviceType_t deviceType{deviceType_t::none};
+
+			constexpr targetDevice_t() noexcept = default;
+
+#ifdef __arm__
+			template<size_t N> targetDevice_t(const std::array<uint8_t, N> &data) noexcept : targetDevice_t{}
+			{
+				static_assert(N >= sizeof(targetDevice_t));
+				std::memcpy(&type, data.data(), sizeof(targetDevice_t));
+			}
+#else
+			[[nodiscard]] bool write(const usbDeviceHandle_t &device, uint8_t endpoint) const noexcept
+				{ return device.writeInterrupt(endpoint, &type, sizeof(targetDevice_t)); }
+#endif
+		};
+
+		struct erase_t final
+		{
+			messages_t type{messages_t::erase};
+			eraseOperation_t operation{eraseOperation_t::status};
+			// Only valid for eraseOperation_t::page{,Range}
+			page_t beginPage{};
+			// Only valid for eraseOperation_t::pageRange
+			page_t endPage{};
+
+			constexpr erase_t() noexcept = default;
+
+#ifdef __arm__
+			template<size_t N> erase_t(const std::array<uint8_t, N> &data) noexcept : erase_t{}
+			{
+				static_assert(N >= sizeof(erase_t));
+				std::memcpy(&type, data.data(), sizeof(erase_t));
+			}
+#else
+			[[nodiscard]] bool write(const usbDeviceHandle_t &device, uint8_t endpoint) const noexcept
+				{ return device.writeInterrupt(endpoint, &type, sizeof(erase_t)); }
+#endif
+		};
+
+		struct read_t final
+		{
+			messages_t type{messages_t::read};
+			page_t page{};
+
+			constexpr read_t() noexcept = default;
+
+#ifdef __arm__
+			template<size_t N> read_t(const std::array<uint8_t, N> &data) noexcept : read_t{}
+			{
+				static_assert(N >= sizeof(read_t));
+				std::memcpy(&type, data.data(), sizeof(read_t));
+			}
+#else
+			[[nodiscard]] bool write(const usbDeviceHandle_t &device, uint8_t endpoint) const noexcept
+				{ return device.writeInterrupt(endpoint, &type, sizeof(read_t)); }
+#endif
+		};
+
+		// This write_t is then followed by 64-byte blocks of data
+		// Which contsitute the new contents of the page being written.
+		struct write_t final
+		{
+			messages_t type{messages_t::write};
+			page_t page{};
+			page_t count{};
+
+			constexpr write_t() noexcept = default;
+
+#ifdef __arm__
+			template<size_t N> write_t(const std::array<uint8_t, N> &data) noexcept : write_t{}
+			{
+				static_assert(N >= sizeof(write_t));
+				std::memcpy(&type, data.data(), sizeof(write_t));
+			}
+#else
+			[[nodiscard]] bool write(const usbDeviceHandle_t &device, uint8_t endpoint) const noexcept
+				{ return device.writeInterrupt(endpoint, &type, sizeof(write_t)); }
+#endif
+		};
+
+		struct verify_t final
+		{
+			messages_t type{messages_t::verify};
+		};
+
+		struct resetTarget_t final
+		{
+			messages_t type{messages_t::resetTarget};
+		};
+
+		static_assert(sizeof(deviceCount_t) == 1);
+		static_assert(sizeof(listDevice_t) == 3);
+		static_assert(sizeof(targetDevice_t) == 3);
+		static_assert(sizeof(erase_t) == 8);
+		static_assert(sizeof(read_t) == 4);
+	} // namespace requests
 } // namespace flashProto
 
 #endif /*USB_PROTOCOL__HXX*/

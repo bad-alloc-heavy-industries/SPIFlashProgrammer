@@ -7,7 +7,9 @@
 #include <tm4c123gh6pm/platform.hxx>
 #include <tm4c123gh6pm/constants.hxx>
 #include <usb/core.hxx>
+#include <usb/device.hxx>
 #include "usbProtocol.hxx"
+#include "flashProto.hxx"
 #include "spi.hxx"
 
 using namespace substrate;
@@ -15,6 +17,7 @@ using namespace usb::constants;
 using namespace usb::types;
 using namespace usb::core;
 using namespace flashProto;
+using usb::device::packet;
 
 namespace usb::flashProto
 {
@@ -40,13 +43,18 @@ namespace usb::flashProto
 		writeEP(1);
 	}
 
-	void handleDeviceCount() noexcept
+	template<typename T> uint16_t writeResponse(const T &data)
+	{
+		std::memcpy(response.data(), &data, sizeof(T));
+		return sizeof(T);
+	}
+
+	static uint16_t fetchDeviceCount() noexcept
 	{
 		responses::deviceCount_t deviceCount{};
 		deviceCount.internalCount = 2;
 		deviceCount.externalCount = 0;
-
-		sendResponse(deviceCount);
+		return writeResponse(deviceCount);
 	}
 
 	[[nodiscard]] constexpr size_t power2(const size_t power) noexcept
@@ -258,8 +266,6 @@ namespace usb::flashProto
 		auto type{messages_t(request[0])};
 		switch (type)
 		{
-			case messages_t::deviceCount:
-				return handleDeviceCount();
 			case messages_t::listDevice:
 				return handleListDevice();
 			case messages_t::targetDevice:
@@ -288,6 +294,8 @@ namespace usb::flashProto
 		const auto request{static_cast<messages_t>(packet.request)};
 		switch (request)
 		{
+			case messages_t::deviceCount:
+				return {response_t::data, response.data(), fetchDeviceCount()};
 		}
 
 		return {response_t::stall, nullptr, 0};
