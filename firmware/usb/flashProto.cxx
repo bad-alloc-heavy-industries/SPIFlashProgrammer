@@ -313,15 +313,23 @@ namespace usb::flashProto
 		switch (request)
 		{
 			case messages_t::deviceCount:
+				if (packet.requestType.dir() != endpointDir_t::controllerIn)
+					return {response_t::stall, nullptr, 0};
 				return {response_t::data, response.data(), fetchDeviceCount()};
 			case messages_t::listDevice:
+				if (packet.requestType.dir() != endpointDir_t::controllerIn)
+					return {response_t::stall, nullptr, 0};
 				return {response_t::data, response.data(), fetchDeviceListing(packet.value.asAddress())};
 			case messages_t::targetDevice:
+				if (packet.requestType.dir() != endpointDir_t::controllerOut)
+					return {response_t::stall, nullptr, 0};
 				if (handleTargetDevice(packet.value.asAddress()))
 					return {response_t::zeroLength, nullptr, 0};
 				else
 					return {response_t::stall, nullptr, 0};
 			case messages_t::read:
+				if (packet.requestType.dir() != endpointDir_t::controllerOut)
+					return {response_t::stall, nullptr, 0};
 				if (setupRead(packet.value))
 					return {response_t::zeroLength, nullptr, 0};
 				else
