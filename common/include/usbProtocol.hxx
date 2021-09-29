@@ -281,10 +281,11 @@ namespace flashProto
 			constexpr read_t(const page_t pageNumber) noexcept : page{pageNumber} { }
 
 #ifndef __arm__
-			[[nodiscard]] bool write(const usbDeviceHandle_t &device, uint8_t interface) const noexcept
+			[[nodiscard]] bool write(const usbDeviceHandle_t &device, uint8_t interface,
+				const uint16_t readCount = 0) const noexcept
 			{
 				return device.writeControl({recipient_t::interface, request_t::typeClass},
-					static_cast<uint8_t>(messages_t::read), 0, interface, page);
+					static_cast<uint8_t>(messages_t::read), readCount, interface, page);
 			}
 #endif
 		};
