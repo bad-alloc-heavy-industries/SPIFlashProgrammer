@@ -277,6 +277,22 @@ namespace usb::flashProto
 	{
 	}
 
+	static answer_t handleCtrlRequest(const std::size_t interface) noexcept
+	{
+		const auto &requestType{packet.requestType};
+		if (requestType.recipient() != setupPacket::recipient_t::interface ||
+			requestType.type() != setupPacket::request_t::typeClass ||
+			packet.index != interface)
+			return {response_t::unhandled, nullptr, 0};
+
+		const auto request{static_cast<messages_t>(packet.request)};
+		switch (request)
+		{
+		}
+
+		return {response_t::stall, nullptr, 0};
+	}
+
 	static const handler_t flashProtoInHandler
 	{
 		nullptr,
@@ -291,9 +307,11 @@ namespace usb::flashProto
 		handleRequest
 	};
 
-	void registerHandlers(const uint8_t inEP, const uint8_t outEP, const uint8_t config) noexcept
+	void registerHandlers(const uint8_t inEP, const uint8_t outEP,
+		const uint8_t interface, const uint8_t config) noexcept
 	{
 		registerHandler({inEP, endpointDir_t::controllerIn}, config, flashProtoInHandler);
 		registerHandler({outEP, endpointDir_t::controllerOut}, config, flashProtoOutHandler);
+		usb::device::registerHandler(interface, config, handleCtrlRequest);
 	}
 } // namespace usb::flashProto
