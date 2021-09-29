@@ -222,17 +222,9 @@ namespace flashProto
 
 		struct deviceCount_t final
 		{
-			messages_t type{messages_t::deviceCount};
-
 			constexpr deviceCount_t() noexcept = default;
 
-#ifdef __arm__
-			template<size_t N> deviceCount_t(const std::array<uint8_t, N> &data) noexcept : deviceCount_t{}
-			{
-				static_assert(N >= sizeof(deviceCount_t));
-				std::memcpy(&type, data.data(), sizeof(deviceCount_t));
-			}
-#else
+#ifndef __arm__
 			[[nodiscard]] bool read(const usbDeviceHandle_t &device, uint8_t interface,
 				responses::deviceCount_t &count) const noexcept
 			{
@@ -245,19 +237,14 @@ namespace flashProto
 		struct listDevice_t final
 		{
 		public:
-			messages_t type{messages_t::listDevice};
 			uint8_t deviceNumber{0};
 			deviceType_t deviceType{deviceType_t::none};
 
 			constexpr listDevice_t() noexcept = default;
+			constexpr listDevice_t(const uint8_t number, const deviceType_t type) noexcept :
+				deviceNumber{number}, deviceType{type} { }
 
-#ifdef __arm__
-			template<size_t N> listDevice_t(const std::array<uint8_t, N> &data) noexcept : listDevice_t{}
-			{
-				static_assert(N >= sizeof(listDevice_t));
-				std::memcpy(&type, data.data(), sizeof(listDevice_t));
-			}
-#else
+#ifndef __arm__
 			[[nodiscard]] bool read(const usbDeviceHandle_t &device, uint8_t interface,
 				responses::listDevice_t &listing) const noexcept
 			{
@@ -373,7 +360,7 @@ namespace flashProto
 		};
 
 		static_assert(sizeof(deviceCount_t) == 1);
-		static_assert(sizeof(listDevice_t) == 3);
+		static_assert(sizeof(listDevice_t) == 2);
 		static_assert(sizeof(targetDevice_t) == 3);
 		static_assert(sizeof(erase_t) == 8);
 		static_assert(sizeof(read_t) == 4);
