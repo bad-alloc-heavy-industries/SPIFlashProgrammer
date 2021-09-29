@@ -60,13 +60,15 @@ namespace usb::flashProto
 	[[nodiscard]] constexpr size_t power2(const size_t power) noexcept
 		{ return power ? power2(power - 1) * 2 : 1; }
 
-	void handleListDevice() noexcept
+	static uint16_t fetchDeviceListing(const setupPacket::address_t address)
 	{
-		requests::listDevice_t listRequest{request};
+		if (address.addrH >= static_cast<uint8_t>(deviceType_t::none))
+			return 0;
+		const auto deviceType{static_cast<deviceType_t>(address.addrH)};
+		const auto deviceNumber{address.addrL};
 		responses::listDevice_t device{};
-		const auto deviceNumber{listRequest.deviceNumber};
 
-		if (listRequest.deviceType == deviceType_t::internal)
+		if (deviceType == deviceType_t::internal)
 		{
 			if (deviceNumber <= spi::internalChips)
 			{
@@ -80,8 +82,7 @@ namespace usb::flashProto
 		else
 		{
 		}
-
-		sendResponse(device);
+		return writeResponse(device);
 	}
 
 	void handleTargetDevice() noexcept
@@ -266,8 +267,6 @@ namespace usb::flashProto
 		auto type{messages_t(request[0])};
 		switch (type)
 		{
-			case messages_t::listDevice:
-				return handleListDevice();
 			case messages_t::targetDevice:
 				return handleTargetDevice();
 			case messages_t::erase:
@@ -296,6 +295,8 @@ namespace usb::flashProto
 		{
 			case messages_t::deviceCount:
 				return {response_t::data, response.data(), fetchDeviceCount()};
+			case messages_t::listDevice:
+				return {response_t::data, response.data(), fetchDeviceListing(packet.value.asAddress())};
 		}
 
 		return {response_t::stall, nullptr, 0};

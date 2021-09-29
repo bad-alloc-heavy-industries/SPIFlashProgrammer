@@ -54,10 +54,10 @@ bool listDevice(const usbDeviceHandle_t &device, const deviceType_t deviceType, 
 	requests::listDevice_t request{};
 	request.deviceType = deviceType;
 	request.deviceNumber = deviceNumber;
-	if (!request.write(device, 1))
+	responses::listDevice_t response{};
+	if (!request.read(device, 0, response))
 		return false;
 
-	responses::listDevice_t response{device, 1};
 	console.info('\t', deviceNumber, ": Manufacturer - "sv, response.manufacturer,
 		", Capacity - "sv, response.deviceSize, ", Page size - "sv, uint32_t{response.pageSize},
 		", Erase page size - "sv, uint32_t{response.eraseSize});
@@ -200,9 +200,8 @@ int32_t readDevice(const usbDevice_t &rawDevice, const argsTree_t *const readArg
 		requests::listDevice_t request{};
 		request.deviceType = deviceType_t::internal;
 		request.deviceNumber = chipNumber;
-		if (!request.write(device, 1))
+		if (!request.read(device, 1, chipInfo))
 			throw requests::usbError_t{};
-		chipInfo = responses::listDevice_t{device, 1};
 	}
 	catch (const responses::usbError_t &error)
 	{
@@ -302,9 +301,8 @@ int32_t writeDevice(const usbDevice_t &rawDevice, const argsTree_t *const writeA
 		requests::listDevice_t request{};
 		request.deviceType = deviceType_t::internal;
 		request.deviceNumber = chipNumber;
-		if (!request.write(device, 1))
+		if (!request.read(device, 1, chipInfo))
 			throw requests::usbError_t{};
-		chipInfo = responses::listDevice_t{device, 1};
 	}
 	catch (const responses::usbError_t &error)
 	{

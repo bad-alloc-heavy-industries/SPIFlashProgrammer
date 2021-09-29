@@ -244,6 +244,7 @@ namespace flashProto
 
 		struct listDevice_t final
 		{
+		public:
 			messages_t type{messages_t::listDevice};
 			uint8_t deviceNumber{0};
 			deviceType_t deviceType{deviceType_t::none};
@@ -257,9 +258,24 @@ namespace flashProto
 				std::memcpy(&type, data.data(), sizeof(listDevice_t));
 			}
 #else
-			[[nodiscard]] bool write(const usbDeviceHandle_t &device, uint8_t endpoint) const noexcept
-				{ return device.writeInterrupt(endpoint, &type, sizeof(listDevice_t)); }
+			[[nodiscard]] bool read(const usbDeviceHandle_t &device, uint8_t interface,
+				responses::listDevice_t &listing) const noexcept
+			{
+				address_t address{deviceNumber, static_cast<uint8_t>(deviceType)};
+				uint16_t index{};
+				static_assert(sizeof(address_t) == sizeof(uint16_t));
+				std::memcpy(&index, &address, sizeof(uint16_t));
+				return device.readControl({recipient_t::interface, request_t::typeClass},
+					static_cast<uint8_t>(messages_t::listDevice), index, interface, listing);
+			}
 #endif
+
+		private:
+			struct address_t final
+			{
+				uint8_t addrL;
+				uint8_t addrH;
+			};
 		};
 
 		struct targetDevice_t final
