@@ -133,7 +133,7 @@ public:
 	usbDeviceHandle_t() noexcept = default;
 	usbDeviceHandle_t(libusb_device_handle *const device_) noexcept : device{device_}
 		{ autoDetachKernelDriver(true); }
-	bool valid() const noexcept { return device; }
+	[[nodiscard]] bool valid() const noexcept { return device; }
 
 	void autoDetachKernelDriver(bool autoDetach) const noexcept
 	{
@@ -141,7 +141,7 @@ public:
 			console.warning("Automatic detach of kernel driver not supported on this platform"sv);
 	}
 
-	bool claimInterface(const int32_t interfaceNumber) const noexcept
+	[[nodiscard]] bool claimInterface(const int32_t interfaceNumber) const noexcept
 	{
 		const auto result{libusb_claim_interface(device, interfaceNumber)};
 		if (result)
@@ -149,7 +149,7 @@ public:
 		return !result;
 	}
 
-	bool releaseInterface(const int32_t interfaceNumber) const noexcept
+	[[nodiscard]] bool releaseInterface(const int32_t interfaceNumber) const noexcept
 	{
 		const auto result{libusb_release_interface(device, interfaceNumber)};
 		if (result)
