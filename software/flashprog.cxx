@@ -153,7 +153,7 @@ int32_t readDevice(const usbDevice_t &rawDevice, const argsTree_t *const readArg
 {
 	const auto *const chip{dynamic_cast<flashprog::args::argChip_t *>(readArgs->find(argType_t::chip))};
 	const auto *const file{dynamic_cast<flashprog::args::argFile_t *>(readArgs->find(argType_t::file))};
-	const auto chipNumber{chip ? chip->chipNumber() : 0U};
+	const auto chipNumber{static_cast<uint8_t>(chip ? chip->chipNumber() : 0U)};
 
 	const auto device{rawDevice.open()};
 	if (!device.valid() ||
@@ -172,11 +172,9 @@ int32_t readDevice(const usbDevice_t &rawDevice, const argsTree_t *const readArg
 	responses::listDevice_t chipInfo{};
 	try
 	{
-		requests::listDevice_t request{};
-		request.deviceType = deviceType_t::internal;
-		request.deviceNumber = chipNumber;
-		if (!request.read(device, 1, chipInfo))
-			throw requests::usbError_t{};
+		requests::listDevice_t request{chipNumber, deviceType_t::internal};
+		if (!request.read(device, 0, chipInfo))
+			throw responses::usbError_t{};
 	}
 	catch (const responses::usbError_t &error)
 	{
