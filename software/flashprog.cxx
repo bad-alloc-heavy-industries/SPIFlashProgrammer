@@ -51,16 +51,13 @@ auto requestCount(const usbDeviceHandle_t &device)
 
 bool listDevice(const usbDeviceHandle_t &device, const deviceType_t deviceType, const uint8_t deviceNumber) noexcept
 {
-	requests::listDevice_t request{};
-	request.deviceType = deviceType;
-	request.deviceNumber = deviceNumber;
-	responses::listDevice_t response{};
-	if (!request.read(device, 0, response))
+	responses::listDevice_t listing{};
+	if (!requests::listDevice_t{deviceNumber, deviceType}.read(device, 0, listing))
 		return false;
 
-	console.info('\t', deviceNumber, ": Manufacturer - "sv, response.manufacturer,
-		", Capacity - "sv, response.deviceSize, ", Page size - "sv, uint32_t{response.pageSize},
-		", Erase page size - "sv, uint32_t{response.eraseSize});
+	console.info('\t', deviceNumber, ": Manufacturer - "sv, listing.manufacturer,
+		", Capacity - "sv, listing.deviceSize, ", Page size - "sv, uint32_t{listing.pageSize},
+		", Erase page size - "sv, uint32_t{listing.eraseSize});
 	return true;
 }
 

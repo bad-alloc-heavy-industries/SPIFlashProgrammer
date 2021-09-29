@@ -212,6 +212,17 @@ namespace flashProto
 
 	namespace requests
 	{
+		namespace impl
+		{
+			struct address_t final
+			{
+				uint8_t addrL;
+				uint8_t addrH;
+			};
+
+			static_assert(sizeof(address_t) == sizeof(uint16_t));
+		} // namespace impl
+
 #ifndef __arm__
 		struct usbError_t final : std::exception
 		{
@@ -248,9 +259,8 @@ namespace flashProto
 			[[nodiscard]] bool read(const usbDeviceHandle_t &device, uint8_t interface,
 				responses::listDevice_t &listing) const noexcept
 			{
-				address_t address{deviceNumber, static_cast<uint8_t>(deviceType)};
+				impl::address_t address{deviceNumber, static_cast<uint8_t>(deviceType)};
 				uint16_t index{};
-				static_assert(sizeof(address_t) == sizeof(uint16_t));
 				std::memcpy(&index, &address, sizeof(uint16_t));
 				return device.readControl({recipient_t::interface, request_t::typeClass},
 					static_cast<uint8_t>(messages_t::listDevice), index, interface, listing);
@@ -258,11 +268,6 @@ namespace flashProto
 #endif
 
 		private:
-			struct address_t final
-			{
-				uint8_t addrL;
-				uint8_t addrH;
-			};
 		};
 
 		struct targetDevice_t final
