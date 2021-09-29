@@ -156,6 +156,13 @@ public:
 		return controlTransfer(requestType, request, value, index, const_cast<T *>(&data), sizeof(T));
 	}
 
+	bool writeControl(requestType_t requestType, const uint8_t request,
+		const uint16_t value, const uint16_t index, std::nullptr_t) const noexcept
+	{
+		requestType.dir(endpointDir_t::controllerOut);
+		return controlTransfer(requestType, request, value, index, nullptr, 0);
+	}
+
 	template<typename T> bool readControl(requestType_t requestType, const uint8_t request,
 		const uint16_t value, const uint16_t index, T &data) const noexcept
 	{
