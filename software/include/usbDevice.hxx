@@ -20,6 +20,60 @@ constexpr static const uint8_t endpointDirMask{0x7F};
 constexpr inline uint8_t endpointAddress(const endpointDir_t dir, const uint8_t number) noexcept
 	{ return uint8_t(dir) | (number & endpointDirMask); }
 
+enum class request_t : uint8_t
+{
+	typeStandard = 0x00,
+	typeClass = 0x20U,
+	typeVendor = 0x40U
+};
+
+enum class recipient_t : uint8_t
+{
+	device = 0,
+	interface = 1,
+	endpoint = 2,
+	other = 3
+};
+
+struct requestType_t final
+{
+private:
+	uint8_t value{};
+
+public:
+	constexpr requestType_t() noexcept = default;
+	constexpr requestType_t(const recipient_t recipient, const request_t type) noexcept :
+		requestType_t{recipient, type, endpointDir_t::controllerOut} { }
+	constexpr requestType_t(const recipient_t recipient, const request_t type, const endpointDir_t direction) noexcept :
+		value(static_cast<uint8_t>(recipient) | static_cast<uint8_t>(type) | static_cast<uint8_t>(direction)) { }
+
+	void recipient(const recipient_t recipient) noexcept
+	{
+		value &= 0xE0U;
+		value |= static_cast<uint8_t>(recipient);
+	}
+
+	void type(const request_t type) noexcept
+	{
+		value &= 0x9FU;
+		value |= static_cast<uint8_t>(type);
+	}
+
+	void dir(const endpointDir_t direction) noexcept
+	{
+		value &= 0x7FU;
+		value |= static_cast<uint8_t>(direction);
+	}
+
+	[[nodiscard]] recipient_t recipient() const noexcept
+		{ return static_cast<recipient_t>(value & 0x1FU); }
+	[[nodiscard]] request_t type() const noexcept
+		{ return static_cast<request_t>(value & 0x60U); }
+	[[nodiscard]] endpointDir_t dir() const noexcept
+		{ return static_cast<endpointDir_t>(value & 0x80U); }
+	[[nodiscard]] operator uint8_t() const noexcept { return value; }
+};
+
 struct usbDeviceHandle_t final
 {
 private:
@@ -39,6 +93,24 @@ private:
 				", reason:"sv, libusb_error_name(result));
 		}
 		return !result;
+	}
+
+	bool controlTransfer(const requestType_t requestType, const uint8_t request, const uint16_t value,
+		const uint16_t index, void *const bufferPtr, const uint16_t bufferLen) const noexcept
+	{
+		const auto result{libusb_control_transfer(device, requestType, request, value, index,
+			static_cast<uint8_t *>(bufferPtr), bufferLen, 0)};
+		if (result < 0)
+		{
+			console.error("Failed to complete constrol transfer of "sv, bufferLen,
+				" bytes(s), reason:"sv, libusb_error_name(result));
+		}
+		else if (result != bufferLen)
+		{
+			console.error("Control transfer incomplete, got "sv, result,
+				", expected "sv, bufferLen);
+		}
+		return result == bufferLen;
 	}
 
 public:
@@ -75,6 +147,22 @@ public:
 
 	bool readInterrupt(const uint8_t endpoint, void *const bufferPtr, const int32_t bufferLen) const noexcept
 		{ return interruptTransfer(endpointAddress(endpointDir_t::controllerIn, endpoint), bufferPtr, bufferLen); }
+
+	template<typename T> bool writeControl(requestType_t requestType, const uint8_t request,
+		const uint16_t value, const uint16_t index, const T &data) const noexcept
+	{
+		requestType.dir(endpointDir_t::controllerOut);
+		static_assert(sizeof(T) <= UINT16_MAX);
+		return controlTransfer(requestType, request, value, index, &data, sizeof(T));
+	}
+
+	template<typename T> bool readControl(requestType_t requestType, const uint8_t request,
+		const uint16_t value, const uint16_t index, T &data) const noexcept
+	{
+		requestType.dir(endpointDir_t::controllerIn);
+		static_assert(sizeof(T) <= UINT16_MAX);
+		return controlTransfer(requestType, request, value, index, &data, sizeof(T));
+	}
 };
 
 struct usbDevice_t final
