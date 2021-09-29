@@ -120,24 +120,6 @@ namespace flashProto
 #endif
 		};
 
-		struct targetDevice_t final
-		{
-			messages_t type{messages_t::targetDevice};
-
-			constexpr targetDevice_t() noexcept = default;
-
-#ifndef __arm__
-			targetDevice_t(const usbDeviceHandle_t &device, uint8_t endpoint) : targetDevice_t{}
-			{
-				if (!read(device, endpoint))
-					throw usbError_t{};
-			}
-
-			[[nodiscard]] bool read(const usbDeviceHandle_t &device, uint8_t endpoint) noexcept
-				{ return device.readInterrupt(endpoint, &type, sizeof(targetDevice_t)); }
-#endif
-		};
-
 		struct erase_t final
 		{
 			messages_t type{messages_t::erase};
