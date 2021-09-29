@@ -153,7 +153,7 @@ public:
 	{
 		requestType.dir(endpointDir_t::controllerOut);
 		static_assert(sizeof(T) <= UINT16_MAX);
-		return controlTransfer(requestType, request, value, index, &data, sizeof(T));
+		return controlTransfer(requestType, request, value, index, const_cast<T *>(&data), sizeof(T));
 	}
 
 	template<typename T> bool readControl(requestType_t requestType, const uint8_t request,
