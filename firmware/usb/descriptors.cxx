@@ -92,7 +92,8 @@ namespace usb::descriptors
 		sizeof(dfu::functionalDescriptor_t),
 		dfu::descriptor_t::functional,
 		{dfu::willDetach_t::yes, dfu::manifestationTolerant_t::no, dfu::canUpload_t::no, dfu::canDownload_t::yes},
-		10, // Set the detach timeout to 10ms
+		// Set the detach timeout to 1000ms which should be the upper bound for how long a PC takes to renumerate us
+		1000,
 		epBufferSize, // Set the max transfer size to the endpoint buffer size
 		0x0110 // This is 1.1 in USB's BCD format
 	};
