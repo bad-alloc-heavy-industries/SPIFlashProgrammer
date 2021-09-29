@@ -161,7 +161,7 @@ void spiIntWrite(const uint8_t value) noexcept
 		continue;
 	while (!(ssi1.status & vals::ssi::statusRxFIFONotEmpty))
 		continue;
-	[[maybe_unused]] const uint8_t _ = uint8_t(ssi1.data);
+	[[maybe_unused]] const auto _{uint8_t(ssi1.data)};
 }
 
 uint8_t spiExtRead() noexcept
