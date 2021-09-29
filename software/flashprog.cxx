@@ -43,6 +43,8 @@ using namespace std::literals::chrono_literals;
 using namespace substrate;
 using flashprog::args::argsTree_t;
 
+constexpr static auto transferBlockSize{4_KiB};
+
 auto requestCount(const usbDeviceHandle_t &device)
 {
 	responses::deviceCount_t deviceCount{};
@@ -195,31 +197,31 @@ int32_t readDevice(const usbDevice_t &rawDevice, const argsTree_t *const readArg
 
 	const auto startTime{std::chrono::steady_clock::now()};
 
-	if (chipInfo.deviceSize > 4_KiB)
+	if (chipInfo.deviceSize > transferBlockSize)
 	{
-		if (chipInfo.deviceSize % 4_KiB)
+		if (chipInfo.deviceSize % transferBlockSize)
 		{
 			console.error("Funky device size, is "sv, chipInfo.deviceSize,
-				", was expecting a device size that divided by 4096"sv);
+				", was expecting a device size that divided by "sv, transferBlockSize);
 			if (!device.releaseInterface(0))
 				return 1;
 			return 1;
 		}
-		const auto pagesPerBlock{static_cast<uint32_t>(4_KiB / chipInfo.pageSize)};
-		const auto blockCount{static_cast<uint32_t>(chipInfo.deviceSize / 4_KiB)};
+		const auto pagesPerBlock{static_cast<uint32_t>(transferBlockSize / chipInfo.pageSize)};
+		const auto blockCount{static_cast<uint32_t>(chipInfo.deviceSize / transferBlockSize)};
 		progressBar_t bar{"Reading chip "sv, blockCount};
 		bar.display();
 		for (uint32_t block{}; block < blockCount; ++block)
 		{
 			const auto page{block * pagesPerBlock};
-			if (!requests::read_t{page}.write(device, 0, 4_KiB))
+			if (!requests::read_t{page}.write(device, 0, transferBlockSize))
 			{
 				if (!device.releaseInterface(0))
 					return 2;
 				return 1;
 			}
 
-			std::array<std::byte, 4_KiB> data{};
+			std::array<std::byte, transferBlockSize> data{};
 			if (!device.readBulk(1, data.data(), data.size()) ||
 				!fd.write(data))
 			{
