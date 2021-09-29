@@ -85,26 +85,29 @@ namespace usb::flashProto
 		return writeResponse(device);
 	}
 
-	void handleTargetDevice() noexcept
+	static bool handleTargetDevice(const setupPacket::address_t address) noexcept
 	{
-		requests::targetDevice_t targetRequest{request};
-		const auto deviceNumber{targetRequest.deviceNumber};
+		if (address.addrH > static_cast<uint8_t>(deviceType_t::none))
+			return false;
+		const auto deviceType{static_cast<deviceType_t>(address.addrH)};
+		const auto deviceNumber{address.addrL};
 
-		if (targetRequest.deviceType == deviceType_t::internal)
+		if (deviceType == deviceType_t::internal)
 		{
 			if (deviceNumber == 0)
 				targetDevice = spiChip_t::local1;
 			else if (deviceNumber == 1)
 				targetDevice = spiChip_t::local2;
 			else
-				targetDevice = spiChip_t::none;
+				return false;
 		}
-		else
+		else if (deviceType == deviceType_t::external)
 		{
 			targetDevice = spiChip_t::none;
 		}
-
-		sendResponse(responses::targetDevice_t{});
+		else
+			targetDevice = spiChip_t::none;
+		return true;
 	}
 
 	bool isBusy() noexcept
@@ -267,14 +270,14 @@ namespace usb::flashProto
 		auto type{messages_t(request[0])};
 		switch (type)
 		{
-			case messages_t::targetDevice:
-				return handleTargetDevice();
 			case messages_t::erase:
 				return handleErase();
 			case messages_t::read:
 				return handleRead();
 			case messages_t::write:
 				return handleWrite();
+			default:
+				return;
 		}
 	}
 
@@ -297,6 +300,11 @@ namespace usb::flashProto
 				return {response_t::data, response.data(), fetchDeviceCount()};
 			case messages_t::listDevice:
 				return {response_t::data, response.data(), fetchDeviceListing(packet.value.asAddress())};
+			case messages_t::targetDevice:
+				if (handleTargetDevice(packet.value.asAddress()))
+					return {response_t::zeroLength, nullptr, 0};
+				else
+					return {response_t::stall, nullptr, 0};
 		}
 
 		return {response_t::stall, nullptr, 0};

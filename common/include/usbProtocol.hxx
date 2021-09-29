@@ -272,21 +272,22 @@ namespace flashProto
 
 		struct targetDevice_t final
 		{
-			messages_t type{messages_t::targetDevice};
 			uint8_t deviceNumber{0};
 			deviceType_t deviceType{deviceType_t::none};
 
 			constexpr targetDevice_t() noexcept = default;
+			constexpr targetDevice_t(const uint8_t number, const deviceType_t type) noexcept :
+				deviceNumber{number}, deviceType{type} { }
 
-#ifdef __arm__
-			template<size_t N> targetDevice_t(const std::array<uint8_t, N> &data) noexcept : targetDevice_t{}
+#ifndef __arm__
+			[[nodiscard]] bool write(const usbDeviceHandle_t &device, uint8_t interface) const noexcept
 			{
-				static_assert(N >= sizeof(targetDevice_t));
-				std::memcpy(&type, data.data(), sizeof(targetDevice_t));
+				impl::address_t address{deviceNumber, static_cast<uint8_t>(deviceType)};
+				uint16_t index{};
+				std::memcpy(&index, &address, sizeof(uint16_t));
+				return device.writeControl({recipient_t::interface, request_t::typeClass},
+					static_cast<uint8_t>(messages_t::targetDevice), index, interface, nullptr);
 			}
-#else
-			[[nodiscard]] bool write(const usbDeviceHandle_t &device, uint8_t endpoint) const noexcept
-				{ return device.writeInterrupt(endpoint, &type, sizeof(targetDevice_t)); }
 #endif
 		};
 

@@ -94,29 +94,7 @@ int32_t listDevices(const usbDevice_t &rawDevice)
 }
 
 bool targetDevice(const usbDeviceHandle_t &device, const deviceType_t deviceType, const uint8_t deviceNumber) noexcept
-{
-	requests::targetDevice_t request{};
-	request.deviceType = deviceType;
-	request.deviceNumber = deviceNumber;
-	if (!request.write(device, 1))
-		return false;
-
-	try
-	{
-		responses::targetDevice_t response{device, 1};
-		if (response.type != messages_t::targetDevice)
-		{
-			console.error("Failed to set the target SPI Flash device"sv);
-			return false;
-		}
-	}
-	catch (const responses::usbError_t &error)
-	{
-		console.error("Failed to set the target SPI Flash device: "sv, error.what());
-		return false;
-	}
-	return true;
-}
+	{ return requests::targetDevice_t{deviceNumber, deviceType}.write(device, 0); }
 
 int32_t eraseDevice(const usbDevice_t &rawDevice, const argsTree_t *const eraseArgs)
 {
