@@ -95,6 +95,22 @@ private:
 		return !result;
 	}
 
+	bool bulkTransfer(const uint8_t endpoint, void *const bufferPtr, const int32_t bufferLen) const noexcept
+	{
+		const auto result{libusb_bulk_transfer(device, endpoint, static_cast<uint8_t *>(bufferPtr),
+			bufferLen, nullptr, 0)};
+		if (result)
+		{
+			const auto endpointNumber{uint8_t(endpoint & 0x7FU)};
+			const auto direction{endpointDir_t(endpoint & 0x80U)};
+			console.error("Failed to complete interrupt transfer of "sv, bufferLen,
+				" byte(s) to endpoint "sv, endpointNumber, ' ',
+				direction == endpointDir_t::controllerIn ? "IN"sv : "OUT"sv,
+				", reason:"sv, libusb_error_name(result));
+		}
+		return !result;
+	}
+
 	bool controlTransfer(const requestType_t requestType, const uint8_t request, const uint16_t value,
 		const uint16_t index, void *const bufferPtr, const uint16_t bufferLen) const noexcept
 	{
@@ -147,6 +163,13 @@ public:
 
 	bool readInterrupt(const uint8_t endpoint, void *const bufferPtr, const int32_t bufferLen) const noexcept
 		{ return interruptTransfer(endpointAddress(endpointDir_t::controllerIn, endpoint), bufferPtr, bufferLen); }
+
+	bool writeBulk(const uint8_t endpoint, const void *const bufferPtr, const int32_t bufferLen) const noexcept
+		{ return bulkTransfer(endpointAddress(endpointDir_t::controllerOut, endpoint),
+			const_cast<void *>(bufferPtr), bufferLen); }
+
+	bool readBulk(const uint8_t endpoint, void *const bufferPtr, const int32_t bufferLen) const noexcept
+		{ return bulkTransfer(endpointAddress(endpointDir_t::controllerIn, endpoint), bufferPtr, bufferLen); }
 
 	template<typename T> bool writeControl(requestType_t requestType, const uint8_t request,
 		const uint16_t value, const uint16_t index, const T &data) const noexcept
