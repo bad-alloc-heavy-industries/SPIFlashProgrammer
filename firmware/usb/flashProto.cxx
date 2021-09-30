@@ -27,6 +27,7 @@ namespace usb::flashProto
 	static std::array<uint8_t, 4096> flashBuffer{};
 	static spiChip_t targetDevice{spiChip_t::none};
 
+	static uint8_t readEndpoint{};
 	static page_t readPage{};
 	static uint16_t readCount{};
 
@@ -165,6 +166,24 @@ namespace usb::flashProto
 		sendResponse(response);
 	}
 
+	static void performRead(const uint8_t endpoint)
+	{
+		if (readCount == 0)
+			return;
+		auto &epStatus{epStatusControllerIn[endpoint]};
+		// For each byte in the response buffer, read a byte from Flash and store it
+		for (auto &byte : response)
+			byte = spiIntRead();
+		// Reset the transfer buffer pointer and amount
+		epStatus.memBuffer = response.data();
+		epStatus.transferCount = response.size();
+		// Transfer the data to the USB controller and tell it that we're ready for it to transmit
+		writeEP(endpoint);
+		readCount -= static_cast<uint16_t>(response.size());
+		if (readCount == 0)
+			spiSelect(spiChip_t::none);
+	}
+
 	static void handleRead() noexcept
 	{
 #if 0
@@ -175,8 +194,6 @@ namespace usb::flashProto
 		}
 #endif
 
-		auto &epStatus{epStatusControllerIn[1]};
-
 		spiSelect(targetDevice);
 		spiIntWrite(spiOpcodes::pageRead);
 		// Translate the page number into a byte address
@@ -184,24 +201,7 @@ namespace usb::flashProto
 		spiIntWrite(uint8_t(readPage));
 		spiIntWrite(0);
 
-		// Work through reading the page of Flash response.size() bytes at at time
-		for (uint16_t byteCount{}; byteCount < readCount; byteCount += uint8_t(response.size()))
-		{
-			// For each byte in the response buffer, read a byte from Flash and store it
-			for (auto &byte : response)
-				byte = spiIntRead();
-			// Reset the transfer buffer pointer and amount
-			epStatus.memBuffer = response.data();
-			epStatus.transferCount = response.size();
-			// Wait for the endpoint to have free space in the hardware FIFO
-			while (writeEPBusy(1))
-				continue;
-			// Transfer the data to the USB controller and tell it that we're ready for it to transmit
-			writeEP(1);
-		}
-
-		spiSelect(spiChip_t::none);
-		readCount = 0;
+		performRead(readEndpoint);
 	}
 
 	static bool setupRead(const uint16_t count) noexcept
@@ -297,10 +297,6 @@ namespace usb::flashProto
 		}
 	}
 
-	void handleResponse(const uint8_t endpoint) noexcept
-	{
-	}
-
 	static answer_t handleCtrlRequest(const std::size_t interface) noexcept
 	{
 		const auto &requestType{packet.requestType};
@@ -343,7 +339,7 @@ namespace usb::flashProto
 	{
 		nullptr,
 		nullptr,
-		handleResponse
+		performRead
 	};
 
 	static const handler_t flashProtoOutHandler
@@ -356,6 +352,7 @@ namespace usb::flashProto
 	void registerHandlers(const uint8_t inEP, const uint8_t outEP,
 		const uint8_t interface, const uint8_t config) noexcept
 	{
+		readEndpoint = inEP;
 		registerHandler({inEP, endpointDir_t::controllerIn}, config, flashProtoInHandler);
 		registerHandler({outEP, endpointDir_t::controllerOut}, config, flashProtoOutHandler);
 		usb::device::registerHandler(interface, config, handleCtrlRequest);
