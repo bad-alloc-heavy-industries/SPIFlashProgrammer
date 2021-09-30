@@ -42,6 +42,8 @@ dragonUSB = dependency(
 		'ifaceDescriptors=2',
 		'endpointDescriptors=2',
 		'strings=5',
+		'dfuFlashBufferSize=128',
+		'dfuFlashPageSize=128',
 		'drivers=dfu'
 	]
 )
