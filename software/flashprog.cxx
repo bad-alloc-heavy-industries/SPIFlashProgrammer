@@ -225,7 +225,7 @@ int32_t readDevice(const usbDevice_t &rawDevice, const argsTree_t *const readArg
 			if (!device.readBulk(1, data.data(), data.size()) ||
 				!fd.write(data))
 			{
-				console.error("Failed to read pages "sv, page, "->"sv, page + pagesPerBlock,
+				console.error("Failed to read pages "sv, page, ":"sv, page + pagesPerBlock - 1,
 					" back from the device"sv);
 				if (!device.releaseInterface(0))
 					return 2;
