@@ -103,7 +103,7 @@ private:
 		{
 			const auto endpointNumber{uint8_t(endpoint & 0x7FU)};
 			const auto direction{endpointDir_t(endpoint & 0x80U)};
-			console.error("Failed to complete interrupt transfer of "sv, bufferLen,
+			console.error("Failed to complete bulk transfer of "sv, bufferLen,
 				" byte(s) to endpoint "sv, endpointNumber, ' ',
 				direction == endpointDir_t::controllerIn ? "IN"sv : "OUT"sv,
 				", reason:"sv, libusb_error_name(result));
