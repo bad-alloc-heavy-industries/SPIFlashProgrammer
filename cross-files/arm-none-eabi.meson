@@ -6,7 +6,7 @@ link_flags = ['-nostartfiles', '--static', '-Wl,--gc-sections']
 [binaries]
 c = exec_prefix / 'arm-none-eabi-gcc'
 cpp = exec_prefix / 'arm-none-eabi-g++'
-ar = [exec_prefix / 'arm-none-eabi-ar', '--plugin', plugin_dir / 'liblto_plugin.so.0.0.0']
+ar = [exec_prefix / 'arm-none-eabi-ar', '--plugin', plugin_dir / 'liblto_plugin.so']
 as = exec_prefix / 'arm-none-eabi-as'
 strip = exec_prefix / 'arm-none-eabi-strip'
 objcopy = exec_prefix / 'arm-none-eabi-objcopy'
