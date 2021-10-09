@@ -24,7 +24,8 @@ namespace flashProto
 		read,
 		write,
 		verify,
-		resetTarget
+		resetTarget,
+		status,
 	};
 
 	enum class deviceType_t : uint8_t
@@ -164,9 +165,15 @@ namespace flashProto
 			bool_t pageOk{false};
 		};
 
+		struct status_t final
+		{
+			uint8_t eraseComplete{};
+		};
+
 		static_assert(sizeof(deviceCount_t) == 3);
 		static_assert(sizeof(listDevice_t) == 16);
 		static_assert(sizeof(erase_t) == 5);
+		static_assert(sizeof(status_t) == 1);
 	} // namespace responses
 
 	namespace requests
@@ -320,6 +327,18 @@ namespace flashProto
 		struct resetTarget_t final
 		{
 			messages_t type{messages_t::resetTarget};
+		};
+
+		struct status_t final
+		{
+#ifndef __arm__
+			[[nodiscard]] bool read(const usbDeviceHandle_t &device, uint8_t interface,
+				responses::status_t &status) const noexcept
+			{
+				return device.readControl({recipient_t::interface, request_t::typeClass},
+					static_cast<uint8_t>(messages_t::status), 0, interface, status);
+			}
+#endif
 		};
 
 		static_assert(sizeof(deviceCount_t) == 1);

@@ -130,13 +130,16 @@ int32_t eraseDevice(const usbDevice_t &rawDevice, const argsTree_t *const eraseA
 	}
 	++bar;
 
-	responses::erase_t response{device, 1};
-	request.operation = eraseOperation_t::status;
-	while (!response.complete)
+	responses::status_t status{};
+	while (!status.eraseComplete)
 	{
 		std::this_thread::sleep_for(250ms);
-		device.writeInterrupt(1, &request, sizeof(request));
-		device.readInterrupt(1, &response, sizeof(response));
+		if (!requests::status_t{}.read(device, 0, status))
+		{
+			if (!device.releaseInterface(0))
+				return 2;
+			return 1;
+		}
 		++bar;
 	}
 	bar.close();
@@ -150,7 +153,7 @@ int32_t eraseDevice(const usbDevice_t &rawDevice, const argsTree_t *const eraseA
 		return 1;
 	// As complete is non-0 at this point, if it has the value 1, it was a good completion
 	// otherwise, the programmer said we asked it to do something insane, so error out.
-	return response.complete == 1 ? 0 : 1;
+	return status.eraseComplete == 1 ? 0 : 1;
 }
 
 int32_t readDevice(const usbDevice_t &rawDevice, const argsTree_t *const readArgs)

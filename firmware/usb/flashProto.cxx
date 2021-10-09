@@ -31,6 +31,8 @@ namespace usb::flashProto
 	static page_t readPage{};
 	static uint16_t readCount{};
 
+	static responses::status_t status{};
+
 	void init(const uint8_t endpoint) noexcept
 	{
 		epStatusControllerIn[1].isMultiPart(false);
@@ -116,7 +118,7 @@ namespace usb::flashProto
 		return true;
 	}
 
-	bool isBusy() noexcept
+	static bool isBusy() noexcept
 	{
 		spiSelect(targetDevice);
 		spiIntWrite(spiOpcodes::statusRead);
@@ -164,6 +166,13 @@ namespace usb::flashProto
 
 		response.complete = complete ? 1 : 0;
 		sendResponse(response);
+	}
+
+	static void checkEraseStatus()
+	{
+		status.eraseComplete = isBusy() ? 0 : 1;
+		if (status.eraseComplete)
+			eraseOperation = eraseOperation_t::idle;
 	}
 
 	static void performRead(const uint8_t endpoint)
@@ -330,6 +339,12 @@ namespace usb::flashProto
 					return {response_t::zeroLength, nullptr, 0};
 				else
 					return {response_t::stall, nullptr, 0};
+			case messages_t::status:
+				if (packet.requestType.dir() != endpointDir_t::controllerIn)
+					return {response_t::stall, nullptr, 0};
+				if (eraseOperation != eraseOperation_t::idle)
+					checkEraseStatus();
+				return {response_t::data, &status, sizeof(status)};
 		}
 
 		return {response_t::stall, nullptr, 0};
