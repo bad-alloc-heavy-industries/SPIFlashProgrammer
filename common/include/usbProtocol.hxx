@@ -55,6 +55,12 @@ namespace flashProto
 
 		constexpr operator uint32_t() const noexcept
 			{ return value[0] | (uint32_t(value[1]) << 8U) | (uint32_t(value[2] << 16U)); }
+
+		constexpr void operator ++() noexcept
+		{
+			const uint32_t page{*this};
+			*this = page_t{page + 1};
+		}
 	};
 
 	struct bool_t final
@@ -302,21 +308,18 @@ namespace flashProto
 		// Which contsitute the new contents of the page being written.
 		struct write_t final
 		{
-			messages_t type{messages_t::write};
 			page_t page{};
-			page_t count{};
 
 			constexpr write_t() noexcept = default;
+			constexpr write_t(const page_t pageNumber) noexcept : page{pageNumber} { }
 
-#ifdef __arm__
-			template<size_t N> write_t(const std::array<uint8_t, N> &data) noexcept : write_t{}
+#ifndef __arm__
+			[[nodiscard]] bool write(const usbDeviceHandle_t &device, uint8_t interface,
+				const uint16_t writeCount = 0) const noexcept
 			{
-				static_assert(N >= sizeof(write_t));
-				std::memcpy(&type, data.data(), sizeof(write_t));
+				return device.writeControl({recipient_t::interface, request_t::typeClass},
+					static_cast<uint8_t>(messages_t::write), writeCount, interface, page);
 			}
-#else
-			[[nodiscard]] bool write(const usbDeviceHandle_t &device, uint8_t endpoint) const noexcept
-				{ return device.writeInterrupt(endpoint, &type, sizeof(write_t)); }
 #endif
 		};
 
@@ -347,6 +350,7 @@ namespace flashProto
 		static_assert(sizeof(targetDevice_t) == 2);
 		static_assert(sizeof(erase_t) == 6);
 		static_assert(sizeof(read_t) == 3);
+		static_assert(sizeof(write_t) == 3);
 	} // namespace requests
 } // namespace flashProto
 

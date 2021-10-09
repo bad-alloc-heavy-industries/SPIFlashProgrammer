@@ -4,6 +4,7 @@
 #include <array>
 #include <substrate/units>
 #include <substrate/indexed_iterator>
+#include <substrate/index_sequence>
 #include <tm4c123gh6pm/platform.hxx>
 #include <tm4c123gh6pm/constants.hxx>
 #include <usb/core.hxx>
@@ -33,6 +34,11 @@ namespace usb::flashProto
 
 	static requests::erase_t eraseConfig{};
 	static eraseOperation_t eraseOperation{eraseOperation_t::idle};
+
+	static uint8_t writeEndpoint{};
+	static page_t writePage{};
+	static uint16_t writeCount{};
+	static uint16_t writeTotal{};
 
 	static responses::status_t status{};
 
@@ -235,23 +241,8 @@ namespace usb::flashProto
 		return true;
 	}
 
-	void handleWrite()
+	static void writeAddress()
 	{
-		requests::write_t writeRequest{request};
-
-#if 0
-		if (targetDevice == spiChip_t::none)
-		{
-			// TODO: Handle..
-			return;
-		}
-#endif
-
-		// if (writeRequest.count > 256U)
-
-		const uint32_t page{writeRequest.page};
-		auto &epStatus{epStatusControllerOut[1]};
-
 		// Enable writes to the device (must be done for every page, so..)
 		spiSelect(targetDevice);
 		spiIntWrite(spiOpcodes::writeEnable);
@@ -260,56 +251,71 @@ namespace usb::flashProto
 		spiSelect(targetDevice);
 		spiIntWrite(spiOpcodes::pageWrite);
 		// Translate the page number into a byte address
-		spiIntWrite(uint8_t(page >> 8U));
-		spiIntWrite(uint8_t(page));
+		spiIntWrite(uint8_t(writePage >> 8U));
+		spiIntWrite(uint8_t(writePage));
 		spiIntWrite(0);
 
-		for (uint16_t byteCount{}; byteCount < writeRequest.count; byteCount += uint16_t(request.size()))
-		{
-			const auto transferCount{std::min<uint16_t>(uint16_t(writeRequest.count) - byteCount, request.size())};
-			epStatus.memBuffer = request.data();
-			epStatus.transferCount = transferCount;
-			while (!readEPReady(1))
-				continue;
-			readEP(1);
-			for (const auto &[i, byte] : substrate::indexedIterator_t{request})
-			{
-				if (i >= transferCount)
-					break;
-				spiIntWrite(byte);
-			}
-		}
-
-		spiSelect(spiChip_t::none);
-		while (isBusy())
-			continue;
-		sendResponse(responses::write_t{});
+		++writePage;
 	}
 
-	void handleRequest(const uint8_t endpoint) noexcept
+	static void performWrite(const uint8_t endpoint)
 	{
-		if (!readEPDataAvail(1))
+		if (writeCount == 0)
 			return;
-		epStatusControllerOut[1].memBuffer = request.data();
-		epStatusControllerOut[1].transferCount = usbCtrl.epCtrls[0].rxCount;
-		if (!readEP(1))
+		readEP(endpoint);
+		auto &epStatus{epStatusControllerOut[endpoint]};
+		// Compute where we are in the buffer
+		const uint16_t begin{writeTotal - writeCount};
+		const uint16_t end{writeTotal - epStatus.transferCount};
+		// For each new byte in the write buffer, write the byte to Flash
+		for (const auto i : substrate::indexSequence_t{begin, end})
+			spiIntWrite(flashBuffer[i]);
+		// Decrease the number of bytes left to write by the amount written
+		writeCount -= end - begin;
+		// If we finished writing a page or we finished recieving data
+		if (!(end & 0xFFU) || !writeCount)
 		{
-			usbCtrl.epCtrls[0].rxStatusCtrlL |= vals::usb::epStatusCtrlLStall;
-			return;
+			spiSelect(spiChip_t::none);
+			while (isBusy())
+				continue;
+			if (writeCount)
+				writeAddress();
 		}
+	}
 
-		// We have now have valid data in the request buffer above. Needs reinterpreting according to the
-		// usbProtocol header structures.
-		auto type{messages_t(request[0])};
-		switch (type)
+	static void handleWrite()
+	{
+#if 0
+		if (targetDevice == spiChip_t::none)
 		{
-			case messages_t::erase:
-				return handleErase();
-			case messages_t::write:
-				return handleWrite();
-			default:
-				return;
+			// TODO: Handle..
+			return;
 		}
+#endif
+
+		writeAddress();
+
+		auto &epStatus{epStatusControllerOut[writeEndpoint]};
+		// Reset the transfer buffer pointer and amount
+		epStatus.memBuffer = flashBuffer.data();
+		epStatus.transferCount = writeCount;
+	}
+
+	static bool setupWrite(const uint16_t count) noexcept
+	{
+		if (count > flashBuffer.size())
+			return false;
+		else if (!count)
+			writeCount = 256U;
+		else
+			writeCount = count;
+		writeTotal = writeCount;
+		auto &epStatus{epStatusControllerOut[0]};
+		epStatus.memBuffer = &writePage;
+		epStatus.transferCount = sizeof(writePage);
+		epStatus.needsArming(true);
+		setupCallback = handleWrite;
+		return true;
 	}
 
 	static answer_t handleCtrlRequest(const std::size_t interface) noexcept
@@ -352,6 +358,13 @@ namespace usb::flashProto
 					return {response_t::zeroLength, nullptr, 0};
 				else
 					return {response_t::stall, nullptr, 0};
+			case messages_t::write:
+				if (packet.requestType.dir() != endpointDir_t::controllerOut)
+					return {response_t::stall, nullptr, 0};
+				if (setupWrite(packet.value))
+					return {response_t::zeroLength, nullptr, 0};
+				else
+					return {response_t::stall, nullptr, 0};
 			case messages_t::status:
 				if (packet.requestType.dir() != endpointDir_t::controllerIn)
 					return {response_t::stall, nullptr, 0};
@@ -374,13 +387,14 @@ namespace usb::flashProto
 	{
 		init,
 		nullptr,
-		handleRequest
+		performWrite
 	};
 
 	void registerHandlers(const uint8_t inEP, const uint8_t outEP,
 		const uint8_t interface, const uint8_t config) noexcept
 	{
 		readEndpoint = inEP;
+		writeEndpoint = outEP;
 		registerHandler({inEP, endpointDir_t::controllerIn}, config, flashProtoInHandler);
 		registerHandler({outEP, endpointDir_t::controllerOut}, config, flashProtoOutHandler);
 		usb::device::registerHandler(interface, config, handleCtrlRequest);
