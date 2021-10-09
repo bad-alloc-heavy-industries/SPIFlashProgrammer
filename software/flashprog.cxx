@@ -131,7 +131,7 @@ int32_t eraseDevice(const usbDevice_t &rawDevice, const argsTree_t *const eraseA
 	responses::status_t status{};
 	while (!status.eraseComplete)
 	{
-		std::this_thread::sleep_for(250ms);
+		std::this_thread::sleep_for(125ms);
 		if (!requests::status_t{}.read(device, 0, status))
 		{
 			if (!device.releaseInterface(0))
@@ -198,7 +198,7 @@ int32_t readDevice(const usbDevice_t &rawDevice, const argsTree_t *const readArg
 
 	const auto startTime{std::chrono::steady_clock::now()};
 
-	if (chipInfo.deviceSize > transferBlockSize)
+	if (chipInfo.deviceSize >= transferBlockSize)
 	{
 		if (chipInfo.deviceSize % transferBlockSize)
 		{
