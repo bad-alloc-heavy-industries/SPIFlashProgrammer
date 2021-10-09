@@ -26,6 +26,7 @@ namespace flashProto
 		verify,
 		resetTarget,
 		status,
+		abort
 	};
 
 	enum class deviceType_t : uint8_t
