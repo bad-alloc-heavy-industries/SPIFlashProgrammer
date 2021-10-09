@@ -23,7 +23,6 @@ using usb::device::packet;
 
 namespace usb::flashProto
 {
-	static std::array<uint8_t, epBufferSize> request{};
 	static std::array<uint8_t, epBufferSize> response{};
 	static std::array<uint8_t, 4096> flashBuffer{};
 	static spiChip_t targetDevice{spiChip_t::none};
