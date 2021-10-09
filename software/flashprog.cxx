@@ -120,9 +120,7 @@ int32_t eraseDevice(const usbDevice_t &rawDevice, const argsTree_t *const eraseA
 	bar.display();
 	const auto startTime{std::chrono::steady_clock::now()};
 
-	requests::erase_t request{};
-	request.operation = eraseOperation_t::all;
-	if (!request.write(device, 1))
+	if (!requests::erase_t{}.write(device, 0, eraseOperation_t::all))
 	{
 		if (!device.releaseInterface(0))
 			return 2;

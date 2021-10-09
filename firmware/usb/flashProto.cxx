@@ -31,6 +31,9 @@ namespace usb::flashProto
 	static page_t readPage{};
 	static uint16_t readCount{};
 
+	static requests::erase_t eraseConfig{};
+	static eraseOperation_t eraseOperation{eraseOperation_t::idle};
+
 	static responses::status_t status{};
 
 	void init(const uint8_t endpoint) noexcept
@@ -127,21 +130,10 @@ namespace usb::flashProto
 		return (status & 1);
 	}
 
-	void handleErase() noexcept
+	static void handleErase() noexcept
 	{
-		requests::erase_t eraseRequest{request};
-		bool complete{false};
-		responses::erase_t response{};
-		response.currentPage = 0xFFFFFFFFU;
-
-		if (targetDevice == spiChip_t::none)
-		{
-			response.complete = 2;
-			sendResponse(response);
-			return;
-		}
-
-		switch (eraseRequest.operation)
+		status.eraseComplete = 0;
+		switch (eraseOperation)
 		{
 			case eraseOperation_t::all:
 			{
@@ -152,20 +144,34 @@ namespace usb::flashProto
 				spiSelect(targetDevice);
 				spiIntWrite(spiOpcodes::chipErase);
 				spiSelect(spiChip_t::none);
-				complete = !isBusy();
 				break;
 			}
 			case eraseOperation_t::page:
 				break;
 			case eraseOperation_t::pageRange:
 				break;
-			case eraseOperation_t::status:
-				complete = !isBusy();
-				break;
+			default:
+				status.eraseComplete = 3;
 		}
+	}
 
-		response.complete = complete ? 1 : 0;
-		sendResponse(response);
+	static bool setupErase(const uint8_t opcode)
+	{
+		if (opcode >= static_cast<uint8_t>(eraseOperation_t::idle))
+			return false;
+		else if (targetDevice == spiChip_t::none)
+		{
+			eraseOperation = eraseOperation_t::idle;
+			status.eraseComplete = 2;
+			return false;
+		}
+		auto &epStatus{epStatusControllerOut[0]};
+		eraseOperation = static_cast<eraseOperation_t>(opcode);
+		epStatus.memBuffer = &eraseConfig;
+		epStatus.transferCount = sizeof(eraseConfig);
+		epStatus.needsArming(true);
+		setupCallback = handleErase;
+		return true;
 	}
 
 	static void checkEraseStatus()
@@ -336,6 +342,13 @@ namespace usb::flashProto
 				if (packet.requestType.dir() != endpointDir_t::controllerOut)
 					return {response_t::stall, nullptr, 0};
 				if (setupRead(packet.value))
+					return {response_t::zeroLength, nullptr, 0};
+				else
+					return {response_t::stall, nullptr, 0};
+			case messages_t::erase:
+				if (packet.requestType.dir() != endpointDir_t::controllerOut)
+					return {response_t::stall, nullptr, 0};
+				if (setupErase(packet.value.asConfiguration()))
 					return {response_t::zeroLength, nullptr, 0};
 				else
 					return {response_t::stall, nullptr, 0};
