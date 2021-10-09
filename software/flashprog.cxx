@@ -299,11 +299,9 @@ int32_t writeDevice(const usbDevice_t &rawDevice, const argsTree_t *const writeA
 	responses::listDevice_t chipInfo{};
 	try
 	{
-		requests::listDevice_t request{};
-		request.deviceType = deviceType_t::internal;
-		request.deviceNumber = chipNumber;
-		if (!request.read(device, 1, chipInfo))
-			throw requests::usbError_t{};
+		requests::listDevice_t request{chipNumber, deviceType_t::internal};
+		if (!request.read(device, 0, chipInfo))
+			throw responses::usbError_t{};
 	}
 	catch (const responses::usbError_t &error)
 	{
