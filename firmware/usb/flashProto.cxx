@@ -39,6 +39,9 @@ namespace usb::flashProto
 	static uint16_t writeCount{};
 	static uint16_t writeTotal{};
 
+	static bool verifyWrite{};
+	static page_t verifyPage{};
+
 	static responses::status_t status{};
 
 	void init(const uint8_t endpoint) noexcept
@@ -204,6 +207,16 @@ namespace usb::flashProto
 			spiSelect(spiChip_t::none);
 	}
 
+	static void beginPageRead(const page_t page) noexcept
+	{
+		spiSelect(targetDevice);
+		spiIntWrite(spiOpcodes::pageRead);
+		// Translate the page number into a byte address
+		spiIntWrite(uint8_t(page >> 8U));
+		spiIntWrite(uint8_t(page));
+		spiIntWrite(0);
+	}
+
 	static void handleRead() noexcept
 	{
 #if 0
@@ -214,12 +227,7 @@ namespace usb::flashProto
 		}
 #endif
 
-		spiSelect(targetDevice);
-		spiIntWrite(spiOpcodes::pageRead);
-		// Translate the page number into a byte address
-		spiIntWrite(uint8_t(readPage >> 8U));
-		spiIntWrite(uint8_t(readPage));
-		spiIntWrite(0);
+		beginPageRead(readPage);
 
 		performRead(readEndpoint);
 	}
@@ -280,6 +288,17 @@ namespace usb::flashProto
 			if (writeCount)
 				writeAddress();
 		}
+		// If we completed writing the buffer and we need to verify, perform verification
+		if (writeCount == 0 && verifyWrite)
+		{
+			beginPageRead(verifyPage);
+			for (const auto i : substrate::indexSequence_t{writeTotal})
+			{
+				if (flashBuffer[i] != spiIntRead())
+					status.writeOK = false;
+			}
+			spiSelect(spiChip_t::none);
+		}
 	}
 
 	static void handleWrite()
@@ -300,7 +319,7 @@ namespace usb::flashProto
 		epStatus.transferCount = writeCount;
 	}
 
-	static bool setupWrite(const uint16_t count) noexcept
+	static bool setupWrite(const uint16_t count, const bool verify) noexcept
 	{
 		if (count > flashBuffer.size())
 			return false;
@@ -308,12 +327,16 @@ namespace usb::flashProto
 			writeCount = 256U;
 		else
 			writeCount = count;
-		writeTotal = writeCount;
 		auto &epStatus{epStatusControllerOut[0]};
 		epStatus.memBuffer = &writePage;
 		epStatus.transferCount = sizeof(writePage);
 		epStatus.needsArming(true);
 		setupCallback = handleWrite;
+
+		writeTotal = writeCount;
+		verifyWrite = verify;
+		verifyPage = writePage;
+		status.writeOK = true;
 		return true;
 	}
 
@@ -358,9 +381,10 @@ namespace usb::flashProto
 				else
 					return {response_t::stall, nullptr, 0};
 			case messages_t::write:
+			case messages_t::verifiedWrite:
 				if (packet.requestType.dir() != endpointDir_t::controllerOut)
 					return {response_t::stall, nullptr, 0};
-				if (setupWrite(packet.value))
+				if (setupWrite(packet.value, request == messages_t::verifiedWrite))
 					return {response_t::zeroLength, nullptr, 0};
 				else
 					return {response_t::stall, nullptr, 0};

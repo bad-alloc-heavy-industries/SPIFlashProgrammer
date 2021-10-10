@@ -276,7 +276,7 @@ int32_t readDevice(const usbDevice_t &rawDevice, const argsTree_t *const readArg
 	return 0;
 }
 
-int32_t writeDevice(const usbDevice_t &rawDevice, const argsTree_t *const writeArgs)
+int32_t writeDevice(const usbDevice_t &rawDevice, const argsTree_t *const writeArgs, const bool verify)
 {
 	const auto *const chip{dynamic_cast<flashprog::args::argChip_t *>(writeArgs->find(argType_t::chip))};
 	const auto *const file{dynamic_cast<flashprog::args::argFile_t *>(writeArgs->find(argType_t::file))};
@@ -328,6 +328,7 @@ int32_t writeDevice(const usbDevice_t &rawDevice, const argsTree_t *const writeA
 	}
 
 	const auto startTime{std::chrono::steady_clock::now()};
+	responses::status_t status{};
 
 	if (chipInfo.deviceSize >= transferBlockSize)
 	{
@@ -355,7 +356,7 @@ int32_t writeDevice(const usbDevice_t &rawDevice, const argsTree_t *const writeA
 		{
 			const auto page{block * pagesPerBlock};
 			const auto byteCount{std::min(uint32_t(fileLength) - (block * transferBlockSize), transferBlockSize)};
-			if (!requests::write_t{page}.write(device, 0, byteCount))
+			if (!requests::write_t{page, verify}.write(device, 0, byteCount))
 			{
 				if (!device.releaseInterface(0))
 					return 2;
@@ -371,6 +372,23 @@ int32_t writeDevice(const usbDevice_t &rawDevice, const argsTree_t *const writeA
 				if (!device.releaseInterface(0))
 					return 2;
 				return 1;
+			}
+			else if (verify)
+			{
+				if (!requests::status_t{}.read(device, 0, status))
+				{
+					if (!device.releaseInterface(0))
+						return 2;
+					return 1;
+				}
+				else if (!status.writeOK)
+				{
+					console.error("Verification of data on pages "sv, page, ":"sv,
+						page + pagesPerBlock - 1, " failed"sv);
+					if (!device.releaseInterface(0))
+						return 2;
+					return 1;
+				}
 			}
 			++bar;
 		}
@@ -498,7 +516,9 @@ int32_t main(int argCount, char **argList)
 		else if (operation->type() == argType_t::read)
 			return readDevice(devices[0], dynamic_cast<const argsTree_t *>(operation));
 		else if (operation->type() == argType_t::write)
-			return writeDevice(devices[0], dynamic_cast<const argsTree_t *>(operation));
+			return writeDevice(devices[0], dynamic_cast<const argsTree_t *>(operation), false);
+		else if (operation->type() == argType_t::verifiedWrite)
+			return writeDevice(devices[0], dynamic_cast<const argsTree_t *>(operation), true);
 	}
 
 	return 0;

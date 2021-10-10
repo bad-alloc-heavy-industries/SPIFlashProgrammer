@@ -23,7 +23,7 @@ namespace flashProto
 		erase,
 		read,
 		write,
-		verify,
+		verifiedWrite,
 		resetTarget,
 		status,
 		abort
@@ -166,21 +166,16 @@ namespace flashProto
 #endif
 		};
 
-		struct verify_t final
-		{
-			messages_t type{messages_t::verify};
-			bool_t pageOk{false};
-		};
-
 		struct status_t final
 		{
 			uint8_t eraseComplete{};
+			bool writeOK{};
 		};
 
 		static_assert(sizeof(deviceCount_t) == 3);
 		static_assert(sizeof(listDevice_t) == 16);
 		static_assert(sizeof(erase_t) == 5);
-		static_assert(sizeof(status_t) == 1);
+		static_assert(sizeof(status_t) == 2);
 	} // namespace responses
 
 	namespace requests
@@ -309,24 +304,22 @@ namespace flashProto
 		// Which contsitute the new contents of the page being written.
 		struct write_t final
 		{
+			bool verify{false};
 			page_t page{};
 
 			constexpr write_t() noexcept = default;
-			constexpr write_t(const page_t pageNumber) noexcept : page{pageNumber} { }
+			constexpr write_t(const page_t pageNumber, bool verifyWrite = false) noexcept :
+				verify{verifyWrite}, page{pageNumber} { }
 
 #ifndef __arm__
 			[[nodiscard]] bool write(const usbDeviceHandle_t &device, uint8_t interface,
 				const uint16_t writeCount = 0) const noexcept
 			{
+				const auto request{verify ? messages_t::verifiedWrite : messages_t::write};
 				return device.writeControl({recipient_t::interface, request_t::typeClass},
-					static_cast<uint8_t>(messages_t::write), writeCount, interface, page);
+					static_cast<uint8_t>(request), writeCount, interface, page);
 			}
 #endif
-		};
-
-		struct verify_t final
-		{
-			messages_t type{messages_t::verify};
 		};
 
 		struct resetTarget_t final
@@ -351,7 +344,7 @@ namespace flashProto
 		static_assert(sizeof(targetDevice_t) == 2);
 		static_assert(sizeof(erase_t) == 6);
 		static_assert(sizeof(read_t) == 3);
-		static_assert(sizeof(write_t) == 3);
+		static_assert(sizeof(write_t) == 4);
 	} // namespace requests
 } // namespace flashProto
 
