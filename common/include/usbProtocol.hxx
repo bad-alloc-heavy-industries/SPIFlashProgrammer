@@ -169,13 +169,14 @@ namespace flashProto
 		struct status_t final
 		{
 			uint8_t eraseComplete{};
+			page_t erasePage{};
 			bool writeOK{};
 		};
 
 		static_assert(sizeof(deviceCount_t) == 3);
 		static_assert(sizeof(listDevice_t) == 16);
 		static_assert(sizeof(erase_t) == 5);
-		static_assert(sizeof(status_t) == 2);
+		static_assert(sizeof(status_t) == 5);
 	} // namespace responses
 
 	namespace requests

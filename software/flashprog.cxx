@@ -276,6 +276,51 @@ int32_t readDevice(const usbDevice_t &rawDevice, const argsTree_t *const readArg
 	return 0;
 }
 
+int32_t erasePages(const usbDeviceHandle_t &device, const responses::listDevice_t chipInfo, size_t fileLength)
+{
+	responses::status_t status{};
+	const uint32_t pageSize{chipInfo.eraseSize};
+	const uint32_t pageCount
+	{
+		[fileLength, pageSize] () -> uint32_t
+		{
+			const auto pages{fileLength / pageSize};
+			const auto remainder{fileLength % pageSize};
+			return pages + (remainder ? 1U : 0U);
+		}()
+	};
+
+	progressBar_t bar{"Erasing chip "sv, pageCount};
+	bar.display();
+	if (!requests::erase_t{{}, {pageCount}}.write(device, 0, eraseOperation_t::pageRange))
+	{
+		if (!device.releaseInterface(0))
+			return 2;
+		return 1;
+	}
+
+	page_t currentPage{};
+	while (!status.eraseComplete)
+	{
+		std::this_thread::sleep_for(10ms);
+		if (!requests::status_t{}.read(device, 0, status))
+		{
+			if (!device.releaseInterface(0))
+				return 2;
+			return 1;
+		}
+		if (currentPage != status.erasePage)
+		{
+			bar += status.erasePage - currentPage;
+			currentPage = status.erasePage;
+		}
+		else
+			bar.display();
+	}
+	bar.close();
+	return 0;
+}
+
 int32_t writeDevice(const usbDevice_t &rawDevice, const argsTree_t *const writeArgs, const bool verify)
 {
 	const auto *const chip{dynamic_cast<flashprog::args::argChip_t *>(writeArgs->find(argType_t::chip))};
@@ -328,6 +373,9 @@ int32_t writeDevice(const usbDevice_t &rawDevice, const argsTree_t *const writeA
 	}
 
 	const auto startTime{std::chrono::steady_clock::now()};
+	const auto eraseResult{erasePages(device, chipInfo, fileLength)};
+	if (eraseResult)
+		return eraseResult;
 	responses::status_t status{};
 
 	if (chipInfo.deviceSize >= transferBlockSize)
@@ -337,7 +385,7 @@ int32_t writeDevice(const usbDevice_t &rawDevice, const argsTree_t *const writeA
 			console.error("Funky device size, is "sv, chipInfo.deviceSize,
 				", was expecting a device size that divided by "sv, transferBlockSize);
 			if (!device.releaseInterface(0))
-				return 1;
+				return 2;
 			return 1;
 		}
 		const auto pagesPerBlock{static_cast<uint32_t>(transferBlockSize / chipInfo.pageSize)};

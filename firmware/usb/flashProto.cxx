@@ -33,23 +33,17 @@ namespace usb::flashProto
 
 	static requests::erase_t eraseConfig{};
 	static eraseOperation_t eraseOperation{eraseOperation_t::idle};
+	static bool eraseActive{false};
 
 	static uint8_t writeEndpoint{};
 	static page_t writePage{};
-	static uint16_t writeCount{};
-	static uint16_t writeTotal{};
+	static uint32_t writeCount{};
+	static uint32_t writeTotal{};
 
 	static bool verifyWrite{};
 	static page_t verifyPage{};
 
 	static responses::status_t status{};
-
-	void init(const uint8_t endpoint) noexcept
-	{
-		epStatusControllerIn[1].isMultiPart(false);
-		epStatusControllerIn[1].needsArming(false);
-		epStatusControllerIn[1].stall(false);
-	}
 
 	template<typename T> void sendResponse(const T &data)
 	{
@@ -155,8 +149,10 @@ namespace usb::flashProto
 				break;
 			}
 			case eraseOperation_t::page:
-				break;
+				eraseConfig.endPage = eraseConfig.beginPage + 1;
+				[[fallthrough]];
 			case eraseOperation_t::pageRange:
+				eraseActive = true;
 				break;
 			default:
 				status.eraseComplete = 3;
@@ -184,7 +180,7 @@ namespace usb::flashProto
 
 	static void checkEraseStatus()
 	{
-		status.eraseComplete = isBusy() ? 0 : 1;
+		status.eraseComplete = eraseActive || isBusy() ? 0 : 1;
 		if (status.eraseComplete)
 			eraseOperation = eraseOperation_t::idle;
 	}
@@ -272,8 +268,8 @@ namespace usb::flashProto
 		readEP(endpoint);
 		auto &epStatus{epStatusControllerOut[endpoint]};
 		// Compute where we are in the buffer
-		const uint16_t begin{writeTotal - writeCount};
-		const uint16_t end{writeTotal - epStatus.transferCount};
+		const auto begin{writeTotal - writeCount};
+		const auto end{writeTotal - epStatus.transferCount};
 		// For each new byte in the write buffer, write the byte to Flash
 		for (const auto i : substrate::indexSequence_t{begin, end})
 			spiIntWrite(flashBuffer[i]);
@@ -316,7 +312,7 @@ namespace usb::flashProto
 		auto &epStatus{epStatusControllerOut[writeEndpoint]};
 		// Reset the transfer buffer pointer and amount
 		epStatus.memBuffer = flashBuffer.data();
-		epStatus.transferCount = writeCount;
+		epStatus.transferCount = static_cast<uint16_t>(writeCount);
 	}
 
 	static bool setupWrite(const uint16_t count, const bool verify) noexcept
@@ -338,6 +334,32 @@ namespace usb::flashProto
 		verifyPage = writePage;
 		status.writeOK = true;
 		return true;
+	}
+
+	static void tick() noexcept
+	{
+		if (eraseActive && !isBusy())
+		{
+			status.erasePage = eraseConfig.beginPage;
+			if (eraseConfig.beginPage == eraseConfig.endPage)
+			{
+				eraseActive = false;
+				return;
+			}
+			const auto page{static_cast<uint32_t>(eraseConfig.beginPage) << 8U};
+			++eraseConfig.beginPage;
+			spiSelect(targetDevice);
+			spiIntWrite(spiOpcodes::writeEnable);
+			spiSelect(spiChip_t::none);
+
+			spiSelect(targetDevice);
+			spiIntWrite(spiOpcodes::blockErase);
+			// Translate the page number into a byte address
+			spiIntWrite(uint8_t(page >> 8U));
+			spiIntWrite(uint8_t(page));
+			spiIntWrite(0);
+			spiSelect(spiChip_t::none);
+		}
 	}
 
 	static answer_t handleCtrlRequest(const std::size_t interface) noexcept
@@ -408,7 +430,7 @@ namespace usb::flashProto
 
 	static const handler_t flashProtoOutHandler
 	{
-		init,
+		nullptr,
 		nullptr,
 		performWrite
 	};
@@ -420,6 +442,7 @@ namespace usb::flashProto
 		writeEndpoint = outEP;
 		registerHandler({inEP, endpointDir_t::controllerIn}, config, flashProtoInHandler);
 		registerHandler({outEP, endpointDir_t::controllerOut}, config, flashProtoOutHandler);
+		registerSOFHandler(interface, tick);
 		usb::device::registerHandler(interface, config, handleCtrlRequest);
 	}
 } // namespace usb::flashProto
