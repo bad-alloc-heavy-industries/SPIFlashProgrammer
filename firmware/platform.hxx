@@ -3,6 +3,6 @@
 #define PLATFORM___HXX
 
 extern void run() noexcept;
-extern void irqUSB() noexcept;
+[[gnu::isr]] extern void irqUSB() noexcept;
 
 #endif /*PLATFORM___HXX*/

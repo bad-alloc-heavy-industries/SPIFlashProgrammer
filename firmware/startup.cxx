@@ -3,7 +3,7 @@
 #include <array>
 #include "platform.hxx"
 
-void irqReset() noexcept;
+[[gnu::naked]] void irqReset() noexcept;
 void irqNMI() noexcept;
 void irqEmptyDef() noexcept;
 [[gnu::naked]] void irqHardFault() noexcept;
