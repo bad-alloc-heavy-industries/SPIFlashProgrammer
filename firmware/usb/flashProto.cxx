@@ -66,6 +66,8 @@ namespace usb::flashProto
 	{
 		responses::deviceCount_t deviceCount{};
 		deviceCount.internalCount = 2;
+		const auto [mfr, type, capacity] = identDevice(spiChip_t::target);
+		//
 		deviceCount.externalCount = 0;
 		return writeResponse(deviceCount);
 	}
@@ -94,6 +96,16 @@ namespace usb::flashProto
 		}
 		else
 		{
+			if (deviceNumber == 0)
+			{
+				const auto [mfr, type, capacity] = identDevice(spiChip_t::target);
+				device.manufacturer = mfr;
+				device.deviceType = type;
+				device.deviceSize = power2(capacity);
+				// These are wrong but need a device LUT to fix.
+				device.eraseSize = 64_KiB;
+				device.pageSize = 256;
+			}
 		}
 		return writeResponse(device);
 	}
