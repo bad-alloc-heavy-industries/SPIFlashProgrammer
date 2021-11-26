@@ -67,8 +67,10 @@ namespace usb::flashProto
 		responses::deviceCount_t deviceCount{};
 		deviceCount.internalCount = 2;
 		const auto [mfr, type, capacity] = identDevice(spiChip_t::target);
-		//
-		deviceCount.externalCount = 0;
+		if (mfr != 0xFFU || type != 0xFFU || capacity != 0xFFU)
+			deviceCount.externalCount = 1;
+		else
+			deviceCount.externalCount = 0;
 		return writeResponse(deviceCount);
 	}
 
