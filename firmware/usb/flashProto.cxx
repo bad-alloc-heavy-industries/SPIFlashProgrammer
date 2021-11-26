@@ -116,7 +116,10 @@ namespace usb::flashProto
 		}
 		else if (deviceType == deviceType_t::external)
 		{
-			targetDevice = spiChip_t::none;
+			if (deviceNumber == 0)
+				targetDevice = spiChip_t::target;
+			else
+				return false;
 		}
 		else
 			targetDevice = spiChip_t::none;
@@ -125,9 +128,10 @@ namespace usb::flashProto
 
 	static bool isBusy() noexcept
 	{
+		auto &device{*spiDevice(targetDevice)};
 		spiSelect(targetDevice);
-		spiIntWrite(spiOpcodes::statusRead);
-		const auto status{spiIntRead()};
+		spiWrite(device, spiOpcodes::statusRead);
+		const auto status{spiRead(device)};
 		spiSelect(spiChip_t::none);
 		return (status & 1);
 	}
@@ -140,11 +144,11 @@ namespace usb::flashProto
 			case eraseOperation_t::all:
 			{
 				spiSelect(targetDevice);
-				spiIntWrite(spiOpcodes::writeEnable);
+				spiWrite(spiOpcodes::writeEnable);
 				spiSelect(spiChip_t::none);
 
 				spiSelect(targetDevice);
-				spiIntWrite(spiOpcodes::chipErase);
+				spiWrite(spiOpcodes::chipErase);
 				spiSelect(spiChip_t::none);
 				break;
 			}
@@ -187,12 +191,13 @@ namespace usb::flashProto
 
 	static void performRead(const uint8_t endpoint)
 	{
+		auto &device{*spiDevice()};
 		if (readCount == 0)
 			return;
 		auto &epStatus{epStatusControllerIn[endpoint]};
 		// For each byte in the response buffer, read a byte from Flash and store it
 		for (auto &byte : response)
-			byte = spiIntRead();
+			byte = spiRead(device);
 		// Reset the transfer buffer pointer and amount
 		epStatus.memBuffer = response.data();
 		epStatus.transferCount = response.size();
@@ -205,26 +210,24 @@ namespace usb::flashProto
 
 	static void beginPageRead(const page_t page) noexcept
 	{
+		auto &device{*spiDevice(targetDevice)};
 		spiSelect(targetDevice);
-		spiIntWrite(spiOpcodes::pageRead);
+		spiWrite(device, spiOpcodes::pageRead);
 		// Translate the page number into a byte address
-		spiIntWrite(uint8_t(page >> 8U));
-		spiIntWrite(uint8_t(page));
-		spiIntWrite(0);
+		spiWrite(device, uint8_t(page >> 8U));
+		spiWrite(device, uint8_t(page));
+		spiWrite(device, 0);
 	}
 
 	static void handleRead() noexcept
 	{
-#if 0
 		if (targetDevice == spiChip_t::none)
 		{
-			// TODO: Handle..
+			// TODO: Handle.. - use the status area to indicate we were asked to do something silly
 			return;
 		}
-#endif
 
 		beginPageRead(readPage);
-
 		performRead(readEndpoint);
 	}
 
@@ -246,23 +249,25 @@ namespace usb::flashProto
 
 	static void writeAddress()
 	{
+		auto &device{*spiDevice(targetDevice)};
 		// Enable writes to the device (must be done for every page, so..)
 		spiSelect(targetDevice);
-		spiIntWrite(spiOpcodes::writeEnable);
+		spiWrite(device, spiOpcodes::writeEnable);
 		spiSelect(spiChip_t::none);
 
 		spiSelect(targetDevice);
-		spiIntWrite(spiOpcodes::pageWrite);
+		spiWrite(device, spiOpcodes::pageWrite);
 		// Translate the page number into a byte address
-		spiIntWrite(uint8_t(writePage >> 8U));
-		spiIntWrite(uint8_t(writePage));
-		spiIntWrite(0);
+		spiWrite(device, uint8_t(writePage >> 8U));
+		spiWrite(device, uint8_t(writePage));
+		spiWrite(device, 0);
 
 		++writePage;
 	}
 
 	static void performWrite(const uint8_t endpoint)
 	{
+		auto &device{*spiDevice()};
 		if (writeCount == 0)
 			return;
 		readEP(endpoint);
@@ -272,7 +277,7 @@ namespace usb::flashProto
 		const auto end{writeTotal - epStatus.transferCount};
 		// For each new byte in the write buffer, write the byte to Flash
 		for (const auto i : substrate::indexSequence_t{begin, end})
-			spiIntWrite(flashBuffer[i]);
+			spiWrite(device, flashBuffer[i]);
 		// Decrease the number of bytes left to write by the amount written
 		writeCount -= end - begin;
 		// If we finished writing a page or we finished recieving data
@@ -290,7 +295,7 @@ namespace usb::flashProto
 			beginPageRead(verifyPage);
 			for (const auto i : substrate::indexSequence_t{writeTotal})
 			{
-				if (flashBuffer[i] != spiIntRead())
+				if (flashBuffer[i] != spiRead(device))
 					status.writeOK = false;
 			}
 			spiSelect(spiChip_t::none);
@@ -340,8 +345,9 @@ namespace usb::flashProto
 	{
 		if (eraseActive && !isBusy())
 		{
+			auto *device{spiDevice(targetDevice)};
 			status.erasePage = eraseConfig.beginPage;
-			if (eraseConfig.beginPage == eraseConfig.endPage)
+			if (eraseConfig.beginPage == eraseConfig.endPage || !device)
 			{
 				eraseActive = false;
 				return;
@@ -349,15 +355,15 @@ namespace usb::flashProto
 			const auto page{static_cast<uint32_t>(eraseConfig.beginPage) << 8U};
 			++eraseConfig.beginPage;
 			spiSelect(targetDevice);
-			spiIntWrite(spiOpcodes::writeEnable);
+			spiWrite(*device, spiOpcodes::writeEnable);
 			spiSelect(spiChip_t::none);
 
 			spiSelect(targetDevice);
-			spiIntWrite(spiOpcodes::blockErase);
+			spiWrite(*device, spiOpcodes::blockErase);
 			// Translate the page number into a byte address
-			spiIntWrite(uint8_t(page >> 8U));
-			spiIntWrite(uint8_t(page));
-			spiIntWrite(0);
+			spiWrite(*device, uint8_t(page >> 8U));
+			spiWrite(*device, uint8_t(page));
+			spiWrite(*device, 0);
 			spiSelect(spiChip_t::none);
 		}
 	}

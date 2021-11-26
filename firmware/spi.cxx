@@ -30,6 +30,8 @@ namespace spi
 	std::array<uint8_t, internalChips> localMFR{};
 	std::array<uint8_t, internalChips> localType{};
 	std::array<uint8_t, internalChips> localCapacity{};
+
+	static spiChip_t targetDevice{spiChip_t::none};
 }
 
 using namespace spi;
@@ -88,17 +90,26 @@ void spiInit() noexcept
 	// Enable the interface
 	ssi1.ctrl1 = vals::ssi::control1ModeController | vals::ssi::control1EnableOperations;
 
+	// For the target interface it's much the same but start out with a much slower clock (500kHz)
+	// to guarantee comms then spin it up once we know the device can handle the speed
+	ssi0.ctrl0 = vals::ssi::ctrl0FormatMotorola | vals::ssi::ctrl0ClockPolarityLow |
+		vals::ssi::ctrl0ClockPhaseLeading | vals::ssi::ctrl0Data8Bit;
+	ssi0.clockConfig = vals::ssi::clockConfigSysClk;
+	// 80MHz -> 500kHz = 160
+	ssi0.cpsr = 160;
+	ssi0.ctrl1 = vals::ssi::control1ModeController | vals::ssi::control1EnableOperations;
+
 	spiSelect(spiChip_t::local1);
-	spiIntWrite(spiOpcodes::jedecID);
-	localMFR[0] = spiIntRead();
-	localType[0] = spiIntRead();
-	localCapacity[0] = spiIntRead();
+	spiWrite(spiOpcodes::jedecID);
+	localMFR[0] = spiRead();
+	localType[0] = spiRead();
+	localCapacity[0] = spiRead();
 
 	spiSelect(spiChip_t::local2);
-	spiIntWrite(spiOpcodes::jedecID);
-	localMFR[1] = spiIntRead();
-	localType[1] = spiIntRead();
-	localCapacity[1] = spiIntRead();
+	spiWrite(spiOpcodes::jedecID);
+	localMFR[1] = spiRead();
+	localType[1] = spiRead();
+	localCapacity[1] = spiRead();
 
 	spiSelect(spiChip_t::none);
 	if (!checkDeviceID(0) || !checkDeviceID(1))
@@ -128,50 +139,70 @@ void spiSelect(const spiChip_t chip) noexcept
 			gpioA.dataBits[0x08U] = 0x08U;
 			break;
 	}
+	targetDevice = chip;
 }
 
-void spiIntResync() noexcept
+tivaC::ssi_t *spiDevice(const spiChip_t chip) noexcept
 {
-	[[maybe_unused]] uint8_t _;
+	if (chip == spiChip_t::local1 || chip == spiChip_t::local2)
+		return &ssi1;
+	else if (chip == spiChip_t::target)
+		return &ssi0;
+	return nullptr;
+}
+
+tivaC::ssi_t *spiDevice() noexcept { return spiDevice(targetDevice); }
+
+void spiResync(tivaC::ssi_t &device)
+{
 	// TxFIFOEmpty should always be true on entry as otherwise read-to-write desynced,
 	// but lets check all the same just in case.
-	while (!(ssi1.status & vals::ssi::statusTxFIFOEmpty))
+	while (!(device.status & vals::ssi::statusTxFIFOEmpty))
 		continue;
 	// RxFIFONotEmpty should always be false on entry as otherwise read-to-write desynced,
 	// but lets check all the same just in case.
-	while (ssi1.status & vals::ssi::statusRxFIFONotEmpty)
-		_ = uint8_t(ssi1.data);
+	while (device.status & vals::ssi::statusRxFIFONotEmpty)
+		[[maybe_unused]] volatile auto _ = device.data;
 }
 
-uint8_t spiIntRead() noexcept
+uint8_t spiRead(tivaC::ssi_t &device) noexcept
 {
-	spiIntResync();
-	ssi1.data = 0;
+	spiResync(device);
+	device.data = 0;
 	// Wait for the dummy data to be shifted out and the reply read in
-	while (!(ssi1.status & vals::ssi::statusRxFIFONotEmpty))
+	while (!(device.status & vals::ssi::statusTxFIFOEmpty))
 		continue;
-	return uint8_t(ssi1.data);
+	while (!(device.status & vals::ssi::statusRxFIFONotEmpty))
+		continue;
+	return uint8_t(device.data);
 }
 
-void spiIntWrite(const uint8_t value) noexcept
+uint8_t spiRead() noexcept
 {
-	spiIntResync();
-	ssi1.data = value;
-	while (!(ssi1.status & vals::ssi::statusTxFIFOEmpty))
-		continue;
-	while (!(ssi1.status & vals::ssi::statusRxFIFONotEmpty))
-		continue;
-	[[maybe_unused]] const auto _{uint8_t(ssi1.data)};
+	auto *device{spiDevice()};
+	if (device)
+		return spiRead(*device);
+	return {};
 }
 
-uint8_t spiExtRead() noexcept
+void spiWrite(tivaC::ssi_t &device, const uint8_t value) noexcept
 {
-	return 0;
+	spiResync(device);
+	device.data = value;
+	while (!(device.status & vals::ssi::statusTxFIFOEmpty))
+		continue;
+	while (!(device.status & vals::ssi::statusRxFIFONotEmpty))
+		continue;
+	[[maybe_unused]] const volatile auto _{device.data};
 }
 
-void spiExtWrite(const uint8_t value) noexcept
+void spiWrite(const uint8_t value) noexcept
 {
+	auto *device{spiDevice()};
+	if (device)
+		spiWrite(*device, value);
 }
+
 
 bool checkDeviceID(const uint8_t index) noexcept
 {

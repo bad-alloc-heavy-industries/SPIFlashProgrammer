@@ -4,6 +4,7 @@
 
 #include <cstdint>
 #include <array>
+#include <tm4c123gh6pm/platform.hxx>
 
 enum class spiChip_t
 {
@@ -15,10 +16,12 @@ enum class spiChip_t
 
 extern void spiInit() noexcept;
 extern void spiSelect(spiChip_t chip) noexcept;
-extern uint8_t spiIntRead() noexcept;
-extern void spiIntWrite(uint8_t value) noexcept;
-extern uint8_t spiExtRead() noexcept;
-extern void spiExtWrite(uint8_t value) noexcept;
+extern tivaC::ssi_t *spiDevice() noexcept;
+extern tivaC::ssi_t *spiDevice(spiChip_t chip) noexcept;
+extern uint8_t spiRead(tivaC::ssi_t &device) noexcept;
+extern void spiWrite(tivaC::ssi_t &device, uint8_t value) noexcept;
+extern uint8_t spiRead() noexcept;
+extern void spiWrite(uint8_t value) noexcept;
 
 namespace spi
 {
