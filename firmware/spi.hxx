@@ -4,6 +4,7 @@
 
 #include <cstdint>
 #include <array>
+#include <tuple>
 #include <tm4c123gh6pm/platform.hxx>
 
 enum class spiChip_t
@@ -22,6 +23,7 @@ extern uint8_t spiRead(tivaC::ssi_t &device) noexcept;
 extern void spiWrite(tivaC::ssi_t &device, uint8_t value) noexcept;
 extern uint8_t spiRead() noexcept;
 extern void spiWrite(uint8_t value) noexcept;
+extern std::tuple<uint8_t, uint8_t, uint8_t> identDevice(spiChip_t chip) noexcept;
 
 namespace spi
 {

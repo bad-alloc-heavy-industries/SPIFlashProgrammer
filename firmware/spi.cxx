@@ -37,6 +37,7 @@ namespace spi
 using namespace spi;
 
 bool checkDeviceID(uint8_t index) noexcept;
+std::tuple<uint8_t, uint8_t, uint8_t> identDevice(spiChip_t chip) noexcept;
 
 void spiInit() noexcept
 {
@@ -99,19 +100,8 @@ void spiInit() noexcept
 	ssi0.cpsr = 160;
 	ssi0.ctrl1 = vals::ssi::control1ModeController | vals::ssi::control1EnableOperations;
 
-	spiSelect(spiChip_t::local1);
-	spiWrite(spiOpcodes::jedecID);
-	localMFR[0] = spiRead();
-	localType[0] = spiRead();
-	localCapacity[0] = spiRead();
-
-	spiSelect(spiChip_t::local2);
-	spiWrite(spiOpcodes::jedecID);
-	localMFR[1] = spiRead();
-	localType[1] = spiRead();
-	localCapacity[1] = spiRead();
-
-	spiSelect(spiChip_t::none);
+	std::tie(localMFR[0], localType[0], localCapacity[0]) = identDevice(spiChip_t::local1);
+	std::tie(localMFR[1], localType[1], localCapacity[1]) = identDevice(spiChip_t::local2);
 	if (!checkDeviceID(0) || !checkDeviceID(1))
 		ledSetColour(true, false, false);
 	else
@@ -203,6 +193,17 @@ void spiWrite(const uint8_t value) noexcept
 		spiWrite(*device, value);
 }
 
+std::tuple<uint8_t, uint8_t, uint8_t> identDevice(const spiChip_t chip) noexcept
+{
+	spiSelect(chip);
+	auto &device{*spiDevice()};
+	spiWrite(device, spiOpcodes::jedecID);
+	const auto mfr{spiRead(device)};
+	const auto type{spiRead(device)};
+	const auto capacity{spiRead(device)};
+	spiSelect(spiChip_t::none);
+	return {mfr, type, capacity};
+}
 
 bool checkDeviceID(const uint8_t index) noexcept
 {
