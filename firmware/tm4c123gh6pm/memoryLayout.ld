@@ -29,6 +29,7 @@ SECTIONS
 		*(.init_array.* .ctors.*)
 		KEEP(*(.init_array .ctors))
 		PROVIDE(endCtors = .);
+		*(.got .got.*)
 		PROVIDE(endText = .);
 	} >FLASH
 
