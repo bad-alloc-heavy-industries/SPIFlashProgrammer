@@ -208,13 +208,19 @@ void spiWrite(const uint8_t value) noexcept
 
 std::tuple<uint8_t, uint8_t, uint8_t> identDevice(const spiChip_t chip) noexcept
 {
+	if (chip == spiChip_t::target)
+		gpioA.dataBits[0x80U] = 0x80U;
 	spiSelect(chip);
 	auto &device{*spiDevice()};
 	spiWrite(device, spiOpcodes::jedecID);
+	if (chip == spiChip_t::target)
+		[[maybe_unused]] volatile auto _ = spiRead(device);
 	const auto mfr{spiRead(device)};
 	const auto type{spiRead(device)};
 	const auto capacity{spiRead(device)};
 	spiSelect(spiChip_t::none);
+	if (chip == spiChip_t::target)
+		gpioA.dataBits[0x80U] = 0x00U;
 	return {mfr, type, capacity};
 }
 
