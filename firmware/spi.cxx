@@ -69,12 +69,18 @@ void spiInit() noexcept
 	gpioE.afSel &= ~0x03U;
 	gpioE.dir = 0x03U;
 
+	// Set the target reset pin as a high digital mode output
+	gpioA.dataBits[0x80U] = 0x80U;
+	gpioA.den |= 0x80U;
+	gpioA.afSel &= ~0x80U;
+	gpioA.dir |= 0x80U;
+
 	// PF0 is an NMI, so unlock the port for reconfig
 	gpioF.lock = vals::gpio::lockKey;
 	gpioF.commit |= 1;
 	gpioF.lock = 0;
 
-	// Set the SPI bus pins as digital mode IO
+	// Set the internal SPI bus pins as digital mode IO
 	gpioF.den |= 0x07U;
 	gpioF.portCtrl |= vals::gpio::portF::portCtrlPin0SSI1Rx |
 		vals::gpio::portF::portCtrlPin1SSI1Tx | vals::gpio::portF::portCtrlPin2SSI1Clk;
@@ -90,6 +96,13 @@ void spiInit() noexcept
 	ssi1.cpsr = 2;
 	// Enable the interface
 	ssi1.ctrl1 = vals::ssi::control1ModeController | vals::ssi::control1EnableOperations;
+
+	// Set the external SPI bus pins as digital mode IO
+	gpioA.den |= 0x34U;
+	gpioA.portCtrl |= vals::gpio::portA::portCtrlPin2SSI0Clk |
+		vals::gpio::portA::portCtrlPin4SSI0Rx | vals::gpio::portA::portCtrlPin5SSI0Tx;
+	gpioA.afSel |= 0x34U;
+	gpioA.dir = (gpioA.dir & 0xCBU) | 0x24U;
 
 	// For the target interface it's much the same but start out with a much slower clock (500kHz)
 	// to guarantee comms then spin it up once we know the device can handle the speed
