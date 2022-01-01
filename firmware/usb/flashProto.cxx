@@ -89,24 +89,25 @@ namespace usb::flashProto
 		{
 			if (deviceNumber <= spi::internalChips)
 			{
-				device.manufacturer = spi::localMFR[deviceNumber];
-				device.deviceType = spi::localType[deviceNumber];
-				device.deviceSize = power2(spi::localCapacity[deviceNumber]);
-				device.eraseSize = 64_KiB;
-				device.pageSize = 256;
+				const auto chip{flash::findChip(spi::localChip[deviceNumber])};
+				device.manufacturer = spi::localChip[deviceNumber].manufacturer;
+				device.deviceType = chip.type;
+				device.deviceSize = power2(chip.actualCapacity);
+				device.eraseSize = chip.erasePageSize;
+				device.pageSize = chip.flashPageSize;
 			}
 		}
 		else
 		{
 			if (deviceNumber == 0)
 			{
-				const auto [mfr, type, capacity] = identDevice(spiChip_t::target);
-				device.manufacturer = mfr;
-				device.deviceType = type;
-				device.deviceSize = power2(capacity);
-				// These are wrong but need a device LUT to fix.
-				device.eraseSize = 64_KiB;
-				device.pageSize = 256;
+				const auto chipID{identDevice(spiChip_t::target)};
+				const auto chip{flash::findChip(chipID)};
+				device.manufacturer = chipID.manufacturer;
+				device.deviceType = chip.type;
+				device.deviceSize = power2(chip.actualCapacity);
+				device.eraseSize = chip.erasePageSize;
+				device.pageSize = chip.flashPageSize;
 			}
 		}
 		return writeResponse(device);

@@ -47,7 +47,7 @@ namespace flash
 	{{
 		{0x1F, adestoChips.data(), adestoChips.size()},
 		{0x20, numonyxChips.data(), numonyxChips.size()},
-		{0xFE, winbondChips.data(), winbondChips.size()},
+		{0xEF, winbondChips.data(), winbondChips.size()},
 	}};
 
 	flashChip_t findChip(const flashID_t chipID) noexcept

@@ -27,9 +27,7 @@
 namespace spi
 {
 	// These store what the local flash that's installed's manufacturer, type and capacity read as.
-	std::array<uint8_t, internalChips> localMFR{};
-	std::array<uint8_t, internalChips> localType{};
-	std::array<uint8_t, internalChips> localCapacity{};
+	std::array<flashID_t, internalChips> localChip{};
 
 	static spiChip_t targetDevice{spiChip_t::none};
 }
@@ -37,7 +35,6 @@ namespace spi
 using namespace spi;
 
 bool checkDeviceID(uint8_t index) noexcept;
-std::tuple<uint8_t, uint8_t, uint8_t> identDevice(spiChip_t chip) noexcept;
 
 void spiInit() noexcept
 {
@@ -113,8 +110,8 @@ void spiInit() noexcept
 	ssi0.cpsr = 160;
 	ssi0.ctrl1 = vals::ssi::control1ModeController | vals::ssi::control1EnableOperations;
 
-	std::tie(localMFR[0], localType[0], localCapacity[0]) = identDevice(spiChip_t::local1);
-	std::tie(localMFR[1], localType[1], localCapacity[1]) = identDevice(spiChip_t::local2);
+	localChip[0] = identDevice(spiChip_t::local1);
+	localChip[1] = identDevice(spiChip_t::local2);
 	if (!checkDeviceID(0) || !checkDeviceID(1))
 		ledSetColour(true, false, false);
 	else
@@ -206,7 +203,7 @@ void spiWrite(const uint8_t value) noexcept
 		spiWrite(*device, value);
 }
 
-std::tuple<uint8_t, uint8_t, uint8_t> identDevice(const spiChip_t chip) noexcept
+flashID_t identDevice(const spiChip_t chip) noexcept
 {
 	if (chip == spiChip_t::target)
 		gpioA.dataBits[0x80U] = 0x80U;
@@ -226,7 +223,8 @@ std::tuple<uint8_t, uint8_t, uint8_t> identDevice(const spiChip_t chip) noexcept
 
 bool checkDeviceID(const uint8_t index) noexcept
 {
-	return localMFR[index] == 0x1FU &&
-		localType[index] == 0x32U &&
-		localCapacity[index] == 0x17U;
+	return
+		localChip[index].manufacturer == 0x1FU &&
+		localChip[index].type == 0x32U &&
+		localChip[index].capacity == 0x17U;
 }

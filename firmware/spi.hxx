@@ -6,6 +6,7 @@
 #include <array>
 #include <tuple>
 #include <tm4c123gh6pm/platform.hxx>
+#include "flash.hxx"
 
 enum class spiChip_t
 {
@@ -23,14 +24,12 @@ extern uint8_t spiRead(tivaC::ssi_t &device) noexcept;
 extern void spiWrite(tivaC::ssi_t &device, uint8_t value) noexcept;
 extern uint8_t spiRead() noexcept;
 extern void spiWrite(uint8_t value) noexcept;
-extern std::tuple<uint8_t, uint8_t, uint8_t> identDevice(spiChip_t chip) noexcept;
+extern flashID_t identDevice(spiChip_t chip) noexcept;
 
 namespace spi
 {
 	constexpr static const uint8_t internalChips{2};
-	extern std::array<uint8_t, internalChips> localMFR;
-	extern std::array<uint8_t, internalChips> localType;
-	extern std::array<uint8_t, internalChips> localCapacity;
+	extern std::array<flashID_t, internalChips> localChip;
 }
 
 namespace spiOpcodes
