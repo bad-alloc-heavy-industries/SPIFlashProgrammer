@@ -2,6 +2,7 @@
 #include <vector>
 #include <thread>
 #include <chrono>
+#include <stdexcept>
 #include <substrate/utility>
 #include <substrate/units>
 #include <substrate/console>
@@ -53,16 +54,37 @@ auto requestCount(const usbDeviceHandle_t &device)
 	return std::make_tuple(deviceCount.internalCount, deviceCount.externalCount);
 }
 
-bool listDevice(const usbDeviceHandle_t &device, const flashBus_t deviceType, const uint8_t deviceNumber) noexcept
+responses::listDevice_t readChipInfo(const usbDeviceHandle_t &device, const flashprog::args::argChip_t &chip)
 {
-	responses::listDevice_t listing{};
-	if (!requests::listDevice_t{deviceNumber, deviceType}.read(device, 0, listing))
-		return false;
+	responses::listDevice_t chipInfo{};
+	try
+	{
+		requests::listDevice_t request{chip.number(), chip.bus()};
+		if (!request.read(device, 0, chipInfo))
+			throw responses::usbError_t{};
+	}
+	catch (const responses::usbError_t &error)
+	{
+		console.error("Error getting target Flash chip information: "sv, error.what());
+		if (!device.releaseInterface(0))
+			throw std::nested_exception{};
+		throw error;
+	}
+	return chipInfo;
+}
 
-	console.info('\t', deviceNumber, ": Manufacturer - "sv, listing.manufacturer,
-		", Capacity - "sv, listing.deviceSize, ", Page size - "sv, uint32_t{listing.pageSize},
-		", Erase page size - "sv, uint32_t{listing.eraseSize});
-	return true;
+bool listDevice(const usbDeviceHandle_t &device, const flashprog::args::argChip_t &chip) noexcept
+{
+	try
+	{
+		const auto chipInfo{readChipInfo(device, chip)};
+		console.info('\t', chip.number(), ": Manufacturer - "sv, chipInfo.manufacturer,
+			", Capacity - "sv, chipInfo.deviceSize, ", Page size - "sv, uint32_t{chipInfo.pageSize},
+			", Erase page size - "sv, uint32_t{chipInfo.eraseSize});
+		return true;
+	}
+	catch (std::exception &)
+		{ return false; }
 }
 
 int32_t listDevices(const usbDevice_t &rawDevice)
@@ -79,11 +101,11 @@ int32_t listDevices(const usbDevice_t &rawDevice)
 		console.info("Programmer has "sv, internalDeviceCount, " internal Flash chips, and "sv,
 			externalDeviceCount, " external Flash chips"sv);
 		console.info("Internal devices:"sv);
-		for (uint8_t interalDevice{0}; interalDevice < internalDeviceCount; ++interalDevice)
-			listDevice(device, flashBus_t::internal, internalDevice);
+		for (uint8_t internalDevice{0}; internalDevice < internalDeviceCount; ++internalDevice)
+			listDevice(device, {flashBus_t::internal, internalDevice});
 		console.info("External devices:"sv);
 		for (uint8_t externalDevice{0}; externalDevice < externalDeviceCount; ++externalDevice)
-			listDevice(device, flashBus_t::external, externalDevice);
+			listDevice(device, {flashBus_t::external, externalDevice});
 	}
 	catch (const requests::usbError_t &error)
 	{
@@ -109,7 +131,7 @@ int32_t eraseDevice(const usbDevice_t &rawDevice, const argsTree_t *const eraseA
 		!device.claimInterface(0))
 		return 1;
 
-	if (!targetDevice(device, flashBus_t::internal, chip ? chip->chipNumber() : 0U))
+	if (!targetDevice(device, flashBus_t::internal, chip ? chip->number() : 0U))
 	{
 		if (!device.releaseInterface(0))
 			return 2;
@@ -158,7 +180,9 @@ int32_t readDevice(const usbDevice_t &rawDevice, const argsTree_t *const readArg
 {
 	const auto *const chip{dynamic_cast<flashprog::args::argChip_t *>(readArgs->find(argType_t::chip))};
 	const auto *const file{dynamic_cast<flashprog::args::argFile_t *>(readArgs->find(argType_t::file))};
-	const auto chipNumber{static_cast<uint8_t>(chip ? chip->chipNumber() : 0U)};
+
+	if (!chip)
+		throw std::logic_error{"Chip specification for read is null"};
 
 	const auto device{rawDevice.open()};
 	if (!device.valid() ||
@@ -174,22 +198,8 @@ int32_t readDevice(const usbDevice_t &rawDevice, const argsTree_t *const readArg
 		return 1;
 	}
 
-	responses::listDevice_t chipInfo{};
-	try
-	{
-		requests::listDevice_t request{chipNumber, deviceType_t::internal};
-		if (!request.read(device, 0, chipInfo))
-			throw responses::usbError_t{};
-	}
-	catch (const responses::usbError_t &error)
-	{
-		console.error("Error getting target device information: "sv, error.what());
-		if (!device.releaseInterface(0))
-			return 2;
-		return 1;
-	}
-
-	if (!targetDevice(device, deviceType_t::internal, chipNumber))
+	const auto chipInfo{readChipInfo(device, *chip)};
+	if (!targetDevice(device, chip->bus(), chip->number()))
 	{
 		if (!device.releaseInterface(0))
 			return 2;
@@ -325,7 +335,7 @@ int32_t writeDevice(const usbDevice_t &rawDevice, const argsTree_t *const writeA
 {
 	const auto *const chip{dynamic_cast<flashprog::args::argChip_t *>(writeArgs->find(argType_t::chip))};
 	const auto *const file{dynamic_cast<flashprog::args::argFile_t *>(writeArgs->find(argType_t::file))};
-	const auto chipNumber{static_cast<uint8_t>(chip ? chip->chipNumber() : 0U)};
+	const auto chipNumber{static_cast<uint8_t>(chip ? chip->number() : 0U)};
 
 	const auto device{rawDevice.open()};
 	if (!device.valid() ||
