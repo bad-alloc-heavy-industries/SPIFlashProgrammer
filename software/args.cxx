@@ -69,7 +69,7 @@ template<typename node_t> auto parsePerFlashCommand(tokenizer_t &lexer)
 	auto flashChip{substrate::make_unique<argChip_t>(token.value())};
 	if (!flashChip->valid())
 	{
-		console.error("Chip number for operation must be given as a positive integer between 0 and 65535"sv);
+		console.error("Chip number for operation must be given as a positive integer between 0 and 255"sv);
 		throw std::exception{};
 	}
 	lexer.next();
