@@ -34,21 +34,34 @@ namespace flash
 		})
 	};
 
+	constexpr static auto gigaDeviceChips
+	{
+		substrate::make_array<flashChip_t>
+		({
+			{0x40, 0x13, 0x13, 0x20, 4_KiB, 256}
+		})
+	};
+
 	constexpr static auto winbondChips
 	{
 		substrate::make_array<flashChip_t>
 		({
+			{0x40, 0x14, 0x14, 0x20, 4_KiB, 256},
 			{0xAA, 0x21, 0x1B, 0xD8, 128_KiB, 2_KiB},
 			{0x70, 0x18, 0x18, 0x20, 4_KiB, 256}
 		})
 	};
 
-	constexpr static std::array<flashManufacturer_t, 3> manufacturers
-	{{
-		{0x1F, adestoChips.data(), adestoChips.size()},
-		{0x20, numonyxChips.data(), numonyxChips.size()},
-		{0xEF, winbondChips.data(), winbondChips.size()},
-	}};
+	constexpr static auto manufacturers
+	{
+		substrate::make_array<flashManufacturer_t>
+		({
+			{0x1F, adestoChips.data(), adestoChips.size()},
+			{0x20, numonyxChips.data(), numonyxChips.size()},
+			{0xC8, gigaDeviceChips.data(), gigaDeviceChips.size()},
+			{0xEF, winbondChips.data(), winbondChips.size()},
+		})
+	};
 
 	flashChip_t findChip(const flashID_t chipID) noexcept
 	{
