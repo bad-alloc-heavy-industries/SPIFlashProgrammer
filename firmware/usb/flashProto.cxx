@@ -26,6 +26,8 @@ namespace usb::flashProto
 	static std::array<uint8_t, epBufferSize> response{};
 	static std::array<uint8_t, 4096> flashBuffer{};
 	static spiChip_t targetDevice{spiChip_t::none};
+	static flashID_t targetID{};
+	static flashChip_t targetParams{};
 
 	static uint8_t readEndpoint{};
 	static page_t readPage{};
@@ -128,16 +130,25 @@ namespace usb::flashProto
 				targetDevice = spiChip_t::local2;
 			else
 				return false;
+			targetID = spi::localChip[deviceNumber];
 		}
 		else if (deviceType == flashBus_t::external)
 		{
 			if (deviceNumber == 0)
+			{
 				targetDevice = spiChip_t::target;
+				targetID = identDevice(spiChip_t::target);
+			}
 			else
 				return false;
 		}
 		else
+		{
 			targetDevice = spiChip_t::none;
+			targetID = {};
+		}
+		if (deviceType != flashBus_t::unknown)
+			targetParams = flash::findChip(targetID);
 		return true;
 	}
 
@@ -296,7 +307,7 @@ namespace usb::flashProto
 		// Decrease the number of bytes left to write by the amount written
 		writeCount -= end - begin;
 		// If we finished writing a page or we finished recieving data
-		if (!(end & 0xFFU) || !writeCount)
+		if (!(end & (targetParams.flashPageSize - 1)) || !writeCount)
 		{
 			spiSelect(spiChip_t::none);
 			while (isBusy())
@@ -374,7 +385,7 @@ namespace usb::flashProto
 			spiSelect(spiChip_t::none);
 
 			spiSelect(targetDevice);
-			spiWrite(*device, spiOpcodes::blockErase);
+			spiWrite(*device, targetParams.eraseInstruction);
 			// Translate the page number into a byte address
 			spiWrite(*device, uint8_t(page >> 8U));
 			spiWrite(*device, uint8_t(page));
