@@ -12,7 +12,6 @@
 #include "usbProtocol.hxx"
 #include "flashProto.hxx"
 #include "spi.hxx"
-#include "timer.hxx"
 
 using namespace substrate;
 using namespace usb::constants;
@@ -102,23 +101,7 @@ namespace usb::flashProto
 		{
 			if (deviceNumber == 0)
 			{
-				const auto chipID
-				{
-					[]()
-					{
-						auto id{identDevice(spiChip_t::target)};
-						if (id.manufacturer == 0xFFU && id.type == 0xFFU)
-						{
-							spiSelect(spiChip_t::target);
-							spiWrite(spiOpcodes::releasePowerDown);
-							spiSelect(spiChip_t::none);
-							waitFor(20); // 20us
-							return identDevice(spiChip_t::target);
-						}
-						else
-							return id;
-					}()
-				};
+				const auto chipID{identDevice(spiChip_t::target)};
 				const auto chip{flash::findChip(chipID)};
 				device.manufacturer = chipID.manufacturer;
 				device.deviceType = chip.type;

@@ -14,8 +14,8 @@ void run() noexcept
 {
 	ledInit();
 	oscInit();
-	spiInit();
 	timerInit();
+	spiInit();
 	usb::core::init();
 	usb::flashProto::registerHandlers(1, 1, 0, 1);
 	usb::dfu::registerHandlers({}, 1, 1);

@@ -3,6 +3,7 @@
 #include <tm4c123gh6pm/constants.hxx>
 #include "spi.hxx"
 #include "led.hxx"
+#include "timer.hxx"
 
 /*!
  * Onboard SPI bus pinout:
@@ -203,10 +204,8 @@ void spiWrite(const uint8_t value) noexcept
 		spiWrite(*device, value);
 }
 
-flashID_t identDevice(const spiChip_t chip) noexcept
+flashID_t readID(const spiChip_t chip) noexcept
 {
-	if (chip == spiChip_t::target)
-		gpioA.dataBits[0x80U] = 0x80U;
 	spiSelect(chip);
 	auto &device{*spiDevice()};
 	spiWrite(device, spiOpcodes::jedecID);
@@ -226,9 +225,25 @@ flashID_t identDevice(const spiChip_t chip) noexcept
 	const auto type{spiRead(device)};
 	const auto capacity{spiRead(device)};
 	spiSelect(spiChip_t::none);
+	return {mfr, type, capacity};
+}
+
+flashID_t identDevice(const spiChip_t chip) noexcept
+{
+	if (chip == spiChip_t::target)
+		gpioA.dataBits[0x80U] = 0x80U;
+	auto chipID{readID(chip)};
+	if (chipID.manufacturer == 0xFFU && chipID.type == 0xFFU)
+	{
+		spiSelect(spiChip_t::target);
+		spiWrite(spiOpcodes::releasePowerDown);
+		spiSelect(spiChip_t::none);
+		waitFor(20); // 20us
+		chipID = readID(chip);
+	}
 	if (chip == spiChip_t::target)
 		gpioA.dataBits[0x80U] = 0x00U;
-	return {mfr, type, capacity};
+	return chipID;
 }
 
 bool checkDeviceID(const uint8_t index) noexcept
