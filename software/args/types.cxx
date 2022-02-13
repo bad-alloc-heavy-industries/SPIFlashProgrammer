@@ -32,12 +32,12 @@ namespace flashprog::args
 	}
 
 	argChip_t::argChip_t(const std::string_view device) :
-		argNode_t{argType_t::chip}, chipNumber_{invalidChip}
+		argNode_t{argType_t::chip}, number_{invalidChip}
 	{
 		const auto colon{device.find(':')};
 		if (colon == std::string_view::npos)
 		{
-			toInt_t<uint16_t> number{device.data(), device.size()};
+			toInt_t<uint8_t> number{device.data(), device.size()};
 			if (number.isDec())
 				console.error("Expected a bus specification prior to chip number"sv);
 			else
@@ -57,8 +57,8 @@ namespace flashprog::args
 			throw std::exception{};
 		}
 
-		toInt_t<uint16_t> chipNumber{chip.data(), chip.size()};
+		toInt_t<uint8_t> chipNumber{chip.data(), chip.size()};
 		if (chipNumber.isDec())
-			chipNumber_ = chipNumber.fromDec();
+			number_ = chipNumber.fromDec();
 	}
 } // namespace flashprog::args

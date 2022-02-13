@@ -7,6 +7,7 @@
 #include <string_view>
 #include <limits>
 #include "utils/span.hxx"
+#include "usbProtocol.hxx"
 
 using namespace std::literals::string_view_literals;
 
@@ -36,12 +37,7 @@ namespace flashprog::args
 		many
 	};
 
-	enum class flashBus_t
-	{
-		internal,
-		external,
-		unknown
-	};
+	using flashProto::flashBus_t;
 
 	struct argNode_t
 	{
@@ -174,14 +170,17 @@ namespace flashprog::args
 	{
 	private:
 		flashBus_t bus_{flashBus_t::unknown};
-		uint32_t chipNumber_{};
+		uint32_t number_{};
 
 	public:
 		argChip_t(std::string_view chip);
+		argChip_t(const flashBus_t bus, const uint32_t number) noexcept :
+			argNode_t{argType_t::chip}, bus_{bus}, number_{number} { }
 		[[nodiscard]] auto busValid() const noexcept { return bus_ != flashBus_t::unknown; }
-		[[nodiscard]] auto chipValid() const noexcept { return chipNumber_ != invalidChip; }
+		[[nodiscard]] auto chipValid() const noexcept { return number_ != invalidChip; }
 		[[nodiscard]] auto valid() const noexcept { return busValid() && chipValid(); }
-		[[nodiscard]] auto chipNumber() const noexcept { return chipNumber_; }
+		[[nodiscard]] auto bus() const noexcept { return bus_; }
+		[[nodiscard]] auto number() const noexcept { return static_cast<uint8_t>(number_); }
 
 		constexpr static auto invalidChip = std::numeric_limits<uint32_t>::max();
 	};
@@ -210,10 +209,11 @@ namespace flashprog::args
 	struct option_t final
 	{
 	private:
-		std::string_view option_;
+		std::string_view option_{};
 		argType_t type_;
 
 	public:
+		option_t() noexcept = delete;
 		constexpr option_t(const std::string_view option, const argType_t type) noexcept :
 			option_{option}, type_{type} { }
 
