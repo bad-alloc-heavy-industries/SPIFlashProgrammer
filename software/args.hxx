@@ -36,6 +36,13 @@ namespace flashprog::args
 		many
 	};
 
+	enum class flashBus_t
+	{
+		internal,
+		external,
+		unknown
+	};
+
 	struct argNode_t
 	{
 	private:
@@ -54,13 +61,13 @@ namespace flashprog::args
 	struct argsTree_t : argNode_t
 	{
 	private:
-		std::vector<std::unique_ptr<argNode_t>> children_;
+		std::vector<std::unique_ptr<argNode_t>> children_{};
 
 	protected:
-		argsTree_t(argType_t type) noexcept : argNode_t{type}, children_{} { }
+		argsTree_t(argType_t type) noexcept : argNode_t{type} { }
 
 	public:
-		argsTree_t() noexcept : argNode_t{argType_t::tree}, children_{} { }
+		argsTree_t() noexcept : argNode_t{argType_t::tree} { }
 		[[nodiscard]] argNode_t *find(argType_t type) const noexcept;
 		[[nodiscard]] bool add(std::unique_ptr<argNode_t> &&node) noexcept;
 
@@ -108,6 +115,7 @@ namespace flashprog::args
 		argUnrecognised_t() = delete;
 		constexpr argUnrecognised_t(const std::string_view argument) noexcept :
 			argNode_t{argType_t::unrecognised}, argument_{argument}, parameter_{} { }
+		// NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
 		constexpr argUnrecognised_t(const std::string_view argument, const std::string_view parameter) noexcept :
 			argNode_t{argType_t::unrecognised}, argument_{argument}, parameter_{parameter} { }
 		[[nodiscard]] constexpr auto argument() const noexcept { return argument_; }
@@ -165,11 +173,14 @@ namespace flashprog::args
 	struct argChip_t final : argNode_t
 	{
 	private:
+		flashBus_t bus_{flashBus_t::unknown};
 		uint32_t chipNumber_{};
 
 	public:
-		argChip_t(std::string_view chip) noexcept;
-		[[nodiscard]] auto valid() const noexcept { return chipNumber_ != invalidChip; }
+		argChip_t(std::string_view chip);
+		[[nodiscard]] auto busValid() const noexcept { return bus_ != flashBus_t::unknown; }
+		[[nodiscard]] auto chipValid() const noexcept { return chipNumber_ != invalidChip; }
+		[[nodiscard]] auto valid() const noexcept { return busValid() && chipValid(); }
 		[[nodiscard]] auto chipNumber() const noexcept { return chipNumber_; }
 
 		constexpr static auto invalidChip = std::numeric_limits<uint32_t>::max();

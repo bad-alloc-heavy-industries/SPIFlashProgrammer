@@ -48,8 +48,22 @@ template<typename node_t> auto parsePerFlashCommand(tokenizer_t &lexer)
 	auto node{parsePerDeviceCommand<node_t>(lexer)};
 	const auto &token{lexer.token()};
 	if (token.type() == tokenType_t::unknown)
+	// NOLINTNEXTLINE(bugprone-branch-clone) - clang-tidy thinks this is cloned..??
 	{
-		console.error(node_t::name(), " command was given but no SPI Flash chip number was specified"sv);
+		console.error(node_t::name(), " command was given but found no SPI Flash chip specification"sv);
+		console.info("Expected `--chip {int|ext}:N` after "sv, node_t::name(), " command"sv);
+		throw std::exception{};
+	}
+	else if (token.value() != "--chip"sv)
+	{
+		console.error("Expected a SPI Flash chip specification, found "sv, token.value());
+		throw std::exception{};
+	}
+	lexer.next();
+	lexer.next();
+	if (token.type() == tokenType_t::unknown)
+	{
+		console.error("Expected {int|ext}:N following `--chip`");
 		throw std::exception{};
 	}
 	auto flashChip{substrate::make_unique<argChip_t>(token.value())};
