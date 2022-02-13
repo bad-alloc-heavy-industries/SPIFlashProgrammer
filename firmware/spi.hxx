@@ -34,14 +34,15 @@ namespace spi
 
 namespace spiOpcodes
 {
-	constexpr static const uint8_t jedecID{0x9FU};
-	constexpr static const uint8_t chipErase{0xC7U};
-	constexpr static const uint8_t blockErase{0xD8U};
-	constexpr static const uint8_t pageRead{0x03U};
-	constexpr static const uint8_t pageWrite{0x02U};
-	constexpr static const uint8_t statusRead{0x05U};
-	constexpr static const uint8_t writeEnable{0x06U};
-	constexpr static const uint8_t writeDisable{0x04U};
+	constexpr static uint8_t jedecID{0x9FU};
+	constexpr static uint8_t chipErase{0xC7U};
+	constexpr static uint8_t blockErase{0xD8U};
+	constexpr static uint8_t pageRead{0x03U};
+	constexpr static uint8_t pageWrite{0x02U};
+	constexpr static uint8_t statusRead{0x05U};
+	constexpr static uint8_t writeEnable{0x06U};
+	constexpr static uint8_t writeDisable{0x04U};
+	constexpr static uint8_t releasePowerDown{0xABU};
 } // namespace spiOpcodes
 
 #endif /*SPI___HXX*/
