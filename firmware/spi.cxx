@@ -210,9 +210,19 @@ flashID_t identDevice(const spiChip_t chip) noexcept
 	spiSelect(chip);
 	auto &device{*spiDevice()};
 	spiWrite(device, spiOpcodes::jedecID);
-	if (chip == spiChip_t::target)
-		[[maybe_unused]] volatile auto _ = spiRead(device);
-	const auto mfr{spiRead(device)};
+	const auto mfr
+	{
+		[&]()
+		{
+			if (chip == spiChip_t::target)
+			{
+				volatile auto value = spiRead(device);
+				if (value != 255U)
+					return value;
+			}
+			return spiRead(device);
+		}()
+	};
 	const auto type{spiRead(device)};
 	const auto capacity{spiRead(device)};
 	spiSelect(spiChip_t::none);
