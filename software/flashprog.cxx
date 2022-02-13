@@ -180,7 +180,6 @@ int32_t readDevice(const usbDevice_t &rawDevice, const argsTree_t *const readArg
 {
 	const auto *const chip{dynamic_cast<flashprog::args::argChip_t *>(readArgs->find(argType_t::chip))};
 	const auto *const file{dynamic_cast<flashprog::args::argFile_t *>(readArgs->find(argType_t::file))};
-
 	if (!chip)
 		throw std::logic_error{"Chip specification for read is null"};
 
@@ -335,7 +334,8 @@ int32_t writeDevice(const usbDevice_t &rawDevice, const argsTree_t *const writeA
 {
 	const auto *const chip{dynamic_cast<flashprog::args::argChip_t *>(writeArgs->find(argType_t::chip))};
 	const auto *const file{dynamic_cast<flashprog::args::argFile_t *>(writeArgs->find(argType_t::file))};
-	const auto chipNumber{static_cast<uint8_t>(chip ? chip->number() : 0U)};
+	if (!chip)
+		throw std::logic_error{"Chip specification for write is null"};
 
 	const auto device{rawDevice.open()};
 	if (!device.valid() ||
@@ -351,21 +351,7 @@ int32_t writeDevice(const usbDevice_t &rawDevice, const argsTree_t *const writeA
 		return 1;
 	}
 
-	responses::listDevice_t chipInfo{};
-	try
-	{
-		requests::listDevice_t request{chipNumber, flashBus_t::internal};
-		if (!request.read(device, 0, chipInfo))
-			throw responses::usbError_t{};
-	}
-	catch (const responses::usbError_t &error)
-	{
-		console.error("Error getting target device information: "sv, error.what());
-		if (!device.releaseInterface(0))
-			return 2;
-		return 1;
-	}
-
+	const auto chipInfo{readChipInfo(device, *chip)};
 	const auto fileLength{fd.length()};
 	if (fileLength < 0 || fileLength > chipInfo.deviceSize)
 	{
@@ -375,7 +361,7 @@ int32_t writeDevice(const usbDevice_t &rawDevice, const argsTree_t *const writeA
 		return 1;
 	}
 
-	if (!targetDevice(device, flashBus_t::internal, chipNumber))
+	if (!targetDevice(device, chip->bus(), chip->number()))
 	{
 		if (!device.releaseInterface(0))
 			return 2;
