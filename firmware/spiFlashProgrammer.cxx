@@ -3,6 +3,7 @@
 #include "osc.hxx"
 #include "led.hxx"
 #include "spi.hxx"
+#include "timer.hxx"
 #include <usb/core.hxx>
 #include <usb/drivers/dfu.hxx>
 #include "usb/flashProto.hxx"
@@ -14,6 +15,7 @@ void run() noexcept
 	ledInit();
 	oscInit();
 	spiInit();
+	timerInit();
 	usb::core::init();
 	usb::flashProto::registerHandlers(1, 1, 0, 1);
 	usb::dfu::registerHandlers({}, 1, 1);
