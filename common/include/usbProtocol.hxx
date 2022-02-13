@@ -29,11 +29,11 @@ namespace flashProto
 		abort
 	};
 
-	enum class deviceType_t : uint8_t
+	enum class flashBus_t : uint8_t
 	{
 		internal,
 		external,
-		none
+		unknown
 	};
 
 	enum class eraseOperation_t : uint8_t
@@ -218,10 +218,10 @@ namespace flashProto
 		{
 		public:
 			uint8_t deviceNumber{0};
-			deviceType_t deviceType{deviceType_t::none};
+			flashBus_t deviceType{flashBus_t::unknown};
 
 			constexpr listDevice_t() noexcept = default;
-			constexpr listDevice_t(const uint8_t number, const deviceType_t type) noexcept :
+			constexpr listDevice_t(const uint8_t number, const flashBus_t type) noexcept :
 				deviceNumber{number}, deviceType{type} { }
 
 #ifndef __arm__
@@ -242,10 +242,10 @@ namespace flashProto
 		struct targetDevice_t final
 		{
 			uint8_t deviceNumber{0};
-			deviceType_t deviceType{deviceType_t::none};
+			flashBus_t deviceType{flashBus_t::unknown};
 
 			constexpr targetDevice_t() noexcept = default;
-			constexpr targetDevice_t(const uint8_t number, const deviceType_t type) noexcept :
+			constexpr targetDevice_t(const uint8_t number, const flashBus_t type) noexcept :
 				deviceNumber{number}, deviceType{type} { }
 
 #ifndef __arm__

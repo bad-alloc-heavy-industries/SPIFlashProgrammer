@@ -53,7 +53,7 @@ auto requestCount(const usbDeviceHandle_t &device)
 	return std::make_tuple(deviceCount.internalCount, deviceCount.externalCount);
 }
 
-bool listDevice(const usbDeviceHandle_t &device, const deviceType_t deviceType, const uint8_t deviceNumber) noexcept
+bool listDevice(const usbDeviceHandle_t &device, const flashBus_t deviceType, const uint8_t deviceNumber) noexcept
 {
 	responses::listDevice_t listing{};
 	if (!requests::listDevice_t{deviceNumber, deviceType}.read(device, 0, listing))
@@ -80,10 +80,10 @@ int32_t listDevices(const usbDevice_t &rawDevice)
 			externalDeviceCount, " external Flash chips"sv);
 		console.info("Internal devices:"sv);
 		for (uint8_t interalDevice{0}; interalDevice < internalDeviceCount; ++interalDevice)
-			listDevice(device, deviceType_t::internal, interalDevice);
+			listDevice(device, flashBus_t::internal, internalDevice);
 		console.info("External devices:"sv);
 		for (uint8_t externalDevice{0}; externalDevice < externalDeviceCount; ++externalDevice)
-			listDevice(device, deviceType_t::external, externalDevice);
+			listDevice(device, flashBus_t::external, externalDevice);
 	}
 	catch (const requests::usbError_t &error)
 	{
@@ -97,7 +97,7 @@ int32_t listDevices(const usbDevice_t &rawDevice)
 	return 0;
 }
 
-bool targetDevice(const usbDeviceHandle_t &device, const deviceType_t deviceType, const uint8_t deviceNumber) noexcept
+bool targetDevice(const usbDeviceHandle_t &device, const flashBus_t deviceType, const uint8_t deviceNumber) noexcept
 	{ return requests::targetDevice_t{deviceNumber, deviceType}.write(device, 0); }
 
 int32_t eraseDevice(const usbDevice_t &rawDevice, const argsTree_t *const eraseArgs)
@@ -109,7 +109,7 @@ int32_t eraseDevice(const usbDevice_t &rawDevice, const argsTree_t *const eraseA
 		!device.claimInterface(0))
 		return 1;
 
-	if (!targetDevice(device, deviceType_t::internal, chip ? chip->chipNumber() : 0U))
+	if (!targetDevice(device, flashBus_t::internal, chip ? chip->chipNumber() : 0U))
 	{
 		if (!device.releaseInterface(0))
 			return 2;
@@ -344,7 +344,7 @@ int32_t writeDevice(const usbDevice_t &rawDevice, const argsTree_t *const writeA
 	responses::listDevice_t chipInfo{};
 	try
 	{
-		requests::listDevice_t request{chipNumber, deviceType_t::internal};
+		requests::listDevice_t request{chipNumber, flashBus_t::internal};
 		if (!request.read(device, 0, chipInfo))
 			throw responses::usbError_t{};
 	}
@@ -365,7 +365,7 @@ int32_t writeDevice(const usbDevice_t &rawDevice, const argsTree_t *const writeA
 		return 1;
 	}
 
-	if (!targetDevice(device, deviceType_t::internal, chipNumber))
+	if (!targetDevice(device, flashBus_t::internal, chipNumber))
 	{
 		if (!device.releaseInterface(0))
 			return 2;

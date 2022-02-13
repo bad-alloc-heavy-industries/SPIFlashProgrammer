@@ -80,13 +80,13 @@ namespace usb::flashProto
 
 	static uint16_t fetchDeviceListing(const setupPacket::address_t address)
 	{
-		if (address.addrH >= static_cast<uint8_t>(deviceType_t::none))
+		if (address.addrH >= static_cast<uint8_t>(flashBus_t::unknown))
 			return 0;
-		const auto deviceType{static_cast<deviceType_t>(address.addrH)};
+		const auto deviceType{static_cast<flashBus_t>(address.addrH)};
 		const auto deviceNumber{address.addrL};
 		responses::listDevice_t device{};
 
-		if (deviceType == deviceType_t::internal)
+		if (deviceType == flashBus_t::internal)
 		{
 			if (deviceNumber <= spi::internalChips)
 			{
@@ -132,12 +132,12 @@ namespace usb::flashProto
 
 	static bool handleTargetDevice(const setupPacket::address_t address) noexcept
 	{
-		if (address.addrH > static_cast<uint8_t>(deviceType_t::none))
+		if (address.addrH >= static_cast<uint8_t>(flashBus_t::unknown))
 			return false;
-		const auto deviceType{static_cast<deviceType_t>(address.addrH)};
+		const auto deviceType{static_cast<flashBus_t>(address.addrH)};
 		const auto deviceNumber{address.addrL};
 
-		if (deviceType == deviceType_t::internal)
+		if (deviceType == flashBus_t::internal)
 		{
 			if (deviceNumber == 0)
 				targetDevice = spiChip_t::local1;
@@ -146,7 +146,7 @@ namespace usb::flashProto
 			else
 				return false;
 		}
-		else if (deviceType == deviceType_t::external)
+		else if (deviceType == flashBus_t::external)
 		{
 			if (deviceNumber == 0)
 				targetDevice = spiChip_t::target;
