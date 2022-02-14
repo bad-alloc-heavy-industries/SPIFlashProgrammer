@@ -24,7 +24,8 @@ extern uint8_t spiRead(tivaC::ssi_t &device) noexcept;
 extern void spiWrite(tivaC::ssi_t &device, uint8_t value) noexcept;
 extern uint8_t spiRead() noexcept;
 extern void spiWrite(uint8_t value) noexcept;
-extern flashID_t identDevice(spiChip_t chip) noexcept;
+extern flashID_t identDevice(spiChip_t chip, bool releaseReset = true) noexcept;
+extern void setDeviceReset(bool resetState) noexcept;
 
 namespace spi
 {

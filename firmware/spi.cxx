@@ -228,10 +228,13 @@ flashID_t readID(const spiChip_t chip) noexcept
 	return {mfr, type, capacity};
 }
 
-flashID_t identDevice(const spiChip_t chip) noexcept
+void setDeviceReset(const bool resetState) noexcept
+	{ gpioA.dataBits[0x80U] = resetState ? 0x80U : 0x00U; }
+
+flashID_t identDevice(const spiChip_t chip, const bool releaseReset) noexcept
 {
 	if (chip == spiChip_t::target)
-		gpioA.dataBits[0x80U] = 0x80U;
+		setDeviceReset(true);
 	auto chipID{readID(chip)};
 	if (chipID.manufacturer == 0xFFU && chipID.type == 0xFFU)
 	{
@@ -241,8 +244,8 @@ flashID_t identDevice(const spiChip_t chip) noexcept
 		waitFor(20); // 20us
 		chipID = readID(chip);
 	}
-	if (chip == spiChip_t::target)
-		gpioA.dataBits[0x80U] = 0x00U;
+	if (chip == spiChip_t::target && releaseReset)
+		setDeviceReset(false);
 	return chipID;
 }
 

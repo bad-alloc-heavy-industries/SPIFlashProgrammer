@@ -137,13 +137,15 @@ namespace usb::flashProto
 			if (deviceNumber == 0)
 			{
 				targetDevice = spiChip_t::target;
-				targetID = identDevice(spiChip_t::target);
+				targetID = identDevice(spiChip_t::target, false);
 			}
 			else
 				return false;
 		}
 		else
 		{
+			if (targetDevice == spiChip_t::target)
+				setDeviceReset(false);
 			targetDevice = spiChip_t::none;
 			targetID = {};
 		}
