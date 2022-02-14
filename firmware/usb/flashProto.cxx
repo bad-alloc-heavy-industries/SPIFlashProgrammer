@@ -376,7 +376,7 @@ namespace usb::flashProto
 		{
 			auto *device{spiDevice(targetDevice)};
 			status.erasePage = eraseConfig.beginPage;
-			if (eraseConfig.beginPage == eraseConfig.endPage || !device)
+			if (eraseConfig.beginPage >= eraseConfig.endPage || !device)
 			{
 				eraseActive = false;
 				return;
