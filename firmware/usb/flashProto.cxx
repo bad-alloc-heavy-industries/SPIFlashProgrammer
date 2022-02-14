@@ -279,6 +279,8 @@ namespace usb::flashProto
 	static void writeAddress()
 	{
 		auto &device{*spiDevice(targetDevice)};
+		const uint32_t writeAddress{writePage * targetParams.flashPageSize};
+		++writePage;
 		// Enable writes to the device (must be done for every page, so..)
 		spiSelect(targetDevice);
 		spiWrite(device, spiOpcodes::writeEnable);
@@ -287,11 +289,9 @@ namespace usb::flashProto
 		spiSelect(targetDevice);
 		spiWrite(device, spiOpcodes::pageWrite);
 		// Translate the page number into a byte address
-		spiWrite(device, uint8_t(writePage >> 8U));
-		spiWrite(device, uint8_t(writePage));
-		spiWrite(device, 0);
-
-		++writePage;
+		spiWrite(device, uint8_t(writeAddress >> 16U));
+		spiWrite(device, uint8_t(writeAddress >> 8U));
+		spiWrite(device, uint8_t(writeAddress));
 	}
 
 	static void performWrite(const uint8_t endpoint)
