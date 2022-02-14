@@ -184,6 +184,7 @@ namespace usb::flashProto
 				eraseConfig.endPage = eraseConfig.beginPage + 1;
 				[[fallthrough]];
 			case eraseOperation_t::pageRange:
+				status.erasePage = eraseConfig.beginPage;
 				eraseActive = true;
 				break;
 			default:
