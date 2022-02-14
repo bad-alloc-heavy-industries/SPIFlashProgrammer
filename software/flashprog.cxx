@@ -125,13 +125,15 @@ bool targetDevice(const usbDeviceHandle_t &device, const flashBus_t deviceType, 
 int32_t eraseDevice(const usbDevice_t &rawDevice, const argsTree_t *const eraseArgs)
 {
 	const auto *const chip{dynamic_cast<flashprog::args::argChip_t *>(eraseArgs->find(argType_t::chip))};
+	if (!chip)
+		throw std::logic_error{"Chip specification for erase is null"};
 
 	const auto device{rawDevice.open()};
 	if (!device.valid() ||
 		!device.claimInterface(0))
 		return 1;
 
-	if (!targetDevice(device, flashBus_t::internal, chip ? chip->number() : 0U))
+	if (!targetDevice(device, chip->bus(), chip->number()))
 	{
 		if (!device.releaseInterface(0))
 			return 2;
@@ -168,6 +170,14 @@ int32_t eraseDevice(const usbDevice_t &rawDevice, const argsTree_t *const eraseA
 	console.info("Complete"sv);
 	const auto elapsedSeconds{std::chrono::duration_cast<std::chrono::seconds>(endTime - startTime)};
 	console.info("Total time elapsed: "sv, substrate::asTime_t{uint64_t(elapsedSeconds.count())});
+
+	// This deselects the device
+	if (!targetDevice(device, flashBus_t::unknown, 0))
+	{
+		if (!device.releaseInterface(0))
+			return 2;
+		return 1;
+	}
 
 	if (!device.releaseInterface(0))
 		return 1;
@@ -279,6 +289,14 @@ int32_t readDevice(const usbDevice_t &rawDevice, const argsTree_t *const readArg
 	console.info("Complete"sv);
 	const auto elapsedSeconds{std::chrono::duration_cast<std::chrono::seconds>(endTime - startTime)};
 	console.info("Total time elapsed: "sv, substrate::asTime_t{uint64_t(elapsedSeconds.count())});
+
+	// This deselects the device
+	if (!targetDevice(device, flashBus_t::unknown, 0))
+	{
+		if (!device.releaseInterface(0))
+			return 2;
+		return 1;
+	}
 
 	if (!device.releaseInterface(0))
 		return 1;
@@ -482,6 +500,14 @@ int32_t writeDevice(const usbDevice_t &rawDevice, const argsTree_t *const writeA
 	console.info("Complete"sv);
 	const auto elapsedSeconds{std::chrono::duration_cast<std::chrono::seconds>(endTime - startTime)};
 	console.info("Total time elapsed: "sv, substrate::asTime_t{uint64_t(elapsedSeconds.count())});
+
+	// This deselects the device
+	if (!targetDevice(device, flashBus_t::unknown, 0))
+	{
+		if (!device.releaseInterface(0))
+			return 2;
+		return 1;
+	}
 
 	if (!device.releaseInterface(0))
 		return 1;
