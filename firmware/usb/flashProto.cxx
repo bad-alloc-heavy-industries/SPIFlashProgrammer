@@ -117,7 +117,7 @@ namespace usb::flashProto
 
 	static bool handleTargetDevice(const setupPacket::address_t address) noexcept
 	{
-		if (address.addrH >= static_cast<uint8_t>(flashBus_t::unknown))
+		if (address.addrH > static_cast<uint8_t>(flashBus_t::unknown))
 			return false;
 		const auto deviceType{static_cast<flashBus_t>(address.addrH)};
 		const auto deviceNumber{address.addrL};
