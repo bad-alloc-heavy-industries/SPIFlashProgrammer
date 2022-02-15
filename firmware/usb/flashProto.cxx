@@ -12,6 +12,7 @@
 #include "usbProtocol.hxx"
 #include "flashProto.hxx"
 #include "spi.hxx"
+#include "timer.hxx"
 
 using namespace substrate;
 using namespace usb::constants;
@@ -418,6 +419,16 @@ namespace usb::flashProto
 		return true;
 	}
 
+	static void handleResetTarget()
+	{
+		if (!isDeviceReset())
+		{
+			setDeviceReset(true);
+			waitFor(20); // 20us
+		}
+		setDeviceReset(false);
+	}
+
 	static void tick() noexcept
 	{
 		if (eraseActive && !isBusy())
@@ -508,6 +519,11 @@ namespace usb::flashProto
 				if (eraseOperation != eraseOperation_t::idle)
 					checkEraseStatus();
 				return {response_t::data, &status, sizeof(status)};
+			case messages_t::resetTarget:
+				if (packet.requestType.dir() != endpointDir_t::controllerOut)
+					return {response_t::stall, nullptr, 0};
+				handleResetTarget();
+				return {response_t::zeroLength, nullptr, 0};
 		}
 
 		return {response_t::stall, nullptr, 0};

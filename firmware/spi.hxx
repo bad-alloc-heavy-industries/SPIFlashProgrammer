@@ -26,6 +26,7 @@ extern uint8_t spiRead() noexcept;
 extern void spiWrite(uint8_t value) noexcept;
 extern flashID_t identDevice(spiChip_t chip, bool releaseReset = true) noexcept;
 extern void setDeviceReset(bool resetState) noexcept;
+extern bool isDeviceReset() noexcept;
 
 namespace spi
 {

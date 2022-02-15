@@ -230,6 +230,7 @@ flashID_t readID(const spiChip_t chip) noexcept
 
 void setDeviceReset(const bool resetState) noexcept
 	{ gpioA.dataBits[0x80U] = resetState ? 0x80U : 0x00U; }
+bool isDeviceReset() noexcept { return gpioA.dataBits[0x80U]; }
 
 flashID_t identDevice(const spiChip_t chip, const bool releaseReset) noexcept
 {
