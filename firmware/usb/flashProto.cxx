@@ -240,12 +240,33 @@ namespace usb::flashProto
 	static void beginPageRead(const page_t page) noexcept
 	{
 		auto &device{*spiDevice(targetDevice)};
-		spiSelect(targetDevice);
-		spiWrite(device, spiOpcodes::pageRead);
-		// Translate the page number into a byte address
-		spiWrite(device, uint8_t(page >> 8U));
-		spiWrite(device, uint8_t(page));
-		spiWrite(device, 0);
+		// If the device is bigger than 2^24 bytes, it's addressed differently.
+		if (targetParams.actualCapacity >= 0x18U)
+		{
+			spiSelect(targetDevice);
+			spiWrite(device, spiOpcodes::pageAddressRead);
+			spiWrite(device, uint8_t(page >> 16U));
+			spiWrite(device, uint8_t(page >> 8U));
+			spiWrite(device, uint8_t(page));
+			spiSelect(spiChip_t::none);
+
+			spiSelect(targetDevice);
+			spiWrite(device, spiOpcodes::pageRead);
+			// Write a dummy "column address" (byte address within the page)
+			spiWrite(device, 0);
+			spiWrite(device, 0);
+			spiWrite(device, 0);
+		}
+		else
+		{
+			const uint32_t pageAddress{page * targetParams.flashPageSize};
+			spiSelect(targetDevice);
+			spiWrite(device, spiOpcodes::pageRead);
+			// Translate the page number into a byte address
+			spiWrite(device, uint8_t(pageAddress >> 16U));
+			spiWrite(device, uint8_t(pageAddress >> 8U));
+			spiWrite(device, uint8_t(pageAddress));
+		}
 	}
 
 	static void handleRead() noexcept
@@ -279,19 +300,44 @@ namespace usb::flashProto
 	static void writeAddress()
 	{
 		auto &device{*spiDevice(targetDevice)};
-		const uint32_t writeAddress{writePage * targetParams.flashPageSize};
-		++writePage;
 		// Enable writes to the device (must be done for every page, so..)
 		spiSelect(targetDevice);
 		spiWrite(device, spiOpcodes::writeEnable);
 		spiSelect(spiChip_t::none);
 
+		// If the device is bigger than 2^24 bytes, it's addressed differently.
+		if (targetParams.actualCapacity >= 0x18U)
+		{
+			spiSelect(targetDevice);
+			spiWrite(device, spiOpcodes::pageWrite);
+			// Write a dummy "column address" (byte address within the page)
+			spiWrite(device, 0);
+			spiWrite(device, 0);
+			spiWrite(device, 0);
+		}
+		else
+		{
+			const uint32_t writeAddress{writePage * targetParams.flashPageSize};
+			++writePage;
+			spiSelect(targetDevice);
+			spiWrite(device, spiOpcodes::pageWrite);
+			// Translate the page number into a byte address
+			spiWrite(device, uint8_t(writeAddress >> 16U));
+			spiWrite(device, uint8_t(writeAddress >> 8U));
+			spiWrite(device, uint8_t(writeAddress));
+		}
+	}
+
+	static void writePageAddress()
+	{
+		auto &device{*spiDevice(targetDevice)};
 		spiSelect(targetDevice);
-		spiWrite(device, spiOpcodes::pageWrite);
-		// Translate the page number into a byte address
-		spiWrite(device, uint8_t(writeAddress >> 16U));
-		spiWrite(device, uint8_t(writeAddress >> 8U));
-		spiWrite(device, uint8_t(writeAddress));
+		spiWrite(device, spiOpcodes::pageAddressWrite);
+		spiWrite(device, uint8_t(writePage >> 16U));
+		spiWrite(device, uint8_t(writePage >> 8U));
+		spiWrite(device, uint8_t(writePage));
+		spiSelect(spiChip_t::none);
+		++writePage;
 	}
 
 	static void performWrite(const uint8_t endpoint)
@@ -313,6 +359,8 @@ namespace usb::flashProto
 		if (!(end & (targetParams.flashPageSize - 1)) || !writeCount)
 		{
 			spiSelect(spiChip_t::none);
+			if (targetParams.actualCapacity >= 0x18U)
+				writePageAddress();
 			while (isBusy())
 				continue;
 			if (writeCount)
@@ -381,19 +429,28 @@ namespace usb::flashProto
 				eraseActive = false;
 				return;
 			}
-			const uint32_t eraseAddress{eraseConfig.beginPage * targetParams.erasePageSize};
-			++eraseConfig.beginPage;
 			spiSelect(targetDevice);
 			spiWrite(*device, spiOpcodes::writeEnable);
 			spiSelect(spiChip_t::none);
 
 			spiSelect(targetDevice);
 			spiWrite(*device, targetParams.eraseInstruction);
-			// Translate the page number into a byte address
-			spiWrite(*device, uint8_t(eraseAddress >> 16U));
-			spiWrite(*device, uint8_t(eraseAddress >> 8U));
-			spiWrite(*device, uint8_t(eraseAddress));
+			if (targetParams.actualCapacity >= 0x18U)
+			{
+				spiWrite(*device, uint8_t(eraseConfig.beginPage >> 16U));
+				spiWrite(*device, uint8_t(eraseConfig.beginPage >> 8U));
+				spiWrite(*device, uint8_t(eraseConfig.beginPage));
+			}
+			else
+			{
+				const uint32_t eraseAddress{eraseConfig.beginPage * targetParams.erasePageSize};
+				// Translate the page number into a byte address
+				spiWrite(*device, uint8_t(eraseAddress >> 16U));
+				spiWrite(*device, uint8_t(eraseAddress >> 8U));
+				spiWrite(*device, uint8_t(eraseAddress));
+			}
 			spiSelect(spiChip_t::none);
+			++eraseConfig.beginPage;
 		}
 	}
 
