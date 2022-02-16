@@ -139,6 +139,26 @@ namespace usb::flashProto
 			{
 				targetDevice = spiChip_t::target;
 				targetID = identDevice(spiChip_t::target, false);
+
+				// Exception for the dimbos at Winbond.. *grumbles*
+				if (targetID.manufacturer == 0xEFU && targetID.type == 0xAAU)
+				{
+					auto &device{*spiDevice(targetDevice)};
+
+					spiSelect(targetDevice);
+					spiWrite(device, spiOpcodes::statusRead);
+					spiWrite(device, 0xA0U);
+					const auto protReg{spiRead(device)};
+					spiSelect(spiChip_t::none);
+					if (protReg)
+					{
+						spiSelect(targetDevice);
+						spiWrite(device, spiOpcodes::statusWrite);
+						spiWrite(device, 0xA0U);
+						spiWrite(device, 0x00U);
+						spiSelect(spiChip_t::none);
+					}
+				}
 			}
 			else
 				return false;
@@ -146,7 +166,16 @@ namespace usb::flashProto
 		else
 		{
 			if (targetDevice == spiChip_t::target)
+			{
+				if (targetID.manufacturer == 0xEFU && targetID.type == 0xAAU)
+				{
+					auto &device{*spiDevice(targetDevice)};
+					spiSelect(targetDevice);
+					spiWrite(device, spiOpcodes::reset);
+					spiSelect(spiChip_t::none);
+				}
 				setDeviceReset(false);
+			}
 			targetDevice = spiChip_t::none;
 			targetID = {};
 		}
@@ -160,6 +189,9 @@ namespace usb::flashProto
 		auto &device{*spiDevice(targetDevice)};
 		spiSelect(targetDevice);
 		spiWrite(device, spiOpcodes::statusRead);
+		// Exception for the dimbos at Winbond.. *grumbles*
+		if (targetID.manufacturer == 0xEFU && targetID.type == 0xAAU)
+			spiWrite(device, 0xC0U);
 		const auto status{spiRead(device)};
 		spiSelect(spiChip_t::none);
 		return (status & 1);
@@ -251,6 +283,9 @@ namespace usb::flashProto
 			spiWrite(device, uint8_t(page));
 			spiSelect(spiChip_t::none);
 
+			while (isBusy())
+				continue;
+
 			spiSelect(targetDevice);
 			spiWrite(device, spiOpcodes::pageRead);
 			// Write a dummy "column address" (byte address within the page)
@@ -312,7 +347,6 @@ namespace usb::flashProto
 			spiSelect(targetDevice);
 			spiWrite(device, spiOpcodes::pageWrite);
 			// Write a dummy "column address" (byte address within the page)
-			spiWrite(device, 0);
 			spiWrite(device, 0);
 			spiWrite(device, 0);
 		}

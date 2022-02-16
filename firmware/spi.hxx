@@ -44,9 +44,11 @@ namespace spiOpcodes
 	constexpr static uint8_t pageWrite{0x02U};
 	constexpr static uint8_t pageAddressWrite{0x10U};
 	constexpr static uint8_t statusRead{0x05U};
+	constexpr static uint8_t statusWrite{0x01U};
 	constexpr static uint8_t writeEnable{0x06U};
 	constexpr static uint8_t writeDisable{0x04U};
 	constexpr static uint8_t releasePowerDown{0xABU};
+	constexpr static uint8_t reset{0xFFU};
 } // namespace spiOpcodes
 
 #endif /*SPI___HXX*/
