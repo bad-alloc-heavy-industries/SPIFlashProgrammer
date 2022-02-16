@@ -12,7 +12,7 @@ namespace flashprog
 
 Usage:
 	flashprog [options]
-	flashprog {operation} <[--device N] N file>
+	flashprog {operation} <[--device N] --chip bus:N file>
 
 Options:
 	--version       Print the version information for flashprog
@@ -20,16 +20,23 @@ Options:
 
 Operations:
 	listDevices     Lists the available SPIFlashProgrammers attached to your system
+	                (This is the default if no operation is given)
 	list            Lists the available Flash chips a given SPIFlashProgrammer can see
 	read            Reads the contents of a specific Flash chip into the requested file
 	write           Writes the contents of the requested file into a specific Flash chip
 	verifiedWrite   Does the same as write, but verifies the contents of the Flash chip after writing
+	erase           Performs a full chip erases on the requested Flash chip
 
 Options for list, read, write and verifiedWrite:
 	--device        The SPIFlashProgrammer to use for the operation
 
 Options for read, write and verifiedWrite:
-	N               The flash chip to target the operation to
+	--chip bus:N    Specifies what Flash chip on which bus you want to target.
+	                The chip specification works as follows:
+	                'bus' can be one of 'int' or 'ext' representing the internal (on-chip)
+	                and external (8-pin Flash connector) SPI busses.
+	                N is a number from 0 to 255 which specifies a detected Flash chip as given by the
+	                listDevices operation
 	file            The local file to use for the operation
 
 This utility is licensed under BSD-3-Clase
