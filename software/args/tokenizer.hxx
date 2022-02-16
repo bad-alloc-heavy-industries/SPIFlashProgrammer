@@ -1,5 +1,5 @@
-#ifndef ARGS_TOKENIZER__HXX
-#define ARGS_TOKENIZER__HXX
+#ifndef ARGS_TOKENIZER_HXX
+#define ARGS_TOKENIZER_HXX
 
 #include <cstddef>
 #include <string_view>
@@ -60,7 +60,7 @@ namespace flashprog::args::tokenizer
 		}
 	};
 
-	extern const char *typeToName(tokenType_t type);
+	const char *typeToName(tokenType_t type);
 } // namespace flashprog::args::tokenizer
 
-#endif /*ARGS_TOKENIZER__HXX*/
+#endif /*ARGS_TOKENIZER_HXX*/

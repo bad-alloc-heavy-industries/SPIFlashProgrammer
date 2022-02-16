@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
-#ifndef USB_DEVICE_LIST__HXX
-#define USB_DEVICE_LIST__HXX
+#ifndef USB_DEVICE_LIST_HXX
+#define USB_DEVICE_LIST_HXX
 
 #include <string_view>
 #include <libusb.h>
@@ -52,4 +52,4 @@ public:
 	usbDeviceIter_t end() const noexcept { return {deviceList + count}; }
 };
 
-#endif /*USB_DEVICE_LIST__HXX*/
+#endif /*USB_DEVICE_LIST_HXX*/

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
-#ifndef USB_PROTOCOL__HXX
-#define USB_PROTOCOL__HXX
+#ifndef USB_PROTOCOL_HXX
+#define USB_PROTOCOL_HXX
 
 #include <cstdint>
 #include <array>
@@ -349,4 +349,4 @@ namespace flashProto
 	} // namespace requests
 } // namespace flashProto
 
-#endif /*USB_PROTOCOL__HXX*/
+#endif /*USB_PROTOCOL_HXX*/

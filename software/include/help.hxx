@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
-#ifndef HELP__HXX
-#define HELP__HXX
+#ifndef HELP_HXX
+#define HELP_HXX
 
 #include <string_view>
 
@@ -37,4 +37,4 @@ Report bugs using https://github.com/bad-alloc-heavy-industries/flashprog/issues
 	};
 } // namespace flashprog
 
-#endif /*HELP__HXX*/
+#endif /*HELP_HXX*/

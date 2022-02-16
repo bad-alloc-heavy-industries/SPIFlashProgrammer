@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
-#ifndef USB_CONTEXT__HXX
-#define USB_CONTEXT__HXX
+#ifndef USB_CONTEXT_HXX
+#define USB_CONTEXT_HXX
 
 // Horrible hack to make libusb conformant and not do stupid things.
 #define __STDC_VERSION__ 199901L
@@ -57,4 +57,4 @@ public:
 	}
 };
 
-#endif /*USB_CONSTEXT__HXX*/
+#endif /*USB_CONSTEXT_HXX*/

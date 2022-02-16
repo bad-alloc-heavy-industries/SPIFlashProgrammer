@@ -1,5 +1,5 @@
-#ifndef ARGS___HXX
-#define ARGS___HXX
+#ifndef ARGS_HXX
+#define ARGS_HXX
 
 #include <vector>
 #include <array>
@@ -236,7 +236,7 @@ using flashprog::args::argType_t;
 extern std::unique_ptr<flashprog::args::argsTree_t> args;
 using flashprog::args::argType_t;
 
-extern bool parseArguments(size_t argCount, const char *const *argList,
+bool parseArguments(size_t argCount, const char *const *argList,
 	flashprog::utils::span_t<const flashprog::args::option_t> options);
 
-#endif /*ARGS___HXX*/
+#endif /*ARGS_HXX*/

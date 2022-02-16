@@ -1,5 +1,5 @@
-#ifndef UTILS_SPAN___HXX
-#define UTILS_SPAN___HXX
+#ifndef UTILS_SPAN_HXX
+#define UTILS_SPAN_HXX
 
 #include <cstddef>
 #include <limits>
@@ -291,4 +291,4 @@ namespace std // NOLINT(cert-dcl58-cpp)
 	};
 } // namespace std
 
-#endif /*UTILS_SPAN___HXX*/
+#endif /*UTILS_SPAN_HXX*/
