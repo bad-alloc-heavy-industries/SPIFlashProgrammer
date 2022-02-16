@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: BSD-3-Clause
-#ifndef TIMER___HXX
-#define TIMER___HXX
+#ifndef TIMER_HXX
+#define TIMER_HXX
 
-extern void timerInit() noexcept;
-extern void waitFor(uint32_t microSeconds) noexcept;
+void timerInit() noexcept;
+void waitFor(uint32_t microSeconds) noexcept;
 
-#endif /*TIMER___HXX*/
+#endif /*TIMER_HXX*/

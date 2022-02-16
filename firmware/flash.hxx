@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
-#ifndef FLASH___HXX
-#define FLASH___HXX
+#ifndef FLASH_HXX
+#define FLASH_HXX
 
 #include <cstdint>
 #include <array>
@@ -32,4 +32,4 @@ namespace flash
 	flashChip_t findChip(flashID_t chipID) noexcept;
 };
 
-#endif /*FLASH___HXX*/
+#endif /*FLASH_HXX*/

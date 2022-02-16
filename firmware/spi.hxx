@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
-#ifndef SPI___HXX
-#define SPI___HXX
+#ifndef SPI_HXX
+#define SPI_HXX
 
 #include <cstdint>
 #include <array>
@@ -16,17 +16,17 @@ enum class spiChip_t
 	none
 };
 
-extern void spiInit() noexcept;
-extern void spiSelect(spiChip_t chip) noexcept;
-extern tivaC::ssi_t *spiDevice() noexcept;
-extern tivaC::ssi_t *spiDevice(spiChip_t chip) noexcept;
-extern uint8_t spiRead(tivaC::ssi_t &device) noexcept;
-extern void spiWrite(tivaC::ssi_t &device, uint8_t value) noexcept;
-extern uint8_t spiRead() noexcept;
-extern void spiWrite(uint8_t value) noexcept;
-extern flashID_t identDevice(spiChip_t chip, bool releaseReset = true) noexcept;
-extern void setDeviceReset(bool resetState) noexcept;
-extern bool isDeviceReset() noexcept;
+void spiInit() noexcept;
+void spiSelect(spiChip_t chip) noexcept;
+tivaC::ssi_t *spiDevice() noexcept;
+tivaC::ssi_t *spiDevice(spiChip_t chip) noexcept;
+uint8_t spiRead(tivaC::ssi_t &device) noexcept;
+void spiWrite(tivaC::ssi_t &device, uint8_t value) noexcept;
+uint8_t spiRead() noexcept;
+void spiWrite(uint8_t value) noexcept;
+flashID_t identDevice(spiChip_t chip, bool releaseReset = true) noexcept;
+void setDeviceReset(bool resetState) noexcept;
+bool isDeviceReset() noexcept;
 
 namespace spi
 {
@@ -51,4 +51,4 @@ namespace spiOpcodes
 	constexpr static uint8_t reset{0xFFU};
 } // namespace spiOpcodes
 
-#endif /*SPI___HXX*/
+#endif /*SPI_HXX*/

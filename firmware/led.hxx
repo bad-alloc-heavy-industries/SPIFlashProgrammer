@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: BSD-3-Clause
-#ifndef LED___HXX
-#define LED___HXX
+#ifndef LED_HXX
+#define LED_HXX
 
-extern void ledInit() noexcept;
-extern void ledSetColour(bool r, bool g, bool b) noexcept;
+void ledInit() noexcept;
+void ledSetColour(bool r, bool g, bool b) noexcept;
 
-#endif /*LED___HXX*/
+#endif /*LED_HXX*/

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
-#ifndef OSC___HXX
-#define OSC___HXX
+#ifndef OSC_HXX
+#define OSC_HXX
 
-extern void oscInit() noexcept;
+void oscInit() noexcept;
 
-#endif /*OSC___HXX*/
+#endif /*OSC_HXX*/
