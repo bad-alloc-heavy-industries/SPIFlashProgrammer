@@ -57,10 +57,11 @@ namespace flashProto
 		constexpr operator uint32_t() const noexcept
 			{ return value[0] | (uint32_t(value[1]) << 8U) | (uint32_t(value[2] << 16U)); }
 
-		constexpr void operator ++() noexcept
+		constexpr page_t &operator ++() noexcept
 		{
 			const uint32_t page{*this};
-			*this = page_t{page + 1};
+			*this = {page + 1};
+			return *this;
 		}
 	};
 
