@@ -149,15 +149,29 @@ namespace usb::flashProto
 					spiWrite(device, spiOpcodes::statusRead);
 					spiWrite(device, 0xA0U);
 					const auto protReg{spiRead(device)};
-					spiSelect(spiChip_t::none);
 					if (protReg)
 					{
+						spiSelect(spiChip_t::none);
 						spiSelect(targetDevice);
 						spiWrite(device, spiOpcodes::statusWrite);
 						spiWrite(device, 0xA0U);
 						spiWrite(device, 0x00U);
-						spiSelect(spiChip_t::none);
 					}
+					spiSelect(spiChip_t::none);
+					spiSelect(targetDevice);
+					spiWrite(device, spiOpcodes::statusRead);
+					spiWrite(device, 0xB0U);
+					const auto cfgReg{spiRead(device)};
+					// If the buffer bit is low
+					if (!(cfgReg & 0x08U))
+					{
+						spiSelect(spiChip_t::none);
+						spiSelect(targetDevice);
+						spiWrite(device, spiOpcodes::statusWrite);
+						spiWrite(device, 0xB0U);
+						spiWrite(device, cfgReg | 0x08U);
+					}
+					spiSelect(spiChip_t::none);
 				}
 			}
 			else
@@ -170,6 +184,13 @@ namespace usb::flashProto
 				if (targetID.manufacturer == 0xEFU && targetID.type == 0xAAU)
 				{
 					auto &device{*spiDevice(targetDevice)};
+					spiSelect(targetDevice);
+					spiWrite(device, spiOpcodes::statusWrite);
+					spiWrite(device, 0xB0U);
+					// This sets the device to having ECC enabled and BUF disabled.
+					spiWrite(device, 0x10U);
+					spiSelect(spiChip_t::none);
+
 					spiSelect(targetDevice);
 					spiWrite(device, spiOpcodes::reset);
 					spiSelect(spiChip_t::none);
