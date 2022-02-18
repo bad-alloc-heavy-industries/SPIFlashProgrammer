@@ -272,26 +272,7 @@ namespace usb::flashProto
 			eraseOperation = eraseOperation_t::idle;
 	}
 
-	static void performRead(const uint8_t endpoint)
-	{
-		auto &device{*spiDevice()};
-		if (readCount == 0)
-			return;
-		auto &epStatus{epStatusControllerIn[endpoint]};
-		// For each byte in the response buffer, read a byte from Flash and store it
-		for (auto &byte : response)
-			byte = spiRead(device);
-		// Reset the transfer buffer pointer and amount
-		epStatus.memBuffer = response.data();
-		epStatus.transferCount = response.size();
-		// Transfer the data to the USB controller and tell it that we're ready for it to transmit
-		writeEP(endpoint);
-		readCount -= static_cast<uint16_t>(response.size());
-		if (readCount == 0)
-			spiSelect(spiChip_t::none);
-	}
-
-	static void beginPageRead(const page_t page) noexcept
+	static void beginPageRead(const page_t &page) noexcept
 	{
 		auto &device{*spiDevice(targetDevice)};
 		// If the device is bigger than 2^24 bytes, it's addressed differently.
@@ -323,6 +304,31 @@ namespace usb::flashProto
 			spiWrite(device, uint8_t(pageAddress >> 16U));
 			spiWrite(device, uint8_t(pageAddress >> 8U));
 			spiWrite(device, uint8_t(pageAddress));
+		}
+	}
+
+	static void performRead(const uint8_t endpoint)
+	{
+		auto &device{*spiDevice()};
+		if (readCount == 0)
+			return;
+		auto &epStatus{epStatusControllerIn[endpoint]};
+		// For each byte in the response buffer, read a byte from Flash and store it
+		for (auto &byte : response)
+			byte = spiRead(device);
+		// Reset the transfer buffer pointer and amount
+		epStatus.memBuffer = response.data();
+		epStatus.transferCount = response.size();
+		// Transfer the data to the USB controller and tell it that we're ready for it to transmit
+		writeEP(endpoint);
+		readCount -= static_cast<uint16_t>(response.size());
+		if (readCount == 0)
+			spiSelect(spiChip_t::none);
+		else if (targetID.manufacturer == 0xEFU && targetID.type == 0xAAU &&
+			(readCount & (targetParams.flashPageSize - 1)) == 0)
+		{
+			spiSelect(spiChip_t::none);
+			beginPageRead(++readPage);
 		}
 	}
 
