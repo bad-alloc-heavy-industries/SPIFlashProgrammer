@@ -436,6 +436,11 @@ namespace usb::flashProto
 			{
 				if (flashBuffer[i] != spiRead(device))
 					status.writeOK = false;
+				if ((i & (targetParams.flashPageSize - 1)) == 0)
+				{
+					spiSelect(spiChip_t::none);
+					beginPageRead(++verifyPage);
+				}
 			}
 			spiSelect(spiChip_t::none);
 		}
