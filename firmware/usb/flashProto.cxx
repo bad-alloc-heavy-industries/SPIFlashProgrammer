@@ -276,7 +276,7 @@ namespace usb::flashProto
 	{
 		auto &device{*spiDevice(targetDevice)};
 		// If the device is bigger than 2^24 bytes, it's addressed differently.
-		if (targetParams.actualCapacity >= 0x18U)
+		if (targetParams.actualCapacity > 0x18U)
 		{
 			spiSelect(targetDevice);
 			spiWrite(device, spiOpcodes::pageAddressRead);
@@ -369,7 +369,7 @@ namespace usb::flashProto
 		spiSelect(spiChip_t::none);
 
 		// If the device is bigger than 2^24 bytes, it's addressed differently.
-		if (targetParams.actualCapacity >= 0x18U)
+		if (targetParams.actualCapacity > 0x18U)
 		{
 			spiSelect(targetDevice);
 			spiWrite(device, spiOpcodes::pageWrite);
@@ -421,7 +421,7 @@ namespace usb::flashProto
 		if (!(end & (targetParams.flashPageSize - 1)) || !writeCount)
 		{
 			spiSelect(spiChip_t::none);
-			if (targetParams.actualCapacity >= 0x18U)
+			if (targetParams.actualCapacity > 0x18U)
 				writePageAddress();
 			while (isBusy())
 				continue;
@@ -512,7 +512,7 @@ namespace usb::flashProto
 
 			spiSelect(targetDevice);
 			spiWrite(*device, targetParams.eraseInstruction);
-			if (targetParams.actualCapacity >= 0x18U)
+			if (targetParams.actualCapacity > 0x18U)
 			{
 				spiWrite(*device, uint8_t(eraseConfig.beginPage >> 16U));
 				spiWrite(*device, uint8_t(eraseConfig.beginPage >> 8U));
