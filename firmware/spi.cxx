@@ -108,7 +108,8 @@ void spiInit() noexcept
 		vals::ssi::ctrl0ClockPhaseLeading | vals::ssi::ctrl0Data8Bit;
 	ssi0.clockConfig = vals::ssi::clockConfigSysClk;
 	// 80MHz -> 500kHz = 160
-	ssi0.cpsr = 160;
+	//ssi0.cpsr = 160;
+	ssi0.cpsr = 8;
 	ssi0.ctrl1 = vals::ssi::control1ModeController | vals::ssi::control1EnableOperations;
 
 	localChip[0] = identDevice(spiChip_t::local1);
