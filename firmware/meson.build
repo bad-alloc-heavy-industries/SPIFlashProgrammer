@@ -50,7 +50,7 @@ dragonUSB = dependency(
 
 firmwareSrc = [
 	'startup.cxx', 'spiFlashProgrammer.cxx', 'led.cxx', 'spi.cxx',
-	'flash.cxx', 'osc.cxx', 'timer.cxx',
+	'sfdp.cxx', 'flash.cxx', 'osc.cxx', 'timer.cxx',
 	'usb/descriptors.cxx', 'usb/flashProto.cxx'
 ]
 
