@@ -79,7 +79,8 @@ struct usbDeviceHandle_t final
 private:
 	libusb_device_handle *device{nullptr};
 
-	bool interruptTransfer(const uint8_t endpoint, void *const bufferPtr, const int32_t bufferLen) const noexcept
+	// NOLINTNEXTLINE(readability-convert-member-functions-to-static)
+	[[nodiscard]] bool interruptTransfer(const uint8_t endpoint, void *const bufferPtr, const int32_t bufferLen) const noexcept
 	{
 		const auto result{libusb_interrupt_transfer(device, endpoint, static_cast<uint8_t *>(bufferPtr),
 			bufferLen, nullptr, 0)};
@@ -95,7 +96,8 @@ private:
 		return !result;
 	}
 
-	bool bulkTransfer(const uint8_t endpoint, void *const bufferPtr, const int32_t bufferLen) const noexcept
+	// NOLINTNEXTLINE(readability-convert-member-functions-to-static)
+	[[nodiscard]] bool bulkTransfer(const uint8_t endpoint, void *const bufferPtr, const int32_t bufferLen) const noexcept
 	{
 		const auto result{libusb_bulk_transfer(device, endpoint, static_cast<uint8_t *>(bufferPtr),
 			bufferLen, nullptr, 0)};
@@ -111,7 +113,8 @@ private:
 		return !result;
 	}
 
-	bool controlTransfer(const requestType_t requestType, const uint8_t request, const uint16_t value,
+	// NOLINTNEXTLINE(readability-convert-member-functions-to-static)
+	[[nodiscard]] bool controlTransfer(const requestType_t requestType, const uint8_t request, const uint16_t value,
 		const uint16_t index, void *const bufferPtr, const uint16_t bufferLen) const noexcept
 	{
 		const auto result{libusb_control_transfer(device, requestType, request, value, index,
@@ -135,12 +138,14 @@ public:
 		{ autoDetachKernelDriver(true); }
 	[[nodiscard]] bool valid() const noexcept { return device; }
 
+	// NOLINTNEXTLINE(readability-convert-member-functions-to-static)
 	void autoDetachKernelDriver(bool autoDetach) const noexcept
 	{
 		if (const auto result{libusb_set_auto_detach_kernel_driver(device, autoDetach)}; result)
 			console.warning("Automatic detach of kernel driver not supported on this platform"sv);
 	}
 
+	// NOLINTNEXTLINE(readability-convert-member-functions-to-static)
 	[[nodiscard]] bool claimInterface(const int32_t interfaceNumber) const noexcept
 	{
 		const auto result{libusb_claim_interface(device, interfaceNumber)};
@@ -149,6 +154,7 @@ public:
 		return !result;
 	}
 
+	// NOLINTNEXTLINE(readability-convert-member-functions-to-static)
 	[[nodiscard]] bool releaseInterface(const int32_t interfaceNumber) const noexcept
 	{
 		const auto result{libusb_release_interface(device, interfaceNumber)};
@@ -157,18 +163,18 @@ public:
 		return !result;
 	}
 
-	bool writeInterrupt(const uint8_t endpoint, const void *const bufferPtr, const int32_t bufferLen) const noexcept
+	[[nodiscard]] bool writeInterrupt(const uint8_t endpoint, const void *const bufferPtr, const int32_t bufferLen) const noexcept
 		{ return interruptTransfer(endpointAddress(endpointDir_t::controllerOut, endpoint),
 			const_cast<void *>(bufferPtr), bufferLen); }
 
-	bool readInterrupt(const uint8_t endpoint, void *const bufferPtr, const int32_t bufferLen) const noexcept
+	[[nodiscard]] bool readInterrupt(const uint8_t endpoint, void *const bufferPtr, const int32_t bufferLen) const noexcept
 		{ return interruptTransfer(endpointAddress(endpointDir_t::controllerIn, endpoint), bufferPtr, bufferLen); }
 
-	bool writeBulk(const uint8_t endpoint, const void *const bufferPtr, const int32_t bufferLen) const noexcept
+	[[nodiscard]] bool writeBulk(const uint8_t endpoint, const void *const bufferPtr, const int32_t bufferLen) const noexcept
 		{ return bulkTransfer(endpointAddress(endpointDir_t::controllerOut, endpoint),
 			const_cast<void *>(bufferPtr), bufferLen); }
 
-	bool readBulk(const uint8_t endpoint, void *const bufferPtr, const int32_t bufferLen) const noexcept
+	[[nodiscard]] bool readBulk(const uint8_t endpoint, void *const bufferPtr, const int32_t bufferLen) const noexcept
 		{ return bulkTransfer(endpointAddress(endpointDir_t::controllerIn, endpoint), bufferPtr, bufferLen); }
 
 	template<typename T> bool writeControl(requestType_t requestType, const uint8_t request,
@@ -179,7 +185,7 @@ public:
 		return controlTransfer(requestType, request, value, index, const_cast<T *>(&data), sizeof(T));
 	}
 
-	bool writeControl(requestType_t requestType, const uint8_t request,
+	[[nodiscard]] bool writeControl(requestType_t requestType, const uint8_t request,
 		const uint16_t value, const uint16_t index, std::nullptr_t) const noexcept
 	{
 		requestType.dir(endpointDir_t::controllerOut);
@@ -192,6 +198,14 @@ public:
 		requestType.dir(endpointDir_t::controllerIn);
 		static_assert(sizeof(T) <= UINT16_MAX);
 		return controlTransfer(requestType, request, value, index, &data, sizeof(T));
+	}
+
+	template<typename T, size_t length> bool readControl(requestType_t requestType, const uint8_t request,
+		const uint16_t value, const uint16_t index, std::array<T, length> &data) const noexcept
+	{
+		requestType.dir(endpointDir_t::controllerIn);
+		static_assert(length * sizeof(T) <= UINT16_MAX);
+		return controlTransfer(requestType, request, value, index, data.data(), length * sizeof(T));
 	}
 };
 
