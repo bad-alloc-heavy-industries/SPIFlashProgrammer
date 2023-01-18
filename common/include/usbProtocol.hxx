@@ -177,6 +177,7 @@ namespace flashProto
 		static_assert(sizeof(deviceCount_t) == 3);
 		static_assert(sizeof(listDevice_t) == 16);
 		static_assert(sizeof(erase_t) == 5);
+		static_assert(sizeof(write_t) == 1);
 		static_assert(sizeof(status_t) == 5);
 	} // namespace responses
 

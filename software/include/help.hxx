@@ -37,6 +37,8 @@ Options for read, write and verifiedWrite:
 	                and external (8-pin Flash connector) SPI busses.
 	                N is a number from 0 to 255 which specifies a detected Flash chip as given by the
 	                listDevices operation
+
+Options for read, write and verifiedWrite:
 	file            The local file to use for the operation
 
 This utility is licensed under BSD-3-Clase

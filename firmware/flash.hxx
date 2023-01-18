@@ -30,6 +30,6 @@ struct flashChip_t
 namespace flash
 {
 	flashChip_t findChip(flashID_t chipID) noexcept;
-};
+}
 
 #endif /*FLASH_HXX*/

@@ -241,7 +241,7 @@ flashID_t identDevice(const spiChip_t chip, const bool releaseReset) noexcept
 	if (chipID.manufacturer == 0xFFU && chipID.type == 0xFFU)
 	{
 		spiSelect(spiChip_t::target);
-		spiWrite(spiOpcodes::releasePowerDown);
+		spiWrite(spiOpcodes::wakeUp);
 		spiSelect(spiChip_t::none);
 		waitFor(20); // 20us
 		chipID = readID(chip);
