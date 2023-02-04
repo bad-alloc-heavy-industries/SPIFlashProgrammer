@@ -342,6 +342,17 @@ namespace flashProto
 #endif
 		};
 
+		struct abort_t final
+		{
+#ifndef __arm__
+			[[nodiscard]] bool write(const usbDeviceHandle_t &device, uint8_t interface) const noexcept
+			{
+				return device.writeControl({recipient_t::interface, request_t::typeClass},
+					static_cast<uint8_t>(messages_t::abort), 0, interface, nullptr);
+			}
+#endif
+		};
+
 		static_assert(sizeof(deviceCount_t) == 1);
 		static_assert(sizeof(listDevice_t) == 2);
 		static_assert(sizeof(targetDevice_t) == 2);
