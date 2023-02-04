@@ -2,6 +2,8 @@
 #include <vector>
 #include <thread>
 #include <chrono>
+#include <tuple>
+#include <string_view>
 #include <stdexcept>
 #include <substrate/utility>
 #include <substrate/units>
@@ -122,6 +124,26 @@ int32_t listDevices(const usbDevice_t &rawDevice)
 bool targetDevice(const usbDeviceHandle_t &device, const flashBus_t deviceType, const uint8_t deviceNumber) noexcept
 	{ return requests::targetDevice_t{deviceNumber, deviceType}.write(device, 0); }
 
+std::tuple<uint32_t, std::string_view> humanReadableSize(uint32_t size)
+{
+	if (size < 1024U)
+		return {size, "B"sv};
+	size /= 1024U;
+	if (size < 1024U)
+		return {size, "kiB"sv};
+	size /= 1024U;
+	if (size < 1024U)
+		return {size, "MiB"sv};
+	size /= 1024U;
+	return {size, "GiB"sv};
+}
+
+void displayChipSize(const uint32_t chipSize) noexcept
+{
+	const auto [size, units] = humanReadableSize(chipSize);
+	console.info("Chip is "sv, size, units, " in size"sv);
+}
+
 int32_t eraseDevice(const usbDevice_t &rawDevice, const argsTree_t *const eraseArgs)
 {
 	const auto *const chip{dynamic_cast<flashprog::args::argChip_t *>(eraseArgs->find(argType_t::chip))};
@@ -217,6 +239,7 @@ int32_t readDevice(const usbDevice_t &rawDevice, const argsTree_t *const readArg
 
 	const auto startTime{std::chrono::steady_clock::now()};
 
+	displayChipSize(chipInfo.deviceSize);
 	if (chipInfo.deviceSize >= transferBlockSize)
 	{
 		if (chipInfo.deviceSize % transferBlockSize)
@@ -386,6 +409,7 @@ int32_t writeDevice(const usbDevice_t &rawDevice, const argsTree_t *const writeA
 		return 1;
 	}
 
+	displayChipSize(chipInfo.deviceSize);
 	const auto startTime{std::chrono::steady_clock::now()};
 	const auto eraseResult{erasePages(device, chipInfo, fileLength)};
 	if (eraseResult)
