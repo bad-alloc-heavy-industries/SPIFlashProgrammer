@@ -495,6 +495,17 @@ namespace usb::flashProto
 		setDeviceReset(false);
 	}
 
+	static void handleAbort()
+	{
+		readCount = 0;
+		writeCount = 0;
+		eraseActive = false;
+		eraseOperation = eraseOperation_t::idle;
+		spiSelect(spiChip_t::none);
+		targetDevice = spiChip_t::none;
+		status = {};
+	}
+
 	static void tick() noexcept
 	{
 		if (eraseActive && !isBusy())
@@ -589,6 +600,11 @@ namespace usb::flashProto
 				if (packet.requestType.dir() != endpointDir_t::controllerOut)
 					return {response_t::stall, nullptr, 0};
 				handleResetTarget();
+				return {response_t::zeroLength, nullptr, 0};
+			case messages_t::abort:
+				if (packet.requestType.dir() != endpointDir_t::controllerOut)
+					return {response_t::stall, nullptr, 0};
+				handleAbort();
 				return {response_t::zeroLength, nullptr, 0};
 		}
 
