@@ -24,6 +24,7 @@ using usb::device::packet;
 
 namespace usb::flashProto
 {
+	// NOLINTBEGIN(cppcoreguidelines-avoid-non-const-global-variables)
 	static std::array<uint8_t, epBufferSize> response{};
 	static std::array<uint8_t, 4096> flashBuffer{};
 	static spiChip_t targetDevice{spiChip_t::none};
@@ -47,6 +48,7 @@ namespace usb::flashProto
 	static page_t verifyPage{};
 
 	static responses::status_t status{};
+	// NOLINTEND(cppcoreguidelines-avoid-non-const-global-variables)
 
 	template<typename T> void sendResponse(const T &data)
 	{
