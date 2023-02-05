@@ -118,6 +118,55 @@ namespace usb::flashProto
 		return writeResponse(device);
 	}
 
+	static void prepareW25N01GVxxIx() noexcept
+	{
+		auto &device{*spiDevice(targetDevice)};
+
+		// Select the W25N01GVxxIx device
+		spiSelect(targetDevice);
+		// Reading the status registers is more complicated than normal 😔
+		// Start by sending the normal read status command
+		spiWrite(device, spiOpcodes::statusRead);
+		// And then the address of the status register we want to read.
+		// SR address Ax maps to SR1 (aka the protection register)
+		// documented in §7.1, pg15 of the datasheet.
+		spiWrite(device, 0xA0U);
+		// Finally read the value we want and deselect the device
+		const auto protReg{spiRead(device)};
+		spiSelect(spiChip_t::none);
+		// If any of the protection bits are enabled, we need to disable them
+		if (protReg)
+		{
+			spiSelect(targetDevice);
+			// Initiate a write to the same status register
+			spiWrite(device, spiOpcodes::statusWrite);
+			spiWrite(device, 0xA0U);
+			// Attempt to clear all the bits.
+			spiWrite(device, 0x00U);
+			spiSelect(spiChip_t::none);
+		}
+		// Now we're in a state where there shouldn't be any protections enabled,
+		// Select the device again and read the second status register
+		// SR address Bx maps to SR2 (aka the configuration register)
+		// documented in §7.2, pg17 of the datasheet.
+		spiSelect(targetDevice);
+		spiWrite(device, spiOpcodes::statusRead);
+		spiWrite(device, 0xB0U);
+		// Read the current configuration back
+		const auto cfgReg{spiRead(device)};
+		spiSelect(spiChip_t::none);
+		// If the buffer bit is low
+		if (!(cfgReg & 0x08U))
+		{
+			spiSelect(targetDevice);
+			// Reprogram the bit high to select buffer read rather than continous read
+			spiWrite(device, spiOpcodes::statusWrite);
+			spiWrite(device, 0xB0U);
+			spiWrite(device, cfgReg | 0x08U);
+			spiSelect(spiChip_t::none);
+		}
+	}
+
 	static bool handleTargetDevice(const setupPacket::address_t address) noexcept
 	{
 		if (address.addrH > static_cast<uint8_t>(flashBus_t::unknown))
@@ -144,53 +193,7 @@ namespace usb::flashProto
 
 				// Exception for the dimbos at Winbond.. *grumbles*
 				if (targetID.manufacturer == 0xEFU && targetID.type == 0xAAU)
-				{
-					auto &device{*spiDevice(targetDevice)};
-
-					// Select the W25N01GVxxIx device
-					spiSelect(targetDevice);
-					// Reading the status registers is more complicated than normal 😔
-					// Start by sending the normal read status command
-					spiWrite(device, spiOpcodes::statusRead);
-					// And then the address of the status register we want to read.
-					// SR address Ax maps to SR1 (aka the protection register)
-					// documented in §7.1, pg15 of the datasheet.
-					spiWrite(device, 0xA0U);
-					// Finally read the value we want and deselect the device
-					const auto protReg{spiRead(device)};
-					spiSelect(spiChip_t::none);
-					// If any of the protection bits are enabled, we need to disable them
-					if (protReg)
-					{
-						spiSelect(targetDevice);
-						// Initiate a write to the same status register
-						spiWrite(device, spiOpcodes::statusWrite);
-						spiWrite(device, 0xA0U);
-						// Attempt to clear all the bits.
-						spiWrite(device, 0x00U);
-						spiSelect(spiChip_t::none);
-					}
-					// Now we're in a state where there shouldn't be any protections enabled,
-					// Select the device again and read the second status register
-					// SR address Bx maps to SR2 (aka the configuration register)
-					// documented in §7.2, pg17 of the datasheet.
-					spiSelect(targetDevice);
-					spiWrite(device, spiOpcodes::statusRead);
-					spiWrite(device, 0xB0U);
-					// Read the current configuration back
-					const auto cfgReg{spiRead(device)};
-					spiSelect(spiChip_t::none);
-					// If the buffer bit is low
-					if (!(cfgReg & 0x08U))
-					{
-						spiSelect(targetDevice);
-						// Reprogram the bit high to select buffer read rather than continous read
-						spiWrite(device, spiOpcodes::statusWrite);
-						spiWrite(device, 0xB0U);
-						spiWrite(device, cfgReg | 0x08U);
-						spiSelect(spiChip_t::none);
-					}
-				}
+					prepareW25N01GVxxIx();
 			}
 			else
 				return false;
