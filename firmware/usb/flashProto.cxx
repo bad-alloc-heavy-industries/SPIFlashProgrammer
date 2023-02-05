@@ -526,8 +526,18 @@ namespace usb::flashProto
 		eraseOperation = eraseOperation_t::idle;
 
 		// Reset the transfer endpoints and status information
+		auto &epStatusOut{epStatusControllerOut[readEndpoint]};
+		epStatusOut.memBuffer = nullptr;
+		epStatusOut.transferCount = 0;
+		epStatusOut.resetStatus();
+
+		auto &epStatusIn{epStatusControllerIn[writeEndpoint]};
+		epStatusIn.memBuffer = nullptr;
+		epStatusIn.transferCount = 0;
+		epStatusIn.resetStatus();
+		flushWriteEP(writeEndpoint);
+
 		status = {};
-		epStatusControllerOut[0].resetStatus();
 	}
 
 	static void tick() noexcept
