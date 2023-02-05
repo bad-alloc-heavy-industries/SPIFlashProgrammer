@@ -155,7 +155,8 @@ int32_t eraseDevice(const usbDevice_t &rawDevice, const argsTree_t *const eraseA
 		!device.claimInterface(0))
 		return 1;
 
-	if (!targetDevice(device, chip->bus(), chip->number()))
+	if (!requests::abort_t{}.write(device, 0) &&
+		!targetDevice(device, chip->bus(), chip->number()))
 	{
 		if (!device.releaseInterface(0))
 			return 2;
@@ -230,7 +231,8 @@ int32_t readDevice(const usbDevice_t &rawDevice, const argsTree_t *const readArg
 	}
 
 	const auto chipInfo{readChipInfo(device, *chip)};
-	if (!targetDevice(device, chip->bus(), chip->number()))
+	if (!requests::abort_t{}.write(device, 0) &&
+		!targetDevice(device, chip->bus(), chip->number()))
 	{
 		if (!device.releaseInterface(0))
 			return 2;
@@ -402,7 +404,8 @@ int32_t writeDevice(const usbDevice_t &rawDevice, const argsTree_t *const writeA
 		return 1;
 	}
 
-	if (!targetDevice(device, chip->bus(), chip->number()))
+	if (!requests::abort_t{}.write(device, 0) &&
+		!targetDevice(device, chip->bus(), chip->number()))
 	{
 		if (!device.releaseInterface(0))
 			return 2;
