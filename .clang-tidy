@@ -3,7 +3,6 @@ Checks: 'clang-diagnostic-*,clang-analyzer-*,bugprone-*,cert-*,cppcoreguidelines
 WarningsAsErrors: ''
 HeaderFilterRegex: '((common|software|firmware|deps/substrate/substrate]/.+)'
 FormatStyle: 'none'
-AnalyzeTemporaryDtors: false
 CheckOptions:
   - key:             cert-dcl16-c.NewSuffixes
     value:           'L;LL;LU;LLU'
