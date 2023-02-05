@@ -80,10 +80,15 @@ private:
 	libusb_device_handle *device{nullptr};
 
 	// NOLINTNEXTLINE(readability-convert-member-functions-to-static)
-	[[nodiscard]] bool interruptTransfer(const uint8_t endpoint, void *const bufferPtr, const int32_t bufferLen) const noexcept
+	[[nodiscard]] bool interruptTransfer(const uint8_t endpoint, const void *const bufferPtr,
+		const int32_t bufferLen) const noexcept
 	{
-		const auto result{libusb_interrupt_transfer(device, endpoint, static_cast<uint8_t *>(bufferPtr),
-			bufferLen, nullptr, 0)};
+		const auto result
+		{
+			libusb_interrupt_transfer(device, endpoint,
+				const_cast<uint8_t *>(static_cast<const uint8_t *>(bufferPtr)), bufferLen, nullptr, 0)
+		};
+
 		if (result)
 		{
 			const auto endpointNumber{uint8_t(endpoint & 0x7FU)};
@@ -97,10 +102,14 @@ private:
 	}
 
 	// NOLINTNEXTLINE(readability-convert-member-functions-to-static)
-	[[nodiscard]] bool bulkTransfer(const uint8_t endpoint, void *const bufferPtr, const int32_t bufferLen) const noexcept
+	[[nodiscard]] bool bulkTransfer(const uint8_t endpoint, const void *const bufferPtr,
+		const int32_t bufferLen) const noexcept
 	{
-		const auto result{libusb_bulk_transfer(device, endpoint, static_cast<uint8_t *>(bufferPtr),
-			bufferLen, nullptr, 0)};
+		const auto result
+		{
+			libusb_bulk_transfer(device, endpoint,
+				const_cast<uint8_t *>(static_cast<const uint8_t *>(bufferPtr)), bufferLen, nullptr, 0)
+		};
 		if (result)
 		{
 			const auto endpointNumber{uint8_t(endpoint & 0x7FU)};
@@ -115,10 +124,13 @@ private:
 
 	// NOLINTNEXTLINE(readability-convert-member-functions-to-static)
 	[[nodiscard]] bool controlTransfer(const requestType_t requestType, const uint8_t request, const uint16_t value,
-		const uint16_t index, void *const bufferPtr, const uint16_t bufferLen) const noexcept
+		const uint16_t index, const void *const bufferPtr, const uint16_t bufferLen) const noexcept
 	{
-		const auto result{libusb_control_transfer(device, requestType, request, value, index,
-			static_cast<uint8_t *>(bufferPtr), bufferLen, 0)};
+		const auto result
+		{
+			libusb_control_transfer(device, requestType, request, value, index,
+				const_cast<uint8_t *>(static_cast<const uint8_t *>(bufferPtr)), bufferLen, 0)
+		};
 		if (result < 0)
 		{
 			console.error("Failed to complete control transfer of "sv, bufferLen,
@@ -164,15 +176,13 @@ public:
 	}
 
 	[[nodiscard]] bool writeInterrupt(const uint8_t endpoint, const void *const bufferPtr, const int32_t bufferLen) const noexcept
-		{ return interruptTransfer(endpointAddress(endpointDir_t::controllerOut, endpoint),
-			const_cast<void *>(bufferPtr), bufferLen); }
+		{ return interruptTransfer(endpointAddress(endpointDir_t::controllerOut, endpoint), bufferPtr, bufferLen); }
 
 	[[nodiscard]] bool readInterrupt(const uint8_t endpoint, void *const bufferPtr, const int32_t bufferLen) const noexcept
 		{ return interruptTransfer(endpointAddress(endpointDir_t::controllerIn, endpoint), bufferPtr, bufferLen); }
 
 	[[nodiscard]] bool writeBulk(const uint8_t endpoint, const void *const bufferPtr, const int32_t bufferLen) const noexcept
-		{ return bulkTransfer(endpointAddress(endpointDir_t::controllerOut, endpoint),
-			const_cast<void *>(bufferPtr), bufferLen); }
+		{ return bulkTransfer(endpointAddress(endpointDir_t::controllerOut, endpoint), bufferPtr, bufferLen); }
 
 	[[nodiscard]] bool readBulk(const uint8_t endpoint, void *const bufferPtr, const int32_t bufferLen) const noexcept
 		{ return bulkTransfer(endpointAddress(endpointDir_t::controllerIn, endpoint), bufferPtr, bufferLen); }
@@ -182,7 +192,7 @@ public:
 	{
 		requestType.dir(endpointDir_t::controllerOut);
 		static_assert(sizeof(T) <= UINT16_MAX);
-		return controlTransfer(requestType, request, value, index, const_cast<T *>(&data), sizeof(T));
+		return controlTransfer(requestType, request, value, index, &data, sizeof(T));
 	}
 
 	[[nodiscard]] bool writeControl(requestType_t requestType, const uint8_t request,
@@ -228,21 +238,31 @@ public:
 		}
 	}
 
+	usbDevice_t(const usbDevice_t &) noexcept = delete;
 	usbDevice_t(usbDevice_t &&other) noexcept : usbDevice_t{} { swap(other); }
+	usbDevice_t &operator =(const usbDevice_t &) noexcept = delete;
 
+	// NOLINTNEXTLINE(modernize-use-equals-default)
 	~usbDevice_t() noexcept
 	{
 		if (device)
 			libusb_unref_device(device);
 	}
 
-	auto vid() const noexcept { return descriptor.idVendor; }
-	auto pid() const noexcept { return descriptor.idProduct; }
+	usbDevice_t &operator =(usbDevice_t &&other) noexcept
+	{
+		swap(other);
+		return *this;
+	}
 
-	auto busNumber() const noexcept { return libusb_get_bus_number(device); }
-	auto portNumber() const noexcept { return libusb_get_port_number(device); }
+	[[nodiscard]] auto vid() const noexcept { return descriptor.idVendor; }
+	[[nodiscard]] auto pid() const noexcept { return descriptor.idProduct; }
 
-	usbDeviceHandle_t open() const noexcept
+	[[nodiscard]] auto busNumber() const noexcept { return libusb_get_bus_number(device); }
+	[[nodiscard]] auto portNumber() const noexcept { return libusb_get_port_number(device); }
+
+	// NOLINTNEXTLINE(readability-convert-member-functions-to-static)
+	[[nodiscard]] usbDeviceHandle_t open() const noexcept
 	{
 		libusb_device_handle *handle{nullptr};
 		if (const auto result{libusb_open(device, &handle)}; result)

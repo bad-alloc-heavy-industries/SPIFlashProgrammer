@@ -3,6 +3,7 @@
 #define USB_CONTEXT_HXX
 
 // Horrible hack to make libusb conformant and not do stupid things.
+// NOLINTNEXTLINE(bugprone-reserved-identifier,cppcoreguidelines-macro-usage,cert-dcl37-c,cert-dcl51-cpp)
 #define __STDC_VERSION__ 199901L
 
 #include <string_view>
@@ -36,15 +37,25 @@ public:
 		}
 	}
 
+	usbContext_t(const usbContext_t &) noexcept = delete;
+	usbContext_t(usbContext_t &&other) noexcept : usbContext_t{} { swap(other); }
+	usbContext_t &operator =(const usbContext_t &) noexcept = delete;
+
 	~usbContext_t() noexcept
 	{
 		if (context)
 			libusb_exit(context);
 	}
 
-	bool valid() const noexcept { return context; }
+	usbContext_t &operator =(usbContext_t &&other) noexcept
+	{
+		swap(other);
+		return *this;
+	}
 
-	usbDeviceList_t deviceList() const noexcept
+	[[nodiscard]] bool valid() const noexcept { return context; }
+
+	[[nodiscard]] usbDeviceList_t deviceList() const noexcept
 	{
 		libusb_device **list{nullptr};
 		auto result = libusb_get_device_list(context, &list);
@@ -55,6 +66,9 @@ public:
 		}
 		return {list, result};
 	}
+
+	void swap(usbContext_t &other) noexcept
+		{ std::swap(context, other.context); }
 };
 
 #endif /*USB_CONSTEXT_HXX*/

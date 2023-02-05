@@ -13,7 +13,7 @@ using substrate::console;
 struct usbDeviceIter_t final
 {
 private:
-	libusb_device **current;
+	libusb_device **current{nullptr};
 
 public:
 	usbDeviceIter_t(libusb_device **current_) noexcept : current{current_} { }
@@ -42,14 +42,31 @@ public:
 	usbDeviceList_t(libusb_device **const deviceList_, ssize_t count_) noexcept :
 		deviceList{deviceList_}, count{static_cast<size_t>(count_)} { }
 
+	usbDeviceList_t(const usbDeviceList_t &) noexcept = delete;
+	usbDeviceList_t(usbDeviceList_t &&other) noexcept : usbDeviceList_t{} { swap(other); }
+	usbDeviceList_t &operator =(const usbDeviceList_t &) noexcept = delete;
+
+	// NOLINTNEXTLINE(modernize-use-equals-default)
 	~usbDeviceList_t() noexcept
 	{
 		if (count)
 			libusb_free_device_list(deviceList, false);
 	}
 
-	usbDeviceIter_t begin() const noexcept { return {deviceList}; }
-	usbDeviceIter_t end() const noexcept { return {deviceList + count}; }
+	usbDeviceList_t &operator =(usbDeviceList_t &&other) noexcept
+	{
+		swap(other);
+		return *this;
+	}
+
+	[[nodiscard]] usbDeviceIter_t begin() const noexcept { return {deviceList}; }
+	[[nodiscard]] usbDeviceIter_t end() const noexcept { return {deviceList + count}; }
+
+	void swap(usbDeviceList_t &other) noexcept
+	{
+		std::swap(deviceList, other.deviceList);
+		std::swap(count, other.count);
+	}
 };
 
 #endif /*USB_DEVICE_LIST_HXX*/
