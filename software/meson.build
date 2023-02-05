@@ -1,15 +1,12 @@
 # SPDX-License-Identifier: BSD-3-Clause
 
-substrate = dependency(
+substrate = subproject(
 	'substrate',
-	required: true,
-	version: '>=0.0.1',
-	fallback: ['substrate', 'substrate_dep'],
 	default_options: [
 		'build_tests=false',
-	],
-	native: true
-)
+		'cpp_std=c++17',
+	]
+).get_variable('substrate_native_dep')
 
 libusb = dependency('libusb-1.0', version: '>=1.0.21', native: true)
 

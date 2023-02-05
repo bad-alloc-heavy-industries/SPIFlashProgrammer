@@ -2,11 +2,9 @@
 
 substrate = subproject(
 	'substrate',
-	required: true,
-	version: '>=0.0.1',
 	default_options: [
 		'build_tests=false',
-		'build_library=false'
+		'cpp_std=c++17',
 	]
 ).get_variable(
 	'substrate_dep'
@@ -15,24 +13,20 @@ substrate = subproject(
 	includes: true
 )
 
-dragonTI = dependency(
+dragonTI = subproject(
 	'dragonTI',
-	required: true,
-	version: '>=0.0.1',
-	fallback: ['dragonTI', 'dragonTI_dep'],
 	default_options: [
 		'chip=tm4c123gh6pm',
 	]
+).get_variable(
+	'dragonTI_dep'
 ).partial_dependency(
 	compile_args: true,
 	includes: true
 )
 
-dragonUSB = dependency(
+dragonUSB = subproject(
 	'dragonUSB',
-	required: true,
-	version: '>=0.0.1',
-	fallback: ['dragonUSB', 'dragonUSB_dep'],
 	default_options: [
 		'chip=tm4c123gh6pm',
 		'interfaces=2',
@@ -46,7 +40,7 @@ dragonUSB = dependency(
 		'dfuFlashPageSize=128',
 		'drivers=dfu'
 	]
-)
+).get_variable('dragonUSB_dep')
 
 firmwareSrc = [
 	'startup.cxx', 'spiFlashProgrammer.cxx', 'led.cxx', 'spi.cxx',
