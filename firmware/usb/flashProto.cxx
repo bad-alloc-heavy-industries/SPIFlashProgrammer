@@ -425,12 +425,12 @@ namespace usb::flashProto
 		const auto begin{writeTotal - writeCount};
 		const auto end{writeTotal - epStatus.transferCount};
 		// For each new byte in the write buffer, write the byte to Flash
-		for (const auto i : substrate::indexSequence_t{begin, end})
-			spiWrite(device, flashBuffer[i]);
+		for (const auto idx : substrate::indexSequence_t{begin, end})
+			spiWrite(device, flashBuffer[idx]);
 		// Decrease the number of bytes left to write by the amount written
 		writeCount -= end - begin;
 		// If we finished writing a page or we finished recieving data
-		if (!(end & (targetParams.flashPageSize - 1)) || !writeCount)
+		if ((end & (targetParams.flashPageSize - 1)) == 0 || writeCount == 0)
 		{
 			spiSelect(spiChip_t::none);
 			if (targetParams.actualCapacity > 0x18U)
@@ -444,11 +444,11 @@ namespace usb::flashProto
 		if (writeCount == 0 && verifyWrite)
 		{
 			beginPageRead(verifyPage);
-			for (const auto i : substrate::indexSequence_t{writeTotal})
+			for (const auto idx : substrate::indexSequence_t{writeTotal})
 			{
-				if (flashBuffer[i] != spiRead(device))
+				if (flashBuffer[idx] != spiRead(device))
 					status.writeOK = false;
-				if ((i & (targetParams.flashPageSize - 1)) == 0)
+				if ((idx & (targetParams.flashPageSize - 1)) == 0)
 				{
 					spiSelect(spiChip_t::none);
 					beginPageRead(++verifyPage);
@@ -468,6 +468,7 @@ namespace usb::flashProto
 		}
 #endif
 
+		verifyPage = writePage;
 		writeAddress();
 
 		auto &epStatus{epStatusControllerOut[writeEndpoint]};
@@ -492,7 +493,6 @@ namespace usb::flashProto
 
 		writeTotal = writeCount;
 		verifyWrite = verify;
-		verifyPage = writePage;
 		status.writeOK = true;
 		return true;
 	}
