@@ -1,5 +1,5 @@
 [constants]
-common_flags = ['-mthumb', '-mcpu=cortex-m4', '-march=armv7e-m+fp', '-mfpu=fpv4-sp-d16', '-mfloat-abi=softfp']
+common_flags = ['-mthumb', '-mcpu=cortex-m4', '-march=armv7e-m+fp', '-mfpu=fpv4-sp-d16', '-mfloat-abi=softfp', '-mgeneral-regs-only']
 compile_flags = ['-ffunction-sections', '-fdata-sections', '-DPART_TM4C123GH6PM', '-DARM_MATH_CM4F', '-DTARGET_IS_BLIZZARD_RA1']
 link_flags = ['-nostartfiles', '--static', '-Wl,--gc-sections']
 
