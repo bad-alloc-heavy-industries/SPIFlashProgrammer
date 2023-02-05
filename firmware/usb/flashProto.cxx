@@ -513,7 +513,7 @@ namespace usb::flashProto
 
 		// Reset erase state and assert that
 		eraseActive = false;
-		checkEraseStatus();
+		eraseOperation = eraseOperation_t::idle;
 
 		// Reset the transfer endpoints and status information
 		status = {};
