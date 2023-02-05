@@ -163,8 +163,8 @@ int32_t eraseDevice(const usbDevice_t &rawDevice, const argsTree_t *const eraseA
 		return 1;
 	}
 
-	progressBar_t bar{"Erasing chip"sv};
-	bar.display();
+	progressBar_t progress{"Erasing chip"sv};
+	progress.display();
 	const auto startTime{std::chrono::steady_clock::now()};
 
 	if (!requests::erase_t{}.write(device, 0, eraseOperation_t::all))
@@ -173,7 +173,7 @@ int32_t eraseDevice(const usbDevice_t &rawDevice, const argsTree_t *const eraseA
 			return 2;
 		return 1;
 	}
-	++bar;
+	++progress;
 
 	responses::status_t status{};
 	while (!status.eraseComplete)
@@ -185,9 +185,9 @@ int32_t eraseDevice(const usbDevice_t &rawDevice, const argsTree_t *const eraseA
 				return 2;
 			return 1;
 		}
-		++bar;
+		++progress;
 	}
-	bar.close();
+	progress.close();
 	const auto endTime{std::chrono::steady_clock::now()};
 
 	console.info("Complete"sv);
@@ -222,8 +222,8 @@ int32_t eraseDevice(const usbDevice_t &rawDevice, const argsTree_t *const eraseA
 	}
 	const auto pagesPerBlock{static_cast<uint32_t>(transferBlockSize / chipInfo.pageSize)};
 	const auto blockCount{static_cast<uint32_t>(chipInfo.deviceSize / transferBlockSize)};
-	progressBar_t bar{"Reading chip "sv, blockCount};
-	bar.display();
+	progressBar_t progress{"Reading chip "sv, blockCount};
+	progress.display();
 	for (uint32_t block{}; block < blockCount; ++block)
 	{
 		const auto page{block * pagesPerBlock};
@@ -244,9 +244,9 @@ int32_t eraseDevice(const usbDevice_t &rawDevice, const argsTree_t *const eraseA
 				return 2;
 			return 1;
 		}
-		++bar;
+		++progress;
 	}
-	bar.close();
+	progress.close();
 	return 0;
 }
 
@@ -255,10 +255,10 @@ int32_t eraseDevice(const usbDevice_t &rawDevice, const argsTree_t *const eraseA
 {
 	const uint32_t pageSize{chipInfo.pageSize};
 	const uint32_t pageCount{chipInfo.deviceSize / pageSize};
-	progressBar_t bar{"Reading chip "sv, pageCount};
+	progressBar_t progress{"Reading chip "sv, pageCount};
 	// NOLINTNEXTLINE: cppcoreguidelines-avoid-c-arrays
 	auto data{std::make_unique<std::byte []>(pageSize)};
-	bar.display();
+	progress.display();
 	for (uint32_t page{}; page < pageCount; ++page)
 	{
 		if (!requests::read_t{page}.write(device, 0))
@@ -276,9 +276,9 @@ int32_t eraseDevice(const usbDevice_t &rawDevice, const argsTree_t *const eraseA
 				return 2;
 			return 1;
 		}
-		++bar;
+		++progress;
 	}
-	bar.close();
+	progress.close();
 	return 0;
 }
 
@@ -359,8 +359,8 @@ int32_t erasePages(const usbDeviceHandle_t &device, const responses::listDevice_
 		}()
 	};
 
-	progressBar_t bar{"Erasing chip "sv, pageCount};
-	bar.display();
+	progressBar_t progress{"Erasing chip "sv, pageCount};
+	progress.display();
 	if (!requests::erase_t{{}, {pageCount}}.write(device, 0, eraseOperation_t::pageRange))
 	{
 		if (!device.releaseInterface(0))
@@ -380,13 +380,13 @@ int32_t erasePages(const usbDeviceHandle_t &device, const responses::listDevice_
 		}
 		if (currentPage != status.erasePage)
 		{
-			bar += status.erasePage - currentPage;
+			progress += status.erasePage - currentPage;
 			currentPage = status.erasePage;
 		}
 		else
-			bar.display();
+			progress.display();
 	}
-	bar.close();
+	progress.close();
 	return 0;
 }
 
@@ -433,8 +433,8 @@ int32_t erasePages(const usbDeviceHandle_t &device, const responses::listDevice_
 			return blocks + (remainder ? 1U : 0U);
 		}()
 	};
-	progressBar_t bar{"Writing chip "sv, blockCount};
-	bar.display();
+	progressBar_t progress{"Writing chip "sv, blockCount};
+	progress.display();
 	for (uint32_t block{}; block < blockCount; ++block)
 	{
 		const auto page{block * pagesPerBlock};
@@ -462,9 +462,9 @@ int32_t erasePages(const usbDeviceHandle_t &device, const responses::listDevice_
 			if (result != 0)
 				return result;
 		}
-		++bar;
+		++progress;
 	}
-	bar.close();
+	progress.close();
 	return 0;
 }
 
@@ -481,10 +481,10 @@ int32_t erasePages(const usbDeviceHandle_t &device, const responses::listDevice_
 			return pages + (remainder ? 1U : 0U);
 		}()
 	};
-	progressBar_t bar{"Writing chip "sv, pageCount};
+	progressBar_t progress{"Writing chip "sv, pageCount};
 	// NOLINTNEXTLINE: cppcoreguidelines-avoid-c-arrays
 	auto data{std::make_unique<std::byte []>(pageSize)};
-	bar.display();
+	progress.display();
 	for (uint32_t page{}; page < pageCount; ++page)
 	{
 		const auto byteCount{std::min(uint32_t(fileLength) - (page * pageSize), pageSize)};
@@ -504,9 +504,9 @@ int32_t erasePages(const usbDeviceHandle_t &device, const responses::listDevice_
 			return 1;
 		}
 		// XXX: We need to write the veriication step for tiny devices still
-		++bar;
+		++progress;
 	}
-	bar.close();
+	progress.close();
 	return 0;
 }
 
