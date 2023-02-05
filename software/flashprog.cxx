@@ -390,6 +390,28 @@ int32_t erasePages(const usbDeviceHandle_t &device, const responses::listDevice_
 	return 0;
 }
 
+[[nodiscard]] int32_t verifyPages(const usbDeviceHandle_t &device, const uint32_t pagesPerBlock, const uint32_t page)
+{
+	responses::status_t status{};
+	// Read back the programmer status
+	if (!requests::status_t{}.read(device, 0, status))
+	{
+		if (!device.releaseInterface(0))
+			return 2;
+		return 1;
+	}
+	// Then check the verification status
+	if (!status.writeOK)
+	{
+		console.error("Verification of data on pages "sv, page, ":"sv,
+			page + pagesPerBlock - 1, " failed"sv);
+		if (!device.releaseInterface(0))
+			return 2;
+		return 1;
+	}
+	return 0;
+}
+
 [[nodiscard]] int32_t writeNormalDevice(const usbDeviceHandle_t &device, const responses::listDevice_t &chipInfo,
 	const substrate::fd_t &file, const substrate::off_t fileLength, const bool verify)
 {
@@ -436,21 +458,9 @@ int32_t erasePages(const usbDeviceHandle_t &device, const responses::listDevice_
 		}
 		else if (verify)
 		{
-			responses::status_t status{};
-			if (!requests::status_t{}.read(device, 0, status))
-			{
-				if (!device.releaseInterface(0))
-					return 2;
-				return 1;
-			}
-			else if (!status.writeOK)
-			{
-				console.error("Verification of data on pages "sv, page, ":"sv,
-					page + pagesPerBlock - 1, " failed"sv);
-				if (!device.releaseInterface(0))
-					return 2;
-				return 1;
-			}
+			const auto result{verifyPages(device, pagesPerBlock, page)};
+			if (result != 0)
+				return result;
 		}
 		++bar;
 	}
