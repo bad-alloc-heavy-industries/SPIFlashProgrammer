@@ -209,6 +209,79 @@ int32_t eraseDevice(const usbDevice_t &rawDevice, const argsTree_t *const eraseA
 	return status.eraseComplete == 1 ? 0 : 1;
 }
 
+[[nodiscard]] int32_t readNormalDevice(const usbDeviceHandle_t &device, const responses::listDevice_t &chipInfo,
+	substrate::fd_t &file)
+{
+	if (chipInfo.deviceSize % transferBlockSize)
+	{
+		console.error("Funky device size, is "sv, chipInfo.deviceSize,
+			", was expecting a device size that divided by "sv, transferBlockSize);
+		if (!device.releaseInterface(0))
+			return 1;
+		return 1;
+	}
+	const auto pagesPerBlock{static_cast<uint32_t>(transferBlockSize / chipInfo.pageSize)};
+	const auto blockCount{static_cast<uint32_t>(chipInfo.deviceSize / transferBlockSize)};
+	progressBar_t bar{"Reading chip "sv, blockCount};
+	bar.display();
+	for (uint32_t block{}; block < blockCount; ++block)
+	{
+		const auto page{block * pagesPerBlock};
+		if (!requests::read_t{page}.write(device, 0, transferBlockSize))
+		{
+			if (!device.releaseInterface(0))
+				return 2;
+			return 1;
+		}
+
+		std::array<std::byte, transferBlockSize> data{};
+		if (!device.readBulk(1, data.data(), data.size()) ||
+			!file.write(data))
+		{
+			console.error("Failed to read pages "sv, page, ":"sv, page + pagesPerBlock - 1,
+				" back from the device"sv);
+			if (!device.releaseInterface(0))
+				return 2;
+			return 1;
+		}
+		++bar;
+	}
+	bar.close();
+	return 0;
+}
+
+[[nodiscard]] int32_t readTinyDevice(const usbDeviceHandle_t &device, const responses::listDevice_t &chipInfo,
+	substrate::fd_t &file)
+{
+	const uint32_t pageSize{chipInfo.pageSize};
+	const uint32_t pageCount{chipInfo.deviceSize / pageSize};
+	progressBar_t bar{"Reading chip "sv, pageCount};
+	// NOLINTNEXTLINE: cppcoreguidelines-avoid-c-arrays
+	auto data{std::make_unique<std::byte []>(pageSize)};
+	bar.display();
+	for (uint32_t page{}; page < pageCount; ++page)
+	{
+		if (!requests::read_t{page}.write(device, 0))
+		{
+			if (!device.releaseInterface(0))
+				return 2;
+			return 1;
+		}
+
+		if (!device.readBulk(1, data.get(), pageSize) ||
+			!file.write(data, pageSize))
+		{
+			console.error("Failed to read page "sv, page, " back from the device"sv);
+			if (!device.releaseInterface(0))
+				return 2;
+			return 1;
+		}
+		++bar;
+	}
+	bar.close();
+	return 0;
+}
+
 int32_t readDevice(const usbDevice_t &rawDevice, const argsTree_t *const readArgs)
 {
 	const auto *const chip{dynamic_cast<flashprog::args::argChip_t *>(readArgs->find(argType_t::chip))};
@@ -239,76 +312,20 @@ int32_t readDevice(const usbDevice_t &rawDevice, const argsTree_t *const readArg
 		return 1;
 	}
 
-	const auto startTime{std::chrono::steady_clock::now()};
-
 	displayChipSize(chipInfo.deviceSize);
-	if (chipInfo.deviceSize >= transferBlockSize)
+	const auto startTime{std::chrono::steady_clock::now()};
+	const auto result
 	{
-		if (chipInfo.deviceSize % transferBlockSize)
+		[&]()
 		{
-			console.error("Funky device size, is "sv, chipInfo.deviceSize,
-				", was expecting a device size that divided by "sv, transferBlockSize);
-			if (!device.releaseInterface(0))
-				return 1;
-			return 1;
-		}
-		const auto pagesPerBlock{static_cast<uint32_t>(transferBlockSize / chipInfo.pageSize)};
-		const auto blockCount{static_cast<uint32_t>(chipInfo.deviceSize / transferBlockSize)};
-		progressBar_t bar{"Reading chip "sv, blockCount};
-		bar.display();
-		for (uint32_t block{}; block < blockCount; ++block)
-		{
-			const auto page{block * pagesPerBlock};
-			if (!requests::read_t{page}.write(device, 0, transferBlockSize))
-			{
-				if (!device.releaseInterface(0))
-					return 2;
-				return 1;
-			}
-
-			std::array<std::byte, transferBlockSize> data{};
-			if (!device.readBulk(1, data.data(), data.size()) ||
-				!fd.write(data))
-			{
-				console.error("Failed to read pages "sv, page, ":"sv, page + pagesPerBlock - 1,
-					" back from the device"sv);
-				if (!device.releaseInterface(0))
-					return 2;
-				return 1;
-			}
-			++bar;
-		}
-		bar.close();
-	}
-	else
-	{
-		const uint32_t pageSize{chipInfo.pageSize};
-		const uint32_t pageCount{chipInfo.deviceSize / pageSize};
-		progressBar_t bar{"Reading chip "sv, pageCount};
-		// NOLINTNEXTLINE: cppcoreguidelines-avoid-c-arrays
-		auto data{std::make_unique<std::byte []>(pageSize)};
-		bar.display();
-		for (uint32_t page{}; page < pageCount; ++page)
-		{
-			if (!requests::read_t{page}.write(device, 0))
-			{
-				if (!device.releaseInterface(0))
-					return 2;
-				return 1;
-			}
-
-			if (!device.readBulk(1, data.get(), pageSize) ||
-				!fd.write(data, pageSize))
-			{
-				console.error("Failed to read page "sv, page, " back from the device"sv);
-				if (!device.releaseInterface(0))
-					return 2;
-				return 1;
-			}
-			++bar;
-		}
-		bar.close();
-	}
+			if (chipInfo.deviceSize >= transferBlockSize)
+				return readNormalDevice(device, chipInfo, fd);
+			else
+				return readTinyDevice(device, chipInfo, fd);
+		}()
+	};
+	if (result != 0)
+		return result;
 	const auto endTime{std::chrono::steady_clock::now()};
 
 	console.info("Complete"sv);
