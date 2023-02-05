@@ -499,13 +499,25 @@ namespace usb::flashProto
 
 	static void handleAbort()
 	{
-		readCount = 0;
-		writeCount = 0;
-		eraseActive = false;
-		eraseOperation = eraseOperation_t::idle;
+		// Deselect the target device and clean up selection state
 		spiSelect(spiChip_t::none);
 		targetDevice = spiChip_t::none;
+		targetID = {};
+		targetParams = {};
+
+		// Reset the pending read, write and verification state
+		readCount = 0;
+		writeCount = 0;
+		writeTotal = 0;
+		verifyWrite = false;
+
+		// Reset erase state and assert that
+		eraseActive = false;
+		checkEraseStatus();
+
+		// Reset the transfer endpoints and status information
 		status = {};
+		epStatusControllerOut[0].resetStatus();
 	}
 
 	static void tick() noexcept
