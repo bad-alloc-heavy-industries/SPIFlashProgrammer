@@ -112,7 +112,7 @@ int32_t listDevices(const usbDevice_t &rawDevice)
 	catch (const requests::usbError_t &error)
 	{
 		console.error("Failure while listing devices: "sv, error.what());
-		[[maybe_unused]] const auto _{device.releaseInterface(0)};
+		[[maybe_unused]] const auto result{device.releaseInterface(0)};
 		return 1;
 	}
 
@@ -268,7 +268,7 @@ int32_t eraseDevice(const usbDevice_t &rawDevice, const argsTree_t *const eraseA
 			return 1;
 		}
 
-		if (!device.readBulk(1, data.get(), pageSize) ||
+		if (!device.readBulk(1, data.get(), static_cast<int32_t>(pageSize)) ||
 			!file.write(data, pageSize))
 		{
 			console.error("Failed to read page "sv, page, " back from the device"sv);
@@ -448,7 +448,7 @@ int32_t erasePages(const usbDeviceHandle_t &device, const responses::listDevice_
 
 		std::array<std::byte, transferBlockSize> data{};
 		if (!file.read(data.data(), byteCount) ||
-			!device.writeBulk(1, data.data(), byteCount))
+			!device.writeBulk(1, data.data(), static_cast<int32_t>(byteCount)))
 		{
 			console.error("Failed to write pages "sv, page, ":"sv, page + pagesPerBlock - 1,
 				" to the device"sv);
@@ -456,7 +456,7 @@ int32_t erasePages(const usbDeviceHandle_t &device, const responses::listDevice_
 				return 2;
 			return 1;
 		}
-		else if (verify)
+		if (verify)
 		{
 			const auto result{verifyPages(device, pagesPerBlock, page)};
 			if (result != 0)
@@ -496,7 +496,7 @@ int32_t erasePages(const usbDeviceHandle_t &device, const responses::listDevice_
 		}
 
 		if (!file.read(data, byteCount) ||
-			!device.writeBulk(1, data.get(), byteCount))
+			!device.writeBulk(1, data.get(), static_cast<int32_t>(byteCount)))
 		{
 			console.error("Failed to write page "sv, page, " to the device"sv);
 			if (!device.releaseInterface(0))
@@ -603,7 +603,7 @@ int32_t writeDevice(const usbDevice_t &rawDevice, const argsTree_t *const writeA
 
 const flashprog::args::argListDevices_t defaultOperation{};
 
-int32_t main(int argCount, char **argList)
+int main(const int argCount, const char *const *const argList) noexcept
 {
 	console = {stdout, stderr};
 	if (!parseArguments(argCount, argList, flashprog::options))
@@ -611,16 +611,16 @@ int32_t main(int argCount, char **argList)
 		console.error("Failed to parse arguments"sv);
 		return 1;
 	}
-	else if (args->ensureMaybeOneOf(argType_t::version, argType_t::help) == ensure_t::many)
+	if (args->ensureMaybeOneOf(argType_t::version, argType_t::help) == ensure_t::many)
 	{
 		console.error("Can only specify one of --help and --version, not both."sv);
 		return 1;
 	}
-	else if (args->find(argType_t::version))
+	if (args->find(argType_t::version))
 		return flashprog::versionInfo::printVersion();
-	else if (args->find(argType_t::help))
+	if (args->find(argType_t::help))
 		return flashprog::printHelp();
-	else if (args->ensureMaybeOneOf(argType_t::listDevices, argType_t::list, argType_t::erase,
+	if (args->ensureMaybeOneOf(argType_t::listDevices, argType_t::list, argType_t::erase,
 		argType_t::read, argType_t::write, argType_t::verifiedWrite) == ensure_t::many)
 	{
 		console.error("Multiple operations specified, please specify only one of "
@@ -654,13 +654,13 @@ int32_t main(int argCount, char **argList)
 	{
 		if (operation->type() == argType_t::listDevices)
 			return listDevices(devices[0]);
-		else if (operation->type() == argType_t::erase)
+		if (operation->type() == argType_t::erase)
 			return eraseDevice(devices[0], dynamic_cast<const argsTree_t *>(operation));
-		else if (operation->type() == argType_t::read)
+		if (operation->type() == argType_t::read)
 			return readDevice(devices[0], dynamic_cast<const argsTree_t *>(operation));
-		else if (operation->type() == argType_t::write)
+		if (operation->type() == argType_t::write)
 			return writeDevice(devices[0], dynamic_cast<const argsTree_t *>(operation), false);
-		else if (operation->type() == argType_t::verifiedWrite)
+		if (operation->type() == argType_t::verifiedWrite)
 			return writeDevice(devices[0], dynamic_cast<const argsTree_t *>(operation), true);
 	}
 
