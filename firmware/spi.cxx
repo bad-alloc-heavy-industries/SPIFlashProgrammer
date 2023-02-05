@@ -27,10 +27,12 @@
 
 namespace spi
 {
+	// NOLINTBEGIN(cppcoreguidelines-avoid-non-const-global-variables)
 	// These store what the local flash that's installed's manufacturer, type and capacity read as.
 	std::array<flashID_t, internalChips> localChip{};
 
 	static spiChip_t targetDevice{spiChip_t::none};
+	// NOLINTEND(cppcoreguidelines-avoid-non-const-global-variables)
 }
 
 using namespace spi;
@@ -122,6 +124,7 @@ void spiInit() noexcept
 
 void spiSelect(const spiChip_t chip) noexcept
 {
+	// NOLINTBEGIN(bugprone-branch-clone)
 	switch (chip)
 	{
 		case spiChip_t::local1:
@@ -141,6 +144,7 @@ void spiSelect(const spiChip_t chip) noexcept
 			gpioA.dataBits[0x08U] = 0x08U;
 			break;
 	}
+	// NOLINTEND(bugprone-branch-clone)
 	targetDevice = chip;
 }
 
@@ -164,7 +168,8 @@ void spiResync(tivaC::ssi_t &device)
 	// RxFIFONotEmpty should always be false on entry as otherwise read-to-write desynced,
 	// but lets check all the same just in case.
 	while (device.status & vals::ssi::statusRxFIFONotEmpty)
-		[[maybe_unused]] volatile auto _ = device.data;
+		// NOLINTNEXTLINE(readability-identifier-length)
+		[[maybe_unused]] const volatile auto _{device.data};
 }
 
 uint8_t spiRead(tivaC::ssi_t &device) noexcept
@@ -195,6 +200,7 @@ void spiWrite(tivaC::ssi_t &device, const uint8_t value) noexcept
 		continue;
 	while (!(device.status & vals::ssi::statusRxFIFONotEmpty))
 		continue;
+	// NOLINTNEXTLINE(readability-identifier-length)
 	[[maybe_unused]] const volatile auto _{device.data};
 }
 
