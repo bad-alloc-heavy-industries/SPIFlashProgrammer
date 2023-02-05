@@ -62,7 +62,7 @@ void sigwinchHandler(const int32_t) noexcept
 }
 
 progressBar_t::progressBar_t(std::string_view prefix, std::optional<std::size_t> total) noexcept :
-	total_{total}, prefix_{std::move(prefix)}
+	total_{total}, prefix_{prefix}
 {
 	struct sigaction action{};
 	action.sa_flags = SA_RESTART;
@@ -78,10 +78,11 @@ progressBar_t::progressBar_t(std::string_view prefix, std::optional<std::size_t>
 void progressBar_t::updateWindowSize() noexcept
 {
 	winsize result{};
+	// NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg)
 	if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &result) < 0)
 	{
-		const auto columns{getenv("COLUMNS")};
-		const auto rows{getenv("LINES")};
+		const auto *const columns{getenv("COLUMNS")};
+		const auto *const rows{getenv("LINES")};
 		if (columns && rows)
 		{
 			rows_ = substrate::toInt_t<std::size_t>{rows};
@@ -108,26 +109,30 @@ private:
 	float fraction;
 	std::size_t length;
 
-	constexpr static auto charset{substrate::make_array<std::string_view>(
+	constexpr static auto charset
 	{
-		u8" "sv,
-		u8"\u258F"sv,
-		u8"\u258E"sv,
-		u8"\u258D"sv,
-		u8"\u258C"sv,
-		u8"\u258B"sv,
-		u8"\u258A"sv,
-		u8"\u2589"sv,
-		u8"\u2588"sv
-	})};
+		substrate::make_array<std::string_view>(
+		{
+			u8" "sv,
+			u8"\u258F"sv,
+			u8"\u258E"sv,
+			u8"\u258D"sv,
+			u8"\u258C"sv,
+			u8"\u258B"sv,
+			u8"\u258A"sv,
+			u8"\u2589"sv,
+			u8"\u2588"sv
+		})
+	};
 
 public:
 	bar_t(const float frac, const std::size_t cols) : fraction{frac}, length{cols} { }
+
 	operator std::string() const noexcept
 	{
 		const auto charsetSyms{charset.size() - 1U};
 		const auto [barLength, fractionalBarIndex] =
-			std::div(int64_t(fraction * length * charsetSyms), charsetSyms);
+			std::div(int64_t(fraction * static_cast<float>(length * charsetSyms)), charsetSyms);
 		std::string result{};
 		//std::string result{charset.back(), 0U, std::size_t(barLength)};
 		for (std::size_t i{}; i < std::size_t(barLength); ++i)
@@ -145,7 +150,7 @@ public:
 
 void progressBar_t::display() noexcept
 {
-	const auto frac{float(count_) / (total_ ? *total_ : 1)};
+	const auto frac{float(count_) / static_cast<float>(total_ ? *total_ : 1)};
 	std::array<char, 4> percentageBuffer{};
 	if (total_)
 		std::snprintf(percentageBuffer.data(), percentageBuffer.size(), "%3.0f", frac * 100);
@@ -170,7 +175,7 @@ void progressBar_t::display() noexcept
 		spinnerLastUpdated_ = now;
 	}
 
-	if (!total_)
+	if (!total_ && startTime_)
 	{
 		const auto value{std::chrono::duration_cast<std::chrono::seconds>(now - *startTime_).count()};
 		const auto minsValue{value / 60U};
