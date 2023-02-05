@@ -311,10 +311,12 @@ namespace usb::flashProto
 
 	static void performRead(const uint8_t endpoint)
 	{
-		auto &device{*spiDevice()};
+		// If we've run out of work to do, return early.
 		if (readCount == 0)
 			return;
+		// Grab the USB stack IN endpoint control structure and SPI device to use
 		auto &epStatus{epStatusControllerIn[endpoint]};
+		auto &device{*spiDevice()};
 		// For each byte in the response buffer, read a byte from Flash and store it
 		for (auto &byte : response)
 			byte = spiRead(device);
@@ -323,12 +325,14 @@ namespace usb::flashProto
 		epStatus.transferCount = response.size();
 		// Transfer the data to the USB controller and tell it that we're ready for it to transmit
 		writeEP(endpoint);
+		// Update our read counters and perform any cleanup that might be necessary
 		readCount -= static_cast<uint16_t>(response.size());
 		if (readCount == 0)
 			spiSelect(spiChip_t::none);
 		else if (targetID.manufacturer == 0xEFU && targetID.type == 0xAAU &&
 			(readCount & (targetParams.flashPageSize - 1)) == 0)
 		{
+			// We're on a special winbond device where we have to entirely re-address the device every complete page
 			spiSelect(spiChip_t::none);
 			beginPageRead(++readPage);
 		}
@@ -336,28 +340,34 @@ namespace usb::flashProto
 
 	static void handleRead() noexcept
 	{
+		// Now we know what Flash page the USB host wants us to read, we better get busy with it
 		if (targetDevice == spiChip_t::none)
 		{
 			// TODO: Handle.. - use the status area to indicate we were asked to do something silly
 			return;
 		}
 
+		// Set up the SPI Flash read sequence and send the host the first buffer of data
 		beginPageRead(readPage);
 		performRead(readEndpoint);
 	}
 
 	static bool setupRead(const uint16_t count) noexcept
 	{
+		// Our first step on recieving a read request is to validate it's not over-large
 		if (count > flashBuffer.size())
 			return false;
-		else if (!count)
+		// Remap a count of 0 to the default read size of 256 bytes.
+		if (!count)
 			readCount = 256U;
 		else
 			readCount = count;
+		// We then have to set up to read from the USB host the Flash page they want us to read
 		auto &epStatus{epStatusControllerOut[0]};
 		epStatus.memBuffer = &readPage;
 		epStatus.transferCount = sizeof(readPage);
 		epStatus.needsArming(true);
+		// Once we have that information, we then dispatch to handleRead()
 		setupCallback = handleRead;
 		return true;
 	}
