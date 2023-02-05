@@ -83,9 +83,11 @@ private:
 	[[nodiscard]] bool interruptTransfer(const uint8_t endpoint, const void *const bufferPtr,
 		const int32_t bufferLen) const noexcept
 	{
+		// The const-cast here is required becasue libusb is not const-correct. It is UB, but we cannot avoid it.
 		const auto result
 		{
 			libusb_interrupt_transfer(device, endpoint,
+				// NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
 				const_cast<uint8_t *>(static_cast<const uint8_t *>(bufferPtr)), bufferLen, nullptr, 0)
 		};
 
@@ -105,9 +107,11 @@ private:
 	[[nodiscard]] bool bulkTransfer(const uint8_t endpoint, const void *const bufferPtr,
 		const int32_t bufferLen) const noexcept
 	{
+		// The const-cast here is required becasue libusb is not const-correct. It is UB, but we cannot avoid it.
 		const auto result
 		{
 			libusb_bulk_transfer(device, endpoint,
+				// NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
 				const_cast<uint8_t *>(static_cast<const uint8_t *>(bufferPtr)), bufferLen, nullptr, 0)
 		};
 		if (result)
@@ -126,9 +130,11 @@ private:
 	[[nodiscard]] bool controlTransfer(const requestType_t requestType, const uint8_t request, const uint16_t value,
 		const uint16_t index, const void *const bufferPtr, const uint16_t bufferLen) const noexcept
 	{
+		// The const-cast here is required becasue libusb is not const-correct. It is UB, but we cannot avoid it.
 		const auto result
 		{
 			libusb_control_transfer(device, requestType, request, value, index,
+				// NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
 				const_cast<uint8_t *>(static_cast<const uint8_t *>(bufferPtr)), bufferLen, 0)
 		};
 		if (result < 0)
