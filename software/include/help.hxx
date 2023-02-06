@@ -26,11 +26,12 @@ Operations:
 	write           Writes the contents of the requested file into a specific Flash chip
 	verifiedWrite   Does the same as write, but verifies the contents of the Flash chip after writing
 	erase           Performs a full chip erases on the requested Flash chip
+	sfdp            Reads and dumps the SFDP data from the requested Flash chip
 
-Options for list, read, write and verifiedWrite:
+Options for list, read, write, verifiedWrite, erase and sfdp:
 	--device        The SPIFlashProgrammer to use for the operation
 
-Options for read, write and verifiedWrite:
+Options for read, write, verifiedWrite, erase and sfdp:
 	--chip bus:N    Specifies what Flash chip on which bus you want to target.
 	                The chip specification works as follows:
 	                'bus' can be one of 'int' or 'ext' representing the internal (on-chip)

@@ -27,7 +27,8 @@ namespace flashprog::args
 		verifiedWrite,
 		device,
 		chip,
-		file
+		file,
+		sfdp
 	};
 
 	enum class ensure_t
@@ -151,6 +152,13 @@ namespace flashprog::args
 	public:
 		argVerifiedWrite_t() noexcept : argsTree_t{argType_t::verifiedWrite} { }
 		constexpr static auto name() noexcept { return "verifiedWrite"sv; }
+	};
+
+	struct argSFDP_t final : argsTree_t
+	{
+	public:
+		argSFDP_t() noexcept : argsTree_t{argType_t::sfdp} { }
+		constexpr static auto name() noexcept { return "sfdp"sv; }
 	};
 
 	struct argDevice_t final : argNode_t

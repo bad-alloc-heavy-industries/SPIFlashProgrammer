@@ -78,7 +78,7 @@ template<typename node_t> auto parsePerFlashCommand(tokenizer_t &lexer)
 		console.error("Could not add argument to the parsed arguments tree"sv);
 		throw std::exception{};
 	}
-	if constexpr (!std::is_same_v<node_t, argErase_t>)
+	if constexpr (!std::is_same_v<node_t, argErase_t> && !std::is_same_v<node_t, argSFDP_t>)
 	{
 		lexer.next();
 		auto file{substrate::make_unique<argFile_t>(token.value())};
@@ -118,6 +118,8 @@ std::unique_ptr<argNode_t> makeNode(tokenizer_t &lexer, const option_t &option)
 			return parsePerFlashCommand<argWrite_t>(lexer);
 		case argType_t::verifiedWrite:
 			return parsePerFlashCommand<argVerifiedWrite_t>(lexer);
+		case argType_t::sfdp:
+			return parsePerFlashCommand<argSFDP_t>(lexer);
 		default:
 			throw std::exception{};
 	}

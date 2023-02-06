@@ -14,6 +14,7 @@
 #include "help.hxx"
 #include "usbContext.hxx"
 #include "usbProtocol.hxx"
+#include "sfdp.hxx"
 #include "progress.hxx"
 
 // TODO: Add ChaiScript support for the flashing algorithms.
@@ -31,6 +32,7 @@ namespace flashprog
 		{"read"sv, argType_t::read},
 		{"write"sv, argType_t::write},
 		{"verifiedWrite"sv, argType_t::verifiedWrite},
+		{"sfdp"sv, argType_t::sfdp},
 	})};
 
 	inline int32_t printHelp() noexcept
@@ -588,6 +590,43 @@ int32_t writeDevice(const usbDevice_t &rawDevice, const argsTree_t *const writeA
 	return 0;
 }
 
+
+int32_t dumpSFDP(const usbDevice_t &rawDevice, const argsTree_t *const sfdpArgs)
+{
+	const auto *const chip{dynamic_cast<flashprog::args::argChip_t *>(sfdpArgs->find(argType_t::chip))};
+	if (!chip)
+		throw std::logic_error{"Chip specification for SFDP dump is null"};
+
+	// Setup the USB interface for use
+	const auto device{rawDevice.open()};
+	if (!device.valid() ||
+		!device.claimInterface(0))
+		return 1;
+
+	// Abort any stale running command and select the requested Flash chip
+	if (!requests::abort_t{}.write(device, 0) ||
+		!targetDevice(device, chip->bus(), chip->number()))
+	{
+		if (!device.releaseInterface(0))
+			return 2;
+		return 1;
+	}
+
+	// Call into the PC-side SFDP reader and display engine
+	sfdp::readAndDisplay(device, 0);
+
+	// Deselect the Flash chip now we're complete
+	if (!targetDevice(device, flashBus_t::unknown, 0))
+	{
+		if (!device.releaseInterface(0))
+			return 2;
+		return 1;
+	}
+
+	// And clean up
+	return device.releaseInterface(0) ? 0 : 1;
+}
+
 /*!
  * flashprog usage:
  *
@@ -600,6 +639,7 @@ int32_t writeDevice(const usbDevice_t &rawDevice, const argsTree_t *const writeA
  * write N file - Writes the contents of the given file into the selected device
  * verifiedWrite N file - writes the contents of the given file into the
  *     selected device, verifying the writes as it does.
+ * sfdp N - Dump the SFDP data for the given device
  */
 
 const flashprog::args::argListDevices_t defaultOperation{};
@@ -622,7 +662,7 @@ int main(const int argCount, const char *const *const argList) noexcept
 	if (args->find(argType_t::help))
 		return flashprog::printHelp();
 	if (args->ensureMaybeOneOf(argType_t::listDevices, argType_t::list, argType_t::erase,
-		argType_t::read, argType_t::write, argType_t::verifiedWrite) == ensure_t::many)
+		argType_t::read, argType_t::write, argType_t::verifiedWrite, argType_t::sfdp) == ensure_t::many)
 	{
 		console.error("Multiple operations specified, please specify only one of "
 			"listDevices, list, erase, read, write, and verifiedWrite only"sv);
@@ -630,7 +670,7 @@ int main(const int argCount, const char *const *const argList) noexcept
 	}
 
 	const auto *operation{args->findAny(argType_t::listDevices, argType_t::list, argType_t::erase,
-		argType_t::read, argType_t::write, argType_t::verifiedWrite)};
+		argType_t::read, argType_t::write, argType_t::verifiedWrite, argType_t::sfdp)};
 	if (!operation)
 		operation = &defaultOperation;
 
@@ -663,6 +703,8 @@ int main(const int argCount, const char *const *const argList) noexcept
 			return writeDevice(devices[0], dynamic_cast<const argsTree_t *>(operation), false);
 		if (operation->type() == argType_t::verifiedWrite)
 			return writeDevice(devices[0], dynamic_cast<const argsTree_t *>(operation), true);
+		if (operation->type() == argType_t::sfdp)
+			return dumpSFDP(devices[0], dynamic_cast<const argsTree_t *>(operation));
 	}
 
 	return 0;
