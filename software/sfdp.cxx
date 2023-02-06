@@ -79,8 +79,8 @@ namespace sfdp
 			else
 				console.writeln("invalid erase type"sv);
 		}
-		console.info("-> suspend opcode: "sv, asHex_t<2, '0'>(parameterTable.suspendOpcode));
-		console.info("-> resume opcode: "sv, asHex_t<2, '0'>(parameterTable.resumeOpcode));
+		console.info("-> power down opcode: "sv, asHex_t<2, '0'>(parameterTable.deepPowerdown.enterInstruction()));
+		console.info("-> wake up opcode: "sv, asHex_t<2, '0'>(parameterTable.deepPowerdown.exitInstruction()));
 		return true;
 	}
 

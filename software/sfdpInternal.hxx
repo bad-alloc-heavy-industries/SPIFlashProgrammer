@@ -112,6 +112,23 @@ namespace sfdp
 		}
 	};
 
+	struct deepPowerDown_t
+	{
+		std::array<uint8_t, 3> data{};
+
+		[[nodiscard]] uint8_t enterInstruction() const noexcept
+		{
+			const auto value{(uint16_t{data[2]} << 8U) | uint16_t{data[1]}};
+			return value >> 7U;
+		}
+
+		[[nodiscard]] uint8_t exitInstruction() const noexcept
+		{
+			const auto value{(uint16_t{data[1]} << 8U) | uint16_t{data[0]}};
+			return value >> 7U;
+		}
+	};
+
 	struct basicParameterTable_t
 	{
 		uint8_t value1{};
@@ -138,7 +155,7 @@ namespace sfdp
 		uint8_t resumeOpcode{};
 		uint8_t suspendOpcode{};
 		uint8_t statusRegisterPollingFlags{};
-		std::array<uint8_t, 3> deepPowerdown{};
+		deepPowerDown_t deepPowerdown{};
 		std::array<uint8_t, 3> dualAndQuadMode{};
 		uint8_t reserved4{};
 		uint32_t statusAndAddressingMode{};
