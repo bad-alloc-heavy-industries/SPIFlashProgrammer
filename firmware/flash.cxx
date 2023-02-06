@@ -2,6 +2,7 @@
 #include <substrate/utility>
 #include <substrate/units>
 #include "flash.hxx"
+#include "sfdp.hxx"
 
 using namespace substrate;
 
@@ -66,6 +67,21 @@ namespace flash
 		})
 	};
 
+	static std::optional<flashChip_t> readSFDP(const flashID_t chipID, const spiChip_t targetDevice) noexcept
+	{
+		const auto parameters{sfdp::parameters(targetDevice)};
+		if (!parameters)
+			return std::nullopt;
+		flashChip_t device{};
+		device.type = chipID.type;
+		device.reportedCapacity = chipID.capacity;
+		device.actualCapacity = parameters->capacity;
+		device.eraseInstruction = parameters->sectorEraseOpcode;
+		device.erasePageSize = parameters->sectorSize;
+		device.flashPageSize = parameters->pageSize;
+		return device;
+	}
+
 	flashChip_t findChip(const flashID_t chipID, const spiChip_t targetDevice) noexcept
 	{
 		for (const auto &mfr : manufacturers)
@@ -80,7 +96,11 @@ namespace flash
 				break;
 			}
 		}
-		// If we didn't find the chip in the database, fabricate something with common defaults
+		// If we didn't find the chip in the database, no worries - read the SFDP data if available
+		const auto parameters{readSFDP(chipID, targetDevice)};
+		if (parameters)
+			return *parameters;
+		// If we could not read the SFDP data then fabricate something based on some sensible fallbacks
 		return {chipID.type, chipID.capacity, chipID.capacity, 0xD8, 64_KiB, 256};
 	}
 } // namespace flash
