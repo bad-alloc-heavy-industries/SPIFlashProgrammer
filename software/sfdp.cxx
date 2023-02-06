@@ -1,8 +1,13 @@
 // SPDX-License-Identifier: BSD-3-Clause
+#include <string_view>
+#include <substrate/console>
 #include "sfdp.hxx"
 #include "sfdpInternal.hxx"
 #include "usbProtocol.hxx"
 
+using namespace std::literals::string_view_literals;
+using substrate::console;
+using substrate::asHex_t;
 using namespace flashProto;
 
 namespace sfdp
@@ -25,6 +30,15 @@ namespace sfdp
 		const usbDataSource_t &dataSource, const uint32_t address, T &buffer)
 			{ return sfdpRead(device, dataSource, address, &buffer, sizeof(T)); }
 
+	static void displayHeader(const sfdpHeader_t &header)
+	{
+		console.info("SFDP Header:"sv);
+		console.writeln("-> magic '"sv, header.magic, "'"sv);
+		console.writeln("-> version "sv, header.versionMajor, '.', header.versionMinor);
+		console.writeln("-> "sv, header.parameterHeadersCount(), " parameter headers"sv);
+		console.writeln("-> access protocol "sv, asHex_t<2, '0'>{uint8_t(header.accessProtocol)});
+	}
+
 	bool readAndDisplay(const usbDeviceHandle_t &device, const usbDataSource_t dataSource)
 	{
 		console.info("Reading SFDP data for device"sv);
@@ -38,6 +52,7 @@ namespace sfdp
 			console.error(" -> Expected signature '"sv, sfdpMagic, "'");
 			return true;
 		}
+		displayHeader(header);
 
 		return true;
 	}

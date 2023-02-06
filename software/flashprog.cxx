@@ -615,6 +615,7 @@ int32_t dumpSFDP(const usbDevice_t &rawDevice, const argsTree_t *const sfdpArgs)
 	// Call into the PC-side SFDP reader and display engine
 	if (!sfdp::readAndDisplay(device, {0, 1}))
 	{
+		console.error("Failed to read SFDP data"sv);
 		if (!device.releaseInterface(0))
 			return 2;
 		return 1;
