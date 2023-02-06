@@ -5,10 +5,10 @@
 #include <string>
 #include <algorithm>
 #include <array>
-#include <cstring>
 #include <csignal>
 #include <substrate/console>
 #include <substrate/conversions>
+#include <fmt/core.h>
 #include "progress.hxx"
 
 using substrate::console;
@@ -113,7 +113,7 @@ private:
 
 	constexpr static auto charset
 	{
-		substrate::make_array<std::string_view>(
+		substrate::make_array(
 		{
 			u8" "sv,
 			u8"\u258F"sv,
@@ -155,7 +155,7 @@ void progressBar_t::display() noexcept
 	const auto frac{float(count_) / static_cast<float>(total_ ? *total_ : 1)};
 	std::array<char, 4> percentageBuffer{};
 	if (total_)
-		std::snprintf(percentageBuffer.data(), percentageBuffer.size(), "%3.0f", frac * 100);
+		fmt::format_to_n(percentageBuffer.begin(), percentageBuffer.size(), "{:>3.0f}"sv, frac * 100);
 	else
 		percentageBuffer = percentageUnknown;
 	percentageBuffer[percentageBuffer.size() - 1] = 0;
