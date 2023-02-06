@@ -53,6 +53,8 @@ constexpr static auto spinner{substrate::make_array<std::string_view>(
 #endif
 })};
 
+constexpr static std::array<char, 4> percentageUnknown{"---"};
+
 constexpr static auto spinnerTimestep{75ms};
 
 void sigwinchHandler(const int32_t) noexcept
@@ -155,7 +157,7 @@ void progressBar_t::display() noexcept
 	if (total_)
 		std::snprintf(percentageBuffer.data(), percentageBuffer.size(), "%3.0f", frac * 100);
 	else
-		std::strncpy(percentageBuffer.data(), "---", 4);
+		percentageBuffer = percentageUnknown;
 	percentageBuffer[percentageBuffer.size() - 1] = 0;
 	const std::string_view percentage{percentageBuffer.data(), percentageBuffer.size()};
 
