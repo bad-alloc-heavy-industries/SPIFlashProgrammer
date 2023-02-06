@@ -613,7 +613,12 @@ int32_t dumpSFDP(const usbDevice_t &rawDevice, const argsTree_t *const sfdpArgs)
 	}
 
 	// Call into the PC-side SFDP reader and display engine
-	sfdp::readAndDisplay(device, 0);
+	if (!sfdp::readAndDisplay(device, {0, 1}))
+	{
+		if (!device.releaseInterface(0))
+			return 2;
+		return 1;
+	}
 
 	// Deselect the Flash chip now we're complete
 	if (!targetDevice(device, flashBus_t::unknown, 0))

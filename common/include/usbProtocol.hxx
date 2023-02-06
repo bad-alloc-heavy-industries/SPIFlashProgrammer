@@ -359,7 +359,6 @@ namespace flashProto
 			constexpr sfdp_t() noexcept = default;
 
 #ifndef __arm__
-			template<typename T, size_t length>
 			[[nodiscard]] bool write(const usbDeviceHandle_t &device, uint8_t interface,
 				const uint16_t readCount, const uint32_t address) const noexcept
 			{

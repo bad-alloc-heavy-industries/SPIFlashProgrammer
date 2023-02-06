@@ -7,7 +7,13 @@
 
 namespace sfdp
 {
-	void readAndDisplay(const usbDeviceHandle_t &device, uint8_t interface);
+	struct usbDataSource_t
+	{
+		uint8_t interface;
+		uint8_t endpoint;
+	};
+
+	bool readAndDisplay(const usbDeviceHandle_t &device, usbDataSource_t dataSource);
 } // namespace sfdp
 
 #endif /*SFDP_HXX*/
