@@ -1,2 +1,5 @@
 /build/
 /.vscode/
+/deps/*
+!/deps/*.wrap
+!/deps/packagefiles
