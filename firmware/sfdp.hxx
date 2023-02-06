@@ -59,7 +59,7 @@ namespace sfdp
 
 		[[nodiscard]] uint16_t jedecParameterID() const noexcept
 			{ return static_cast<uint16_t>((jedecParameterIDHigh << 8U) | jedecParameterIDLow); }
-		[[nodiscard]] size_t tableLength() const noexcept { return tableLengthInU32s * 4U; }
+		[[nodiscard]] size_t tableLength() const noexcept { return static_cast<size_t>(tableLengthInU32s) * 4U; }
 	};
 
 	struct memoryDensity_t
@@ -88,13 +88,13 @@ namespace sfdp
 		}
 	};
 
-	struct timingsAndOpcode_t
+	struct [[gnu::packed]] timingsAndOpcode_t
 	{
 		uint8_t timings{};
 		uint8_t opcode{};
 	};
 
-	struct eraseParameters_t
+	struct [[gnu::packed]] eraseParameters_t
 	{
 		uint8_t eraseSizeExponent{};
 		uint8_t opcode{};
@@ -114,7 +114,7 @@ namespace sfdp
 		}
 	};
 
-	struct [[gnu::packed]] basicParameterTable_t
+	struct basicParameterTable_t
 	{
 		uint8_t value1{};
 		uint8_t sectorEraseOpcode{};
