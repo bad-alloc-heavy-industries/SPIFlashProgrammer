@@ -321,6 +321,7 @@ namespace usb::flashProto
 		}
 		else
 		{
+			// NOLINTNEXTLINE(cppcoreguidelines-init-variables)
 			const uint32_t pageAddress{page * targetParams.flashPageSize};
 			spiSelect(targetDevice);
 			spiWrite(device, spiOpcodes::pageRead);
@@ -413,6 +414,7 @@ namespace usb::flashProto
 		}
 		else
 		{
+			// NOLINTNEXTLINE(cppcoreguidelines-init-variables)
 			const uint32_t writeAddress{writePage * targetParams.flashPageSize};
 			++writePage;
 			spiSelect(targetDevice);
@@ -587,6 +589,7 @@ namespace usb::flashProto
 			}
 			else
 			{
+				// NOLINTNEXTLINE(cppcoreguidelines-init-variables)
 				const uint32_t eraseAddress{eraseConfig.beginPage * targetParams.erasePageSize};
 				// Translate the page number into a byte address
 				spiWrite(*device, uint8_t(eraseAddress >> 16U));
