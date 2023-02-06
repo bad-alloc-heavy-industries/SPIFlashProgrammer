@@ -8,14 +8,6 @@
 #include <tm4c123gh6pm/platform.hxx>
 #include "flash.hxx"
 
-enum class spiChip_t
-{
-	local1,
-	local2,
-	target,
-	none
-};
-
 void spiInit() noexcept;
 void spiSelect(spiChip_t chip) noexcept;
 tivaC::ssi_t *spiDevice() noexcept;
@@ -31,6 +23,7 @@ bool isDeviceReset() noexcept;
 namespace spi
 {
 	constexpr static const uint8_t internalChips{2};
+	// NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables)
 	extern std::array<flashID_t, internalChips> localChip;
 }
 

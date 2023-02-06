@@ -6,6 +6,14 @@
 #include <array>
 #include "usbProtocol.hxx"
 
+enum class spiChip_t
+{
+	local1,
+	local2,
+	target,
+	none
+};
+
 struct flashID_t
 {
 	uint8_t manufacturer;
@@ -29,7 +37,7 @@ struct flashChip_t
 
 namespace flash
 {
-	flashChip_t findChip(flashID_t chipID) noexcept;
+	flashChip_t findChip(flashID_t chipID, spiChip_t targetDevice) noexcept;
 }
 
 #endif /*FLASH_HXX*/

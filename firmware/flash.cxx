@@ -66,7 +66,7 @@ namespace flash
 		})
 	};
 
-	flashChip_t findChip(const flashID_t chipID) noexcept
+	flashChip_t findChip(const flashID_t chipID, const spiChip_t targetDevice) noexcept
 	{
 		for (const auto &mfr : manufacturers)
 		{

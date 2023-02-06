@@ -50,6 +50,12 @@ namespace usb::flashProto
 	static responses::status_t status{};
 	// NOLINTEND(cppcoreguidelines-avoid-non-const-global-variables)
 
+	constexpr static std::array<spiChip_t, spi::internalChips> internalChipMap
+	{
+		spiChip_t::local1,
+		spiChip_t::local2,
+	};
+
 	template<typename T> void sendResponse(const T &data)
 	{
 		auto &epStatus{epStatusControllerIn[1]};
@@ -94,7 +100,7 @@ namespace usb::flashProto
 		{
 			if (deviceNumber <= spi::internalChips)
 			{
-				const auto chip{flash::findChip(spi::localChip[deviceNumber])};
+				const auto chip{flash::findChip(spi::localChip[deviceNumber], internalChipMap[deviceNumber])};
 				device.manufacturer = spi::localChip[deviceNumber].manufacturer;
 				device.deviceType = chip.type;
 				device.deviceSize = power2(chip.actualCapacity);
@@ -107,7 +113,7 @@ namespace usb::flashProto
 			if (deviceNumber == 0)
 			{
 				const auto chipID{identDevice(spiChip_t::target)};
-				const auto chip{flash::findChip(chipID)};
+				const auto chip{flash::findChip(chipID, spiChip_t::target)};
 				device.manufacturer = chipID.manufacturer;
 				device.deviceType = chip.type;
 				device.deviceSize = power2(chip.actualCapacity);
@@ -176,12 +182,9 @@ namespace usb::flashProto
 
 		if (deviceType == flashBus_t::internal)
 		{
-			if (deviceNumber == 0)
-				targetDevice = spiChip_t::local1;
-			else if (deviceNumber == 1)
-				targetDevice = spiChip_t::local2;
-			else
+			if (deviceNumber >= internalChipMap.size())
 				return false;
+			targetDevice = internalChipMap[deviceNumber];
 			targetID = spi::localChip[deviceNumber];
 		}
 		else if (deviceType == flashBus_t::external)
@@ -198,7 +201,7 @@ namespace usb::flashProto
 			else
 				return false;
 		}
-		else
+		else // if (deviceType == flashBus_t::unknown)
 		{
 			if (targetDevice == spiChip_t::target)
 			{
@@ -222,7 +225,7 @@ namespace usb::flashProto
 			targetID = {};
 		}
 		if (deviceType != flashBus_t::unknown)
-			targetParams = flash::findChip(targetID);
+			targetParams = flash::findChip(targetID, targetDevice);
 		return true;
 	}
 
