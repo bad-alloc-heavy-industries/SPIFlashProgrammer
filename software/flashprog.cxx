@@ -105,7 +105,8 @@ int32_t listDevices(const usbDevice_t &rawDevice)
 		console.info("Internal devices:"sv);
 		for (uint8_t internalDevice{0}; internalDevice < internalDeviceCount; ++internalDevice)
 			listDevice(device, {flashBus_t::internal, internalDevice});
-		console.info("External devices:"sv);
+		if (externalDeviceCount)
+			console.info("External devices:"sv);
 		for (uint8_t externalDevice{0}; externalDevice < externalDeviceCount; ++externalDevice)
 			listDevice(device, {flashBus_t::external, externalDevice});
 	}
