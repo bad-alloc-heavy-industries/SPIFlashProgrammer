@@ -8,6 +8,13 @@ substrate = subproject(
 	]
 ).get_variable('substrate_native_dep')
 
+fmt = subproject(
+	'fmt',
+	default_options: [
+		'default_library=static',
+	],
+).get_variable('fmt_dep')
+
 libusb = dependency('libusb-1.0', version: '>=1.0.21', native: true)
 
 subdir('include')
@@ -21,7 +28,7 @@ executable(
 	'flashprog',
 	flashprogSrc,
 	include_directories: [include_directories('include'), commonInclude],
-	dependencies: [libusb, substrate],
+	dependencies: [libusb, substrate, fmt],
 	gnu_symbol_visibility: 'inlineshidden',
 	build_by_default: true,
 	install: false,
