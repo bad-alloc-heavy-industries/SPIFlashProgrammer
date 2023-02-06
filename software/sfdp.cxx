@@ -2,15 +2,19 @@
 #include <string_view>
 #include <substrate/console>
 #include <substrate/index_sequence>
+#include <substrate/indexed_iterator>
 #include "sfdp.hxx"
 #include "sfdpInternal.hxx"
 #include "usbProtocol.hxx"
+#include "utils/units.hxx"
 
 using namespace std::literals::string_view_literals;
 using substrate::console;
 using substrate::asHex_t;
 using substrate::indexSequence_t;
+using substrate::indexedIterator_t;
 using namespace flashProto;
+using flashprog::utils::humanReadableSize;
 
 namespace sfdp
 {
@@ -57,8 +61,26 @@ namespace sfdp
 		if (!sfdpRead(device, dataSource, address, &parameterTable, std::min(sizeof(basicParameterTable_t), length)))
 			return false;
 
-		console.info("Basic parameter table");
-		console.info("-> capacity "sv, parameterTable.flashMemoryDensity.capacity());
+		console.info("Basic parameter table:");
+		const auto [capacityValue, capacityUnits] = humanReadableSize(parameterTable.flashMemoryDensity.capacity());
+		console.info("-> capacity "sv, capacityValue, capacityUnits);
+		console.info("-> program page size: "sv, parameterTable.programmingAndChipEraseTiming.pageSize());
+		console.info("-> sector erase opcode: "sv, asHex_t<2, '0'>(parameterTable.sectorEraseOpcode));
+		console.info("-> supported erase types:"sv);
+		for (const auto &[idx, eraseType] : indexedIterator_t{parameterTable.eraseTypes})
+		{
+			console.info("\t-> "sv, idx + 1U, ": "sv, nullptr);
+			if (eraseType.eraseSizeExponent != 0U)
+			{
+				const auto [sizeValue, sizeUnits] = humanReadableSize(eraseType.eraseSize());
+				console.writeln("opcode "sv, asHex_t<2, '0'>(eraseType.opcode), ", erase size: "sv,
+					sizeValue, sizeUnits);
+			}
+			else
+				console.writeln("invalid erase type"sv);
+		}
+		console.info("-> suspend opcode: "sv, asHex_t<2, '0'>(parameterTable.suspendOpcode));
+		console.info("-> resume opcode: "sv, asHex_t<2, '0'>(parameterTable.resumeOpcode));
 		return true;
 	}
 
