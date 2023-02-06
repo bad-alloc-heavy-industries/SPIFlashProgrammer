@@ -26,7 +26,8 @@ namespace flashProto
 		verifiedWrite,
 		resetTarget,
 		status,
-		abort
+		abort,
+		sfdp
 	};
 
 	enum class flashBus_t : uint8_t
@@ -349,6 +350,21 @@ namespace flashProto
 			{
 				return device.writeControl({recipient_t::interface, request_t::typeClass},
 					static_cast<uint8_t>(messages_t::abort), 0, interface, nullptr);
+			}
+#endif
+		};
+
+		struct sfdp_t final
+		{
+			constexpr sfdp_t() noexcept = default;
+
+#ifndef __arm__
+			template<typename T, size_t length>
+			[[nodiscard]] bool write(const usbDeviceHandle_t &device, uint8_t interface,
+				const uint16_t readCount, const uint32_t address) const noexcept
+			{
+				return device.writeControl({recipient_t::interface, request_t::typeClass},
+					static_cast<uint8_t>(messages_t::sfdp), readCount, interface, address);
 			}
 #endif
 		};

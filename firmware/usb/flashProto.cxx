@@ -24,6 +24,12 @@ using usb::device::packet;
 
 namespace usb::flashProto
 {
+	enum class readMode_t
+	{
+		data,
+		sfdp
+	};
+
 	// NOLINTBEGIN(cppcoreguidelines-avoid-non-const-global-variables)
 	static std::array<uint8_t, epBufferSize> response{};
 	static std::array<uint8_t, 4096> flashBuffer{};
@@ -31,6 +37,7 @@ namespace usb::flashProto
 	static flashID_t targetID{};
 	static flashChip_t targetParams{};
 
+	static readMode_t readMode{readMode_t::data};
 	static uint8_t readEndpoint{};
 	static page_t readPage{};
 	static uint16_t readCount{};
@@ -46,6 +53,8 @@ namespace usb::flashProto
 
 	static bool verifyWrite{};
 	static page_t verifyPage{};
+
+	static uint32_t sfdpAddress{};
 
 	static responses::status_t status{};
 	// NOLINTEND(cppcoreguidelines-avoid-non-const-global-variables)
@@ -371,6 +380,7 @@ namespace usb::flashProto
 		}
 
 		// Set up the SPI Flash read sequence and send the host the first buffer of data
+		readMode = readMode_t::data;
 		beginPageRead(readPage);
 		performRead(readEndpoint);
 	}
@@ -549,7 +559,7 @@ namespace usb::flashProto
 		eraseActive = false;
 		eraseOperation = eraseOperation_t::idle;
 
-		// Reset the transfer endpoints and status information
+		// Reset the transfer endpoints
 		auto &epStatusOut{epStatusControllerOut[readEndpoint]};
 		epStatusOut.memBuffer = nullptr;
 		epStatusOut.transferCount = 0;
@@ -561,7 +571,88 @@ namespace usb::flashProto
 		epStatusIn.resetStatus();
 		flushWriteEP(writeEndpoint);
 
+		// Reset mode and status information
+		readMode = readMode_t::data;
 		status = {};
+	}
+
+	static void performSFDPRead(const uint8_t endpoint) noexcept
+	{
+		// If we've run out of work to do, return early.
+		if (readCount == 0)
+			return;
+		// Grab the USB stack IN endpoint control structure and SPI device to use
+		auto &epStatus{epStatusControllerIn[endpoint]};
+		auto &device{*spiDevice()};
+		// We only want to read up to the requested number of bytes, so pick
+		// between the read count remaining and the response buffer size (whichever's smaller)
+		const auto amount{std::min(static_cast<uint16_t>(response.size()), readCount)};
+		// read amount SFDP bytes and store them in the response buffer
+		for (const auto idx : substrate::indexSequence_t{amount})
+			response[idx] = spiRead(device);
+		// Reset the transfer buffer pointer and amount
+		epStatus.memBuffer = response.data();
+		epStatus.transferCount = amount;
+		// Transfer the data to the USB controller and tell it that we're ready for it to transmit
+		writeEP(endpoint);
+		// Update our read counters and perform any cleanup that might be necessary
+		readCount -= amount;
+		if (readCount == 0)
+			spiSelect(spiChip_t::none);
+	}
+
+	static void handleSFDPRead() noexcept
+	{
+		// Now we know what SFDP address the USB host wants us to read, we better get busy with it
+		if (targetDevice == spiChip_t::none)
+		{
+			// TODO: Handle.. - use the status area to indicate we were asked to do something silly
+			return;
+		}
+
+		// Set up the SPI Flash SFDP read sequence
+		readMode = readMode_t::sfdp;
+
+		auto &device{*spiDevice(targetDevice)};
+		spiSelect(targetDevice);
+		spiWrite(device, spiOpcodes::readSFDP);
+		// Send the address for the standard SFDP data start
+		spiWrite(device, uint8_t(sfdpAddress >> 16U));
+		spiWrite(device, uint8_t(sfdpAddress >> 8U));
+		spiWrite(device, uint8_t(sfdpAddress));
+		// And the required dummy byte
+		spiWrite(device, 0);
+
+		// Send the host the first buffer of data
+		performSFDPRead(readEndpoint);
+	}
+
+	static bool setupSFDPRead(const uint16_t count) noexcept
+	{
+		// Our first step on recieving a read request is to validate it's not over-large
+		if (count > flashBuffer.size())
+			return false;
+		// Remap a count of 0 to the default read size of 256 bytes.
+		if (!count)
+			readCount = 256U;
+		else
+			readCount = count;
+		// We then have to set up to read from the USB host the address of the SFDP block they wish to read
+		auto &epStatus{epStatusControllerOut[0]};
+		epStatus.memBuffer = &sfdpAddress;
+		epStatus.transferCount = sizeof(sfdpAddress);
+		epStatus.needsArming(true);
+		// Once we have that information, we then dispatch to handleSFDP()
+		setupCallback = handleSFDPRead;
+		return true;
+	}
+
+	static void performDataOrSFDPRead(const uint8_t endpoint)
+	{
+		if (readMode == readMode_t::data)
+			performRead(endpoint);
+		else
+			performSFDPRead(endpoint);
 	}
 
 	static void tick() noexcept
@@ -665,6 +756,13 @@ namespace usb::flashProto
 					return {response_t::stall, nullptr, 0};
 				handleAbort();
 				return {response_t::zeroLength, nullptr, 0};
+			case messages_t::sfdp:
+				if (packet.requestType.dir() != endpointDir_t::controllerOut)
+					return {response_t::stall, nullptr, 0};
+				if (setupSFDPRead(packet.value))
+					return {response_t::zeroLength, nullptr, 0};
+				else
+					return {response_t::stall, nullptr, 0};
 		}
 
 		return {response_t::stall, nullptr, 0};
@@ -674,7 +772,7 @@ namespace usb::flashProto
 	{
 		nullptr,
 		nullptr,
-		performRead
+		performDataOrSFDPRead
 	};
 
 	static const handler_t flashProtoOutHandler
