@@ -16,6 +16,7 @@
 #include "usbProtocol.hxx"
 #include "sfdp.hxx"
 #include "progress.hxx"
+#include "utils/units.hxx"
 
 // TODO: Add ChaiScript support for the flashing algorithms.
 
@@ -127,23 +128,9 @@ int32_t listDevices(const usbDevice_t &rawDevice)
 bool targetDevice(const usbDeviceHandle_t &device, const flashBus_t deviceType, const uint8_t deviceNumber) noexcept
 	{ return requests::targetDevice_t{deviceNumber, deviceType}.write(device, 0); }
 
-std::tuple<uint32_t, std::string_view> humanReadableSize(uint32_t size)
-{
-	if (size < 1024U)
-		return {size, "B"sv};
-	size /= 1024U;
-	if (size < 1024U)
-		return {size, "kiB"sv};
-	size /= 1024U;
-	if (size < 1024U)
-		return {size, "MiB"sv};
-	size /= 1024U;
-	return {size, "GiB"sv};
-}
-
 void displayChipSize(const uint32_t chipSize) noexcept
 {
-	const auto [size, units] = humanReadableSize(chipSize);
+	const auto [size, units] = flashprog::utils::humanReadableSize(chipSize);
 	console.info("Chip is "sv, size, units, " in size"sv);
 }
 
