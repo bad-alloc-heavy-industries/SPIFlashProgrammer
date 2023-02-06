@@ -21,8 +21,8 @@ namespace sfdp
 		spiWrite(device, 0);
 
 		auto *const data{static_cast<uint8_t *>(buffer)};
-		for (const auto i : substrate::indexSequence_t{bufferLen})
-			data[i] = spiRead(device);
+		for (const auto idx : substrate::indexSequence_t{bufferLen})
+			data[idx] = spiRead(device);
 		spiSelect(spiChip_t::none);
 	}
 
@@ -56,10 +56,10 @@ namespace sfdp
 		if (header.magic != sfdpMagic)
 			return std::nullopt;
 
-		for (const auto i : substrate::indexSequence_t{header.parameterHeadersCount()})
+		for (const auto idx : substrate::indexSequence_t{header.parameterHeadersCount()})
 		{
 			parameterTableHeader_t tableHeader{};
-			sfdpRead(device, tableHeaderAddress + (sizeof(parameterTableHeader_t) * i), tableHeader);
+			sfdpRead(device, tableHeaderAddress + (sizeof(parameterTableHeader_t) * idx), tableHeader);
 			if (tableHeader.jedecParameterID() == basicSPIParameterTable)
 				return readBasicParameterTable(device, tableHeader.tableAddress, tableHeader.tableLength());
 		}
