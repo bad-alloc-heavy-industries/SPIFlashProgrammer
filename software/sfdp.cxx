@@ -50,6 +50,18 @@ namespace sfdp
 		console.info("-> table SFDP address: "sv, uint32_t{header.tableAddress});
 	}
 
+	static bool displayBasicParameterTable(const usbDeviceHandle_t &device, const usbDataSource_t &dataSource,
+		const uint32_t address, const size_t length)
+	{
+		basicParameterTable_t parameterTable{};
+		if (!sfdpRead(device, dataSource, address, &parameterTable, std::min(sizeof(basicParameterTable_t), length)))
+			return false;
+
+		console.info("Basic parameter table");
+		console.info("-> capacity "sv, parameterTable.flashMemoryDensity.capacity());
+		return true;
+	}
+
 	bool readAndDisplay(const usbDeviceHandle_t &device, const usbDataSource_t dataSource)
 	{
 		console.info("Reading SFDP data for device"sv);
@@ -71,6 +83,11 @@ namespace sfdp
 			if (!sfdpRead(device, dataSource, tableHeaderAddress + (sizeof(parameterTableHeader_t) * idx), tableHeader))
 				return false;
 			displayTableHeader(tableHeader, idx + 1U);
+			if (tableHeader.jedecParameterID() == basicSPIParameterTable)
+			{
+				if (!displayBasicParameterTable(device, dataSource, tableHeader.tableAddress, tableHeader.tableLength()))
+					return false;
+			}
 		}
 		return true;
 	}
