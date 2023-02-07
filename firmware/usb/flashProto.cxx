@@ -12,6 +12,7 @@
 #include "usbProtocol.hxx"
 #include "flashProto.hxx"
 #include "spi.hxx"
+#include "led.hxx"
 #include "timer.hxx"
 
 using namespace substrate;
@@ -256,6 +257,7 @@ namespace usb::flashProto
 	static void handleErase() noexcept
 	{
 		status.eraseComplete = 0;
+		ledSetColour(true, false, true);
 		switch (eraseOperation)
 		{
 			case eraseOperation_t::all:
@@ -277,6 +279,7 @@ namespace usb::flashProto
 				eraseActive = true;
 				break;
 			default:
+				ledSetColour(true, false, false);
 				status.eraseComplete = 3;
 		}
 	}
@@ -362,7 +365,10 @@ namespace usb::flashProto
 		// Update our read counters and perform any cleanup that might be necessary
 		readCount -= static_cast<uint16_t>(response.size());
 		if (readCount == 0)
+		{
 			spiSelect(spiChip_t::none);
+			ledSetColour(false, true, false);
+		}
 		else if (targetID.manufacturer == 0xEFU && targetID.type == 0xAAU &&
 			(readCount & (targetParams.flashPageSize - 1)) == 0)
 		{
@@ -404,6 +410,7 @@ namespace usb::flashProto
 		epStatus.needsArming(true);
 		// Once we have that information, we then dispatch to handleRead()
 		setupCallback = handleRead;
+		ledSetColour(false, false, false);
 		return true;
 	}
 
@@ -475,6 +482,8 @@ namespace usb::flashProto
 				continue;
 			if (writeCount)
 				writeAddress();
+			else
+				ledSetColour(false, true, false);
 		}
 		// If we completed writing the buffer and we need to verify, perform verification
 		if (writeCount == 0 && verifyWrite)
@@ -527,6 +536,7 @@ namespace usb::flashProto
 		epStatus.needsArming(true);
 		setupCallback = handleWrite;
 
+		ledSetColour(true, true, false);
 		writeTotal = writeCount;
 		verifyWrite = verify;
 		status.writeOK = true;
@@ -600,7 +610,10 @@ namespace usb::flashProto
 		// Update our read counters and perform any cleanup that might be necessary
 		readCount -= amount;
 		if (readCount == 0)
+		{
 			spiSelect(spiChip_t::none);
+			ledSetColour(false, true, false);
+		}
 	}
 
 	static void handleSFDPRead() noexcept
@@ -646,6 +659,7 @@ namespace usb::flashProto
 		epStatus.needsArming(true);
 		// Once we have that information, we then dispatch to handleSFDP()
 		setupCallback = handleSFDPRead;
+		ledSetColour(false, true, true);
 		return true;
 	}
 
@@ -666,6 +680,7 @@ namespace usb::flashProto
 			if (eraseConfig.beginPage >= eraseConfig.endPage || !device)
 			{
 				eraseActive = false;
+				ledSetColour(false, true, false);
 				return;
 			}
 			spiSelect(targetDevice);
