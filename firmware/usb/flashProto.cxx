@@ -130,6 +130,7 @@ namespace usb::flashProto
 				device.pageSize = chip.flashPageSize;
 			}
 		}
+		spiResetClocks();
 		return writeResponse(device);
 	}
 
@@ -232,6 +233,7 @@ namespace usb::flashProto
 			}
 			targetDevice = spiChip_t::none;
 			targetID = {};
+			spiResetClocks();
 		}
 		if (deviceType != flashBus_t::unknown)
 			targetParams = flash::findChip(targetID, targetDevice);

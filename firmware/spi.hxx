@@ -9,6 +9,7 @@
 #include "flash.hxx"
 
 void spiInit() noexcept;
+void spiResetClocks() noexcept;
 void spiSelect(spiChip_t chip) noexcept;
 tivaC::ssi_t *spiDevice() noexcept;
 tivaC::ssi_t *spiDevice(spiChip_t chip) noexcept;

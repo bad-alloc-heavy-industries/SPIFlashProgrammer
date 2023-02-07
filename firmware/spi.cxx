@@ -91,9 +91,6 @@ void spiInit() noexcept
 	ssi1.ctrl0 = vals::ssi::ctrl0FormatMotorola | vals::ssi::ctrl0ClockPolarityLow |
 		vals::ssi::ctrl0ClockPhaseLeading | vals::ssi::ctrl0Data8Bit;
 	ssi1.clockConfig = vals::ssi::clockConfigSysClk;
-	// We have a 25MHz clock PLL'd to 80MHz, which we want divided down as little as possible
-	// Scale the clock by 2 to make it 1/2 the system clock
-	ssi1.cpsr = 2;
 	// Enable the interface
 	ssi1.ctrl1 = vals::ssi::control1ModeController | vals::ssi::control1EnableOperations;
 
@@ -109,10 +106,10 @@ void spiInit() noexcept
 	ssi0.ctrl0 = vals::ssi::ctrl0FormatMotorola | vals::ssi::ctrl0ClockPolarityLow |
 		vals::ssi::ctrl0ClockPhaseLeading | vals::ssi::ctrl0Data8Bit;
 	ssi0.clockConfig = vals::ssi::clockConfigSysClk;
-	// 80MHz -> 500kHz = 160
-	//ssi0.cpsr = 160;
-	ssi0.cpsr = 8;
+	// Enable the interface
 	ssi0.ctrl1 = vals::ssi::control1ModeController | vals::ssi::control1EnableOperations;
+
+	spiResetClocks();
 
 	localChip[0] = identDevice(spiChip_t::local1);
 	localChip[1] = identDevice(spiChip_t::local2);
@@ -120,6 +117,20 @@ void spiInit() noexcept
 		ledSetColour(true, false, false);
 	else
 		ledSetColour(false, true, false);
+}
+
+// Reset the bus clocks after completing target deselection.
+// We set the internal bus to 40MHz as we know the chips on it can handle that
+// and the external bus down to 500kHz as we have no idea until re-discovery what
+// the device attached, if any, can do.
+void spiResetClocks() noexcept
+{
+	// SSI1 is the internal bus, SSI0 is the external.
+	// We have a 25MHz clock PLL'd to 80MHz, which we want divided down as little as possible
+	// Scale the clock by 2 to make it 1/2 the system clock
+	ssi1.cpsr = 2;
+	// 80MHz -> 500kHz = 160
+	ssi0.cpsr = 160;
 }
 
 void spiSelect(const spiChip_t chip) noexcept
