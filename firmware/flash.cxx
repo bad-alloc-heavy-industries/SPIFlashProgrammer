@@ -1,8 +1,17 @@
 // SPDX-License-Identifier: BSD-3-Clause
+#include <limits>
 #include <substrate/utility>
 #include <substrate/units>
 #include "flash.hxx"
 #include "sfdp.hxx"
+
+#ifdef __GNUC__
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
+#define unlikely(x) __builtin_expect((x), 0)
+#else
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
+#define unlikely(x) (x)
+#endif
 
 using namespace substrate;
 
@@ -68,6 +77,40 @@ namespace flash
 		})
 	};
 
+	static inline uint8_t log2(uint32_t value) noexcept
+	{
+		if (unlikely(!value))
+			return UINT8_MAX;
+#if defined(__GNUC__)
+		return (sizeof(uint32_t) * 8U) - static_cast<uint8_t>(__builtin_clz(value));
+#else
+		uint8_t result{};
+		if (value <= UINT32_C(0x0000FFFF))
+		{
+			result += 16U;
+			value <<= 16U;
+		}
+		if (value <= UINT32_C(0x00FFFFFF))
+		{
+			result += 8U;
+			value <<= 8U;
+		}
+		if (value <= UINT32_C(0x0FFFFFFF))
+		{
+			result += 4U;
+			value <<= 4U;
+		}
+		if (value <= UINT32_C(0x3FFFFFFF))
+		{
+			result += 2U;
+			value <<= 2U;
+		}
+		if (value <= UINT32_C(0x7FFFFFFF))
+			++result;
+		return (sizeof(uint32_t) * 8U) - result;
+#endif
+	}
+
 	static std::optional<flashChip_t> readSFDP(const flashID_t chipID, const spiChip_t targetDevice) noexcept
 	{
 		// The SFDP code will reclock the bus for us if the SFDP data can be read
@@ -78,7 +121,7 @@ namespace flash
 		flashChip_t device{};
 		device.type = chipID.type;
 		device.reportedCapacity = chipID.capacity;
-		device.actualCapacity = parameters->capacity;
+		device.actualCapacity = log2(parameters->capacity);
 		device.eraseInstruction = parameters->sectorEraseOpcode;
 		device.erasePageSize = parameters->sectorSize;
 		device.flashPageSize = parameters->pageSize;
