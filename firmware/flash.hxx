@@ -29,6 +29,7 @@ struct flashChip_t
 	uint8_t eraseInstruction;
 	flashProto::page_t erasePageSize;
 	flashProto::page_t flashPageSize;
+	uint8_t chipSpeedMHz;
 
 	flashChip_t() = delete;
 	constexpr bool operator ==(const flashID_t id) const noexcept

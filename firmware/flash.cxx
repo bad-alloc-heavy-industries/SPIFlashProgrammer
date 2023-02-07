@@ -22,7 +22,7 @@ namespace flash
 	{
 		substrate::make_array<flashChip_t>
 		({
-			{0x32, 0x17, 0x17, 0x20, 4_KiB, 256}
+			{0x32, 0x17, 0x17, 0x20, 4_KiB, 256, 50}
 		})
 	};
 
@@ -30,8 +30,8 @@ namespace flash
 	{
 		substrate::make_array<flashChip_t>
 		({
-			{0x20, 0x14, 0x14, 0xD8, 64_KiB, 256},
-			{0x20, 0x15, 0x15, 0xD8, 64_KiB, 256}
+			{0x20, 0x14, 0x14, 0xD8, 64_KiB, 256, 33},
+			{0x20, 0x15, 0x15, 0xD8, 64_KiB, 256, 33}
 		})
 	};
 
@@ -39,8 +39,8 @@ namespace flash
 	{
 		substrate::make_array<flashChip_t>
 		({
-			{0x40, 0x13, 0x13, 0x20, 4_KiB, 256},
-			{0x40, 0x17, 0x17, 0x20, 4_KiB, 256}
+			{0x40, 0x13, 0x13, 0x20, 4_KiB, 256, 80},
+			{0x40, 0x17, 0x17, 0x20, 4_KiB, 256, 80}
 		})
 	};
 
@@ -48,11 +48,12 @@ namespace flash
 	{
 		substrate::make_array<flashChip_t>
 		({
-			{0x40, 0x14, 0x14, 0x20, 4_KiB, 256},
-			{0x40, 0x16, 0x16, 0x20, 4_KiB, 256},
-			{0x40, 0x18, 0x18, 0x20, 4_KiB, 256},
-			{0xAA, 0x21, 0x1B, 0xD8, 128_KiB, 2_KiB},
-			{0x70, 0x18, 0x18, 0x20, 4_KiB, 256}
+			{0x40, 0x14, 0x14, 0x20, 4_KiB, 256, 50},
+			{0x40, 0x15, 0x15, 0x20, 4_KiB, 256, 50},
+			{0x40, 0x16, 0x16, 0x20, 4_KiB, 256, 50},
+			{0x40, 0x18, 0x18, 0x20, 4_KiB, 256, 50},
+			{0xAA, 0x21, 0x1B, 0xD8, 128_KiB, 2_KiB, 104},
+			{0x70, 0x18, 0x18, 0x20, 4_KiB, 256, 50}
 		})
 	};
 
@@ -69,9 +70,11 @@ namespace flash
 
 	static std::optional<flashChip_t> readSFDP(const flashID_t chipID, const spiChip_t targetDevice) noexcept
 	{
+		// The SFDP code will reclock the bus for us if the SFDP data can be read
 		const auto parameters{sfdp::parameters(targetDevice)};
 		if (!parameters)
 			return std::nullopt;
+		// Build a flashChip_t from the SFDP data gathered
 		flashChip_t device{};
 		device.type = chipID.type;
 		device.reportedCapacity = chipID.capacity;
@@ -79,20 +82,29 @@ namespace flash
 		device.eraseInstruction = parameters->sectorEraseOpcode;
 		device.erasePageSize = parameters->sectorSize;
 		device.flashPageSize = parameters->pageSize;
+		// SFDP guarantees 50MHz operation minimum
+		device.chipSpeedMHz = 50U;
 		return device;
 	}
 
 	flashChip_t findChip(const flashID_t chipID, const spiChip_t targetDevice) noexcept
 	{
+		// Loop through the manufacturers
 		for (const auto &mfr : manufacturers)
 		{
 			if (mfr.manufacturerID == chipID.manufacturer)
 			{
+				// Once we've found a matching manufacturer, loop through their devices
 				for (const auto &chip : mfr)
 				{
 					if (chip == chipID)
+					{
+						// If we find the chip in the chipDB, then reclock to its designated speed
+						spiSetClock(targetDevice, chip.chipSpeedMHz);
 						return chip;
+					}
 				}
+				// Once we've exhausted this manufactuer's chipDB, exit out and check SFDP instead
 				break;
 			}
 		}
@@ -101,6 +113,7 @@ namespace flash
 		if (parameters)
 			return *parameters;
 		// If we could not read the SFDP data then fabricate something based on some sensible fallbacks
-		return {chipID.type, chipID.capacity, chipID.capacity, 0xD8, 64_KiB, 256};
+		// NB: This leaves the bus set to 500kHz as a safe bet (hence the 0 for chipSpeedMHz)
+		return {chipID.type, chipID.capacity, chipID.capacity, 0xD8, 64_KiB, 256, 0};
 	}
 } // namespace flash

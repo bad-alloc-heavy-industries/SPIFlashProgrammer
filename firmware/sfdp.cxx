@@ -55,6 +55,8 @@ namespace sfdp
 		sfdpRead(device, sfdpHeaderAddress, header);
 		if (header.magic != sfdpMagic)
 			return std::nullopt;
+		// When we've read a valid SFDP header, we now know we can reclock the bus to 50MHz
+		spiSetClock(device, 50U);
 
 		for (const auto idx : substrate::indexSequence_t{header.parameterHeadersCount()})
 		{
