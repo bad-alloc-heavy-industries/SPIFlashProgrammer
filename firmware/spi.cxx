@@ -133,6 +133,34 @@ void spiResetClocks() noexcept
 	ssi0.cpsr = 160;
 }
 
+// Switch the specified bus to the given clock frequency (in MHz)
+// a value of 0 is treated as the special value 500kHz
+void spiSetClock(const spiChip_t chip, const uint8_t valueMHz) noexcept
+{
+	// As the CPSR register only allows even values, we have to pick an even number of MHz.
+	// Our top speed is 40MHz, so this masks off the bottom bit after doing the maths to figure out
+	// the divider value, and then mask off the bottom bit
+	const auto speed
+	{
+		[&]()
+		{
+			// If the user tries to pick more than 40MHz, set the divider to give them 40MHz.
+			if (valueMHz > 40U)
+				return 2U;
+			// Special-case 0MHz to 500kHz.
+			if (!valueMHz)
+				return 160U;
+			// 1MHz and up
+			return 80U / valueMHz;
+		}() & ~1U
+	};
+	// Now we know the divider setting, reconfigure the appropriate SPI controller
+	if (chip == spiChip_t::local1 || chip == spiChip_t::local2)
+		ssi1.cpsr = speed;
+	if (chip == spiChip_t::target)
+		ssi0.cpsr = speed;
+}
+
 void spiSelect(const spiChip_t chip) noexcept
 {
 	// NOLINTBEGIN(bugprone-branch-clone)
