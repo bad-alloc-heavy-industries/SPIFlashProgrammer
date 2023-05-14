@@ -5,12 +5,14 @@
 #include <tuple>
 #include <string_view>
 #include <stdexcept>
+#include <filesystem>
 #include <substrate/utility>
 #include <substrate/units>
 #include <substrate/console>
 #include <substrate/fd>
+#include <substrate/command_line/arguments>
 #include <version.hxx>
-#include "args.hxx"
+#include "options.hxx"
 #include "help.hxx"
 #include "usbContext.hxx"
 #include "usbProtocol.hxx"
@@ -22,20 +24,6 @@
 
 namespace flashprog
 {
-	constexpr static auto options{substrate::make_array<args::option_t>(
-	{
-		{"--version"sv, argType_t::version},
-		{"--help"sv, argType_t::help},
-		{"-h"sv, argType_t::help},
-		{"listDevices"sv, argType_t::listDevices},
-		{"list"sv, argType_t::list},
-		{"erase"sv, argType_t::erase},
-		{"read"sv, argType_t::read},
-		{"write"sv, argType_t::write},
-		{"verifiedWrite"sv, argType_t::verifiedWrite},
-		{"sfdp"sv, argType_t::sfdp},
-	})};
-
 	inline int32_t printHelp() noexcept
 	{
 		console.info(helpString);
@@ -44,12 +32,15 @@ namespace flashprog
 } // namespace flashprog
 
 using namespace flashProto;
-using flashprog::args::ensure_t;
 using namespace std::literals::chrono_literals;
 using namespace substrate;
-using flashprog::args::argsTree_t;
+using substrate::commandLine::arguments_t;
+using substrate::commandLine::flag_t;
+using substrate::commandLine::choice_t;
+using flashprog::chip_t;
 
 constexpr static auto transferBlockSize{4_KiB};
+static arguments_t args{};
 
 auto requestCount(const usbDeviceHandle_t &device)
 {
@@ -59,12 +50,12 @@ auto requestCount(const usbDeviceHandle_t &device)
 	return std::make_tuple(deviceCount.internalCount, deviceCount.externalCount);
 }
 
-responses::listDevice_t readChipInfo(const usbDeviceHandle_t &device, const flashprog::args::argChip_t &chip)
+responses::listDevice_t readChipInfo(const usbDeviceHandle_t &device, const chip_t &chip)
 {
 	responses::listDevice_t chipInfo{};
 	try
 	{
-		requests::listDevice_t request{chip.number(), chip.bus()};
+		requests::listDevice_t request{chip.index, chip.bus};
 		if (!request.read(device, 0, chipInfo))
 			throw responses::usbError_t{};
 	}
@@ -78,12 +69,12 @@ responses::listDevice_t readChipInfo(const usbDeviceHandle_t &device, const flas
 	return chipInfo;
 }
 
-bool listDevice(const usbDeviceHandle_t &device, const flashprog::args::argChip_t &chip) noexcept
+bool listDevice(const usbDeviceHandle_t &device, const chip_t &chip) noexcept
 {
 	try
 	{
 		const auto chipInfo{readChipInfo(device, chip)};
-		console.info('\t', chip.number(), ": Manufacturer - "sv, chipInfo.manufacturer,
+		console.info('\t', chip.index, ": Manufacturer - "sv, chipInfo.manufacturer,
 			", Capacity - "sv, chipInfo.deviceSize, ", Page size - "sv, uint32_t{chipInfo.pageSize},
 			", Erase page size - "sv, uint32_t{chipInfo.eraseSize});
 		return true;
@@ -134,11 +125,17 @@ void displayChipSize(const uint32_t chipSize) noexcept
 	console.info("Chip is "sv, size, units, " in size"sv);
 }
 
-int32_t eraseDevice(const usbDevice_t &rawDevice, const argsTree_t *const eraseArgs)
+int32_t eraseDevice(const usbDevice_t &rawDevice, const arguments_t &eraseArgs)
 {
-	const auto *const chip{dynamic_cast<flashprog::args::argChip_t *>(eraseArgs->find(argType_t::chip))};
-	if (!chip)
-		throw std::logic_error{"Chip specification for erase is null"};
+	const auto &chip
+	{
+		[](const commandLine::item_t *arg)
+		{
+			if (!arg)
+				throw std::logic_error{"Chip specification for erase is null"};
+			return std::any_cast<chip_t>(std::get<flag_t>(*arg).value());
+		}(eraseArgs["--chip"sv])
+	};
 
 	const auto device{rawDevice.open()};
 	if (!device.valid() ||
@@ -146,7 +143,7 @@ int32_t eraseDevice(const usbDevice_t &rawDevice, const argsTree_t *const eraseA
 		return 1;
 
 	if (!requests::abort_t{}.write(device, 0) ||
-		!targetDevice(device, chip->bus(), chip->number()))
+		!targetDevice(device, chip.bus, chip.index))
 	{
 		if (!device.releaseInterface(0))
 			return 2;
@@ -272,30 +269,45 @@ int32_t eraseDevice(const usbDevice_t &rawDevice, const argsTree_t *const eraseA
 	return 0;
 }
 
-int32_t readDevice(const usbDevice_t &rawDevice, const argsTree_t *const readArgs)
+int32_t readDevice(const usbDevice_t &rawDevice, const arguments_t &readArgs)
 {
-	const auto *const chip{dynamic_cast<flashprog::args::argChip_t *>(readArgs->find(argType_t::chip))};
-	const auto *const file{dynamic_cast<flashprog::args::argFile_t *>(readArgs->find(argType_t::file))};
-	if (!chip)
-		throw std::logic_error{"Chip specification for read is null"};
+	const auto &chip
+	{
+		[](const commandLine::item_t *arg)
+		{
+			if (!arg)
+				throw std::logic_error{"Chip specification for read is null"};
+			return std::any_cast<chip_t>(std::get<flag_t>(*arg).value());
+		}(readArgs["--chip"sv])
+	};
+
+	const auto &fileName
+	{
+		[](const commandLine::item_t *arg)
+		{
+			if (!arg)
+				throw std::logic_error{"File name to write data read from the device is null"};
+			return std::any_cast<std::filesystem::path>(std::get<flag_t>(*arg).value());
+		}(readArgs["file"sv])
+	};
 
 	const auto device{rawDevice.open()};
 	if (!device.valid() ||
 		!device.claimInterface(0))
 		return 1;
 
-	substrate::fd_t fd{file->fileName().data(), O_CREAT | O_WRONLY | O_NOCTTY, substrate::normalMode};
-	if (!fd.valid())
+	substrate::fd_t file{fileName, O_CREAT | O_WRONLY | O_NOCTTY, substrate::normalMode};
+	if (!file.valid())
 	{
-		console.error("Failed to open output file '"sv, file->fileName(), "'"sv);
+		console.error("Failed to open output file '"sv, fileName.u8string(), "'"sv);
 		if (!device.releaseInterface(0))
 			return 2;
 		return 1;
 	}
 
-	const auto chipInfo{readChipInfo(device, *chip)};
+	const auto chipInfo{readChipInfo(device, chip)};
 	if (!requests::abort_t{}.write(device, 0) ||
-		!targetDevice(device, chip->bus(), chip->number()))
+		!targetDevice(device, chip.bus, chip.index))
 	{
 		if (!device.releaseInterface(0))
 			return 2;
@@ -309,9 +321,9 @@ int32_t readDevice(const usbDevice_t &rawDevice, const argsTree_t *const readArg
 		[&]()
 		{
 			if (chipInfo.deviceSize >= transferBlockSize)
-				return readNormalDevice(device, chipInfo, fd);
+				return readNormalDevice(device, chipInfo, file);
 			else
-				return readTinyDevice(device, chipInfo, fd);
+				return readTinyDevice(device, chipInfo, file);
 		}()
 	};
 	if (result != 0)
@@ -500,29 +512,44 @@ int32_t erasePages(const usbDeviceHandle_t &device, const responses::listDevice_
 	return 0;
 }
 
-int32_t writeDevice(const usbDevice_t &rawDevice, const argsTree_t *const writeArgs, const bool verify)
+int32_t writeDevice(const usbDevice_t &rawDevice, const arguments_t &writeArgs, const bool verify)
 {
-	const auto *const chip{dynamic_cast<flashprog::args::argChip_t *>(writeArgs->find(argType_t::chip))};
-	const auto *const file{dynamic_cast<flashprog::args::argFile_t *>(writeArgs->find(argType_t::file))};
-	if (!chip)
-		throw std::logic_error{"Chip specification for write is null"};
+	const auto &chip
+	{
+		[](const commandLine::item_t *arg)
+		{
+			if (!arg)
+				throw std::logic_error{"Chip specification for write is null"};
+			return std::any_cast<chip_t>(std::get<flag_t>(*arg).value());
+		}(writeArgs["--chip"sv])
+	};
+
+	const auto &fileName
+	{
+		[](const commandLine::item_t *arg)
+		{
+			if (!arg)
+				throw std::logic_error{"File name to consume data from to write to device is null"};
+			return std::any_cast<std::filesystem::path>(std::get<flag_t>(*arg).value());
+		}(writeArgs["file"sv])
+	};
 
 	const auto device{rawDevice.open()};
 	if (!device.valid() ||
 		!device.claimInterface(0))
 		return 1;
 
-	const substrate::fd_t fd{file->fileName().data(), O_RDONLY | O_NOCTTY};
-	if (!fd.valid())
+	const substrate::fd_t file{fileName, O_RDONLY | O_NOCTTY};
+	if (!file.valid())
 	{
-		console.error("Failed to open input file '"sv, file->fileName(), "'"sv);
+		console.error("Failed to open input file '"sv, fileName.u8string(), "'"sv);
 		if (!device.releaseInterface(0))
 			return 2;
 		return 1;
 	}
 
-	const auto chipInfo{readChipInfo(device, *chip)};
-	const auto fileLength{fd.length()};
+	const auto chipInfo{readChipInfo(device, chip)};
+	const auto fileLength{file.length()};
 	if (fileLength < 0 || fileLength > chipInfo.deviceSize)
 	{
 		console.error("The file given is larger than the target device"sv);
@@ -532,7 +559,7 @@ int32_t writeDevice(const usbDevice_t &rawDevice, const argsTree_t *const writeA
 	}
 
 	if (!requests::abort_t{}.write(device, 0) ||
-		!targetDevice(device, chip->bus(), chip->number()))
+		!targetDevice(device, chip.bus, chip.index))
 	{
 		if (!device.releaseInterface(0))
 			return 2;
@@ -550,9 +577,9 @@ int32_t writeDevice(const usbDevice_t &rawDevice, const argsTree_t *const writeA
 		[&]()
 		{
 			if (chipInfo.deviceSize >= transferBlockSize)
-				return writeNormalDevice(device, chipInfo, fd, fileLength, verify);
+				return writeNormalDevice(device, chipInfo, file, fileLength, verify);
 			else
-				return writeTinyDevice(device, chipInfo, fd, fileLength, verify);
+				return writeTinyDevice(device, chipInfo, file, fileLength, verify);
 		}()
 	};
 	if (result != 0)
@@ -578,11 +605,17 @@ int32_t writeDevice(const usbDevice_t &rawDevice, const argsTree_t *const writeA
 }
 
 
-int32_t dumpSFDP(const usbDevice_t &rawDevice, const argsTree_t *const sfdpArgs)
+int32_t dumpSFDP(const usbDevice_t &rawDevice, const arguments_t &sfdpArgs)
 {
-	const auto *const chip{dynamic_cast<flashprog::args::argChip_t *>(sfdpArgs->find(argType_t::chip))};
-	if (!chip)
-		throw std::logic_error{"Chip specification for SFDP dump is null"};
+	const auto &chip
+	{
+		[](const commandLine::item_t *arg)
+		{
+			if (!arg)
+				throw std::logic_error{"Chip specification for SFDP dump is null"};
+			return std::any_cast<chip_t>(std::get<flag_t>(*arg).value());
+		}(sfdpArgs["--chip"sv])
+	};
 
 	// Setup the USB interface for use
 	const auto device{rawDevice.open()};
@@ -592,7 +625,7 @@ int32_t dumpSFDP(const usbDevice_t &rawDevice, const argsTree_t *const sfdpArgs)
 
 	// Abort any stale running command and select the requested Flash chip
 	if (!requests::abort_t{}.write(device, 0) ||
-		!targetDevice(device, chip->bus(), chip->number()))
+		!targetDevice(device, chip.bus, chip.index))
 	{
 		if (!device.releaseInterface(0))
 			return 2;
@@ -635,45 +668,39 @@ int32_t dumpSFDP(const usbDevice_t &rawDevice, const argsTree_t *const sfdpArgs)
  * sfdp N - Dump the SFDP data for the given device
  */
 
-const flashprog::args::argListDevices_t defaultOperation{};
+const static commandLine::item_t defaultOperation{commandLine::choice_t{"action"sv, "listDevices"sv, {}}};
 
 int main(const int argCount, const char *const *const argList) noexcept
 {
 	console = {stdout, stderr};
-	if (!parseArguments(argCount, argList, flashprog::options))
+	if (const auto parsedArgs{parseArguments(argCount, argList, flashprog::programOptions)}; !parsedArgs)
 	{
 		console.error("Failed to parse arguments"sv);
 		return 1;
 	}
-	if (args->ensureMaybeOneOf(argType_t::version, argType_t::help) == ensure_t::many)
+	else
+		args = *parsedArgs;
+	const auto &version{args.find("--version"sv)};
+	const auto &help{args.find("--help"sv)};
+	if (version != args.end() && help != args.end())
 	{
 		console.error("Can only specify one of --help and --version, not both."sv);
 		return 1;
 	}
-	if (args->find(argType_t::version))
+	if (version != args.end())
 		return flashprog::versionInfo::printVersion();
-	if (args->find(argType_t::help))
+	if (help != args.end())
 		return flashprog::printHelp();
-	if (args->ensureMaybeOneOf(argType_t::listDevices, argType_t::list, argType_t::erase,
-		argType_t::read, argType_t::write, argType_t::verifiedWrite, argType_t::sfdp) == ensure_t::many)
-	{
-		console.error("Multiple operations specified, please specify only one of "
-			"listDevices, list, erase, read, write, and verifiedWrite only"sv);
-		return 1;
-	}
 
-	const auto *operation{args->findAny(argType_t::listDevices, argType_t::list, argType_t::erase,
-		argType_t::read, argType_t::write, argType_t::verifiedWrite, argType_t::sfdp)};
+	const auto *operation{args["action"sv]};
 	if (!operation)
 		operation = &defaultOperation;
 
 	usbContext_t context{};
-
 	if (!context.valid())
 		return 2;
 
 	std::vector<usbDevice_t> devices{};
-
 	for (auto device : context.deviceList())
 	{
 		if (device.vid() == 0x1209 && device.pid() == 0xAB0C)
@@ -686,18 +713,19 @@ int main(const int argCount, const char *const *const argList) noexcept
 
 	if (devices.size() == 1)
 	{
-		if (operation->type() == argType_t::listDevices)
+		const auto &operationArg{std::get<choice_t>(*operation)};
+		if (operationArg.value() == "listDevices"sv)
 			return listDevices(devices[0]);
-		if (operation->type() == argType_t::erase)
-			return eraseDevice(devices[0], dynamic_cast<const argsTree_t *>(operation));
-		if (operation->type() == argType_t::read)
-			return readDevice(devices[0], dynamic_cast<const argsTree_t *>(operation));
-		if (operation->type() == argType_t::write)
-			return writeDevice(devices[0], dynamic_cast<const argsTree_t *>(operation), false);
-		if (operation->type() == argType_t::verifiedWrite)
-			return writeDevice(devices[0], dynamic_cast<const argsTree_t *>(operation), true);
-		if (operation->type() == argType_t::sfdp)
-			return dumpSFDP(devices[0], dynamic_cast<const argsTree_t *>(operation));
+		if (operationArg.value() == "erase"sv)
+			return eraseDevice(devices[0], operationArg.arguments());
+		if (operationArg.value() == "read"sv)
+			return readDevice(devices[0], operationArg.arguments());
+		if (operationArg.value() == "write"sv)
+			return writeDevice(devices[0], operationArg.arguments(), false);
+		if (operationArg.value() == "verifiedWrite"sv)
+			return writeDevice(devices[0], operationArg.arguments(), true);
+		if (operationArg.value() == "sfdp"sv)
+			return dumpSFDP(devices[0], operationArg.arguments());
 	}
 
 	return 0;
