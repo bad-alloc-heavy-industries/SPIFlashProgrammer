@@ -20,8 +20,7 @@ libusb = dependency('libusb-1.0', version: '>=1.0.21', native: true)
 subdir('include')
 
 flashprogSrc = [
-	'flashprog.cxx', 'args.cxx', 'args/tokenizer.cxx', 'args/types.cxx',
-	'sfdp.cxx', 'progress.cxx', versionHeader
+	'flashprog.cxx', 'sfdp.cxx', 'progress.cxx', versionHeader
 ]
 
 executable(
