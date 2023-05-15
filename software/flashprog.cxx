@@ -134,7 +134,7 @@ int32_t eraseDevice(const usbDevice_t &rawDevice, const arguments_t &eraseArgs)
 			if (!arg)
 				throw std::logic_error{"Chip specification for erase is null"};
 			return std::any_cast<chip_t>(std::get<flag_t>(*arg).value());
-		}(eraseArgs["--chip"sv])
+		}(eraseArgs["chip"sv])
 	};
 
 	const auto device{rawDevice.open()};
@@ -278,7 +278,7 @@ int32_t readDevice(const usbDevice_t &rawDevice, const arguments_t &readArgs)
 			if (!arg)
 				throw std::logic_error{"Chip specification for read is null"};
 			return std::any_cast<chip_t>(std::get<flag_t>(*arg).value());
-		}(readArgs["--chip"sv])
+		}(readArgs["chip"sv])
 	};
 
 	const auto &fileName
@@ -521,7 +521,7 @@ int32_t writeDevice(const usbDevice_t &rawDevice, const arguments_t &writeArgs, 
 			if (!arg)
 				throw std::logic_error{"Chip specification for write is null"};
 			return std::any_cast<chip_t>(std::get<flag_t>(*arg).value());
-		}(writeArgs["--chip"sv])
+		}(writeArgs["chip"sv])
 	};
 
 	const auto &fileName
@@ -614,7 +614,7 @@ int32_t dumpSFDP(const usbDevice_t &rawDevice, const arguments_t &sfdpArgs)
 			if (!arg)
 				throw std::logic_error{"Chip specification for SFDP dump is null"};
 			return std::any_cast<chip_t>(std::get<flag_t>(*arg).value());
-		}(sfdpArgs["--chip"sv])
+		}(sfdpArgs["chip"sv])
 	};
 
 	// Setup the USB interface for use
@@ -680,8 +680,8 @@ int main(const int argCount, const char *const *const argList) noexcept
 	}
 	else
 		args = *parsedArgs;
-	const auto &version{args.find("--version"sv)};
-	const auto &help{args.find("--help"sv)};
+	const auto &version{args.find("version"sv)};
+	const auto &help{args.find("help"sv)};
 	if (version != args.end() && help != args.end())
 	{
 		console.error("Can only specify one of --help and --version, not both."sv);
