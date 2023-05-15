@@ -127,15 +127,7 @@ void displayChipSize(const uint32_t chipSize) noexcept
 
 int32_t eraseDevice(const usbDevice_t &rawDevice, const arguments_t &eraseArgs)
 {
-	const auto &chip
-	{
-		[](const commandLine::item_t *arg)
-		{
-			if (!arg)
-				throw std::logic_error{"Chip specification for erase is null"};
-			return std::any_cast<chip_t>(std::get<flag_t>(*arg).value());
-		}(eraseArgs["chip"sv])
-	};
+	const auto &chip{std::any_cast<chip_t>(std::get<flag_t>(*eraseArgs["chip"sv]).value())};
 
 	const auto device{rawDevice.open()};
 	if (!device.valid() ||
@@ -271,16 +263,7 @@ int32_t eraseDevice(const usbDevice_t &rawDevice, const arguments_t &eraseArgs)
 
 int32_t readDevice(const usbDevice_t &rawDevice, const arguments_t &readArgs)
 {
-	const auto &chip
-	{
-		[](const commandLine::item_t *arg)
-		{
-			if (!arg)
-				throw std::logic_error{"Chip specification for read is null"};
-			return std::any_cast<chip_t>(std::get<flag_t>(*arg).value());
-		}(readArgs["chip"sv])
-	};
-
+	const auto &chip{std::any_cast<chip_t>(std::get<flag_t>(*readArgs["chip"sv]).value())};
 	const auto &fileName
 	{
 		[](const commandLine::item_t *arg)
@@ -514,16 +497,7 @@ int32_t erasePages(const usbDeviceHandle_t &device, const responses::listDevice_
 
 int32_t writeDevice(const usbDevice_t &rawDevice, const arguments_t &writeArgs, const bool verify)
 {
-	const auto &chip
-	{
-		[](const commandLine::item_t *arg)
-		{
-			if (!arg)
-				throw std::logic_error{"Chip specification for write is null"};
-			return std::any_cast<chip_t>(std::get<flag_t>(*arg).value());
-		}(writeArgs["chip"sv])
-	};
-
+	const auto &chip{std::any_cast<chip_t>(std::get<flag_t>(*writeArgs["chip"sv]).value())};
 	const auto &fileName
 	{
 		[](const commandLine::item_t *arg)
@@ -607,15 +581,7 @@ int32_t writeDevice(const usbDevice_t &rawDevice, const arguments_t &writeArgs, 
 
 int32_t dumpSFDP(const usbDevice_t &rawDevice, const arguments_t &sfdpArgs)
 {
-	const auto &chip
-	{
-		[](const commandLine::item_t *arg)
-		{
-			if (!arg)
-				throw std::logic_error{"Chip specification for SFDP dump is null"};
-			return std::any_cast<chip_t>(std::get<flag_t>(*arg).value());
-		}(sfdpArgs["chip"sv])
-	};
+	const auto &chip{std::any_cast<chip_t>(std::get<flag_t>(*sfdpArgs["chip"sv]).value())};
 
 	// Setup the USB interface for use
 	const auto device{rawDevice.open()};
