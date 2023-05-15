@@ -63,7 +63,7 @@ namespace flashprog
 				"and external (8-pin Flash connector) SPI busses.\n"
 				"N is a number from 0 to 255 which specifies a detected Flash chip as given by the\n"
 				"listDevices operation"sv,
-			}.takesParameter(optionValueType_t::userDefined, chipSelectionParser)
+			}.takesParameter(optionValueType_t::userDefined, chipSelectionParser).required()
 		)
 	};
 
@@ -73,7 +73,7 @@ namespace flashprog
 		(
 			deviceOptions,
 			option_t{optionValue_t{"file"sv}, "The local file to use for the operation"sv}
-				.valueType(optionValueType_t::path)
+				.valueType(optionValueType_t::path).required()
 		)
 	};
 
